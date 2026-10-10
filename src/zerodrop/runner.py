@@ -6,6 +6,7 @@ sandbox servers on free ports, so runs never share state.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 import time
@@ -48,6 +49,11 @@ class ScenarioOutcome(BaseModel):
 
 
 def git_commit() -> str:
+    """Short commit of the checkout, or of the image build (ZERODROP_GIT_COMMIT) when there is no .git."""
+    return _checkout_commit() or os.getenv("ZERODROP_GIT_COMMIT", "").strip()[:12]
+
+
+def _checkout_commit() -> str:
     try:
         out = subprocess.run(
             ["git", "-C", str(REPO_ROOT), "rev-parse", "--short=12", "HEAD"],

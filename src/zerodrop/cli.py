@@ -175,11 +175,14 @@ def sandbox(
     fault_plan: Annotated[Path | None, typer.Option(help="YAML/JSON fault plan for NovaBill")] = None,
     source_port: int = 8701,
     target_port: int = 8702,
+    host: Annotated[str, typer.Option(help="listening interface (0.0.0.0 inside a container)")] = "127.0.0.1",
 ) -> None:
     """Serve LegacyBill and NovaBill on fixed ports (for manual exploration)."""
     from zerodrop.sandbox import servers
 
-    servers.serve_forever(seed, size, servers.load_fault_plan(fault_plan), source_port, target_port)
+    servers.serve_forever(
+        seed, size, servers.load_fault_plan(fault_plan), source_port, target_port, bind_host=host
+    )
 
 
 @app.command("serve")

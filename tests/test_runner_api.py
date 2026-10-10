@@ -88,3 +88,14 @@ def test_rate_limit_storm_longer_than_the_attempt_budget_still_succeeds() -> Non
     outcome = run_scenario(scenario, "oracle", sleep=lambda _: None)
     assert outcome.status == RunStatus.SUCCESS, outcome.failed_checks
     assert sum(1 for f in outcome.faults_fired if f.get("kind") == "rate_limit") == 9
+
+
+def test_git_commit_falls_back_to_the_image_build_commit(monkeypatch, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from zerodrop import runner
+
+    # A container image has no .git: the commit it was built from comes from the environment.
+    monkeypatch.setattr(runner, "REPO_ROOT", tmp_path)
+    monkeypatch.setenv("ZERODROP_GIT_COMMIT", "abc123def4567890")
+    assert runner.git_commit() == "abc123def456"
+    monkeypatch.delenv("ZERODROP_GIT_COMMIT")
+    assert runner.git_commit() == ""

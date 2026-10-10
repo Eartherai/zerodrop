@@ -56,11 +56,11 @@ class SandboxHandle:
 class _ServerThread:
     """One uvicorn server on a pre-bound socket, so port 0 resolves before the thread starts."""
 
-    def __init__(self, app: FastAPI, port: int, name: str) -> None:
+    def __init__(self, app: FastAPI, port: int, name: str, bind_host: str = HOST) -> None:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.sock.bind((HOST, port))
+            self.sock.bind((bind_host, port))
         except OSError:
             self.sock.close()  # e.g. the port is taken: do not leak the descriptor
             raise
@@ -126,10 +126,13 @@ def run_sandbox(
     target_token: str = novabill.DEFAULT_TOKEN,
     rotated_token: str = novabill.ROTATED_TOKEN,
     admin_token: str = novabill.DEFAULT_ADMIN_TOKEN,
+    bind_host: str = HOST,
 ) -> Iterator[SandboxHandle]:
     """Start LegacyBill and NovaBill on 127.0.0.1 (port 0 = any free port); stop both on exit.
 
     ``fault_plan`` drives NovaBill; LegacyBill only gets faults from ``source_fault_plan``.
+    ``bind_host`` is the listening interface (``0.0.0.0`` inside a container so the ports can be
+    published); the handle's URLs always use loopback.
     """
     source_app = legacybill.create_app(dataset, fault_plan=source_fault_plan)
     target_app = novabill.create_app(
@@ -146,7 +149,7 @@ def run_sandbox(
             (source_app, source_port, "legacybill"),
             (target_app, target_port, "novabill"),
         ):
-            server = _ServerThread(app, port, name)
+            server = _ServerThread(app, port, name, bind_host)
             started.append(server)
             server.start()
         source, target = started
@@ -174,12 +177,13 @@ def serve_forever(
     source_port: int = 8701,
     target_port: int = 8702,
     golden_path: str | Path | None = None,
+    bind_host: str = HOST,
 ) -> None:
     """Demo helper: serve a generated dataset on fixed ports until interrupted."""
     dataset = generate(seed, size)
     if golden_path is not None:
         dataset.write_golden(golden_path)
-    with run_sandbox(dataset, fault_plan, source_port, target_port) as handle:
+    with run_sandbox(dataset, fault_plan, source_port, target_port, bind_host=bind_host) as handle:
         print(f"LegacyBill (source): {handle.source_url}")
         print(f"NovaBill   (target): {handle.target_url}  [sandbox token: {handle.target_token}]")
         print("Faults are injected from the seeded fault plan. Ctrl+C to stop.", flush=True)

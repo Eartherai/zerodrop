@@ -1,0 +1,48 @@
+# ZeroDrop demo stack.
+#   docker compose up --build        -> dashboard on http://127.0.0.1:8700
+#
+# app      the dashboard API and UI. Every run starts its own fresh LegacyBill and NovaBill
+#          sandbox inside this container, so runs never share state.
+# sandbox  a standalone LegacyBill (8701) and NovaBill (8702) pair for exploring the two
+#          APIs by hand (OpenAPI docs at /docs). Runs do not use it.
+#
+# Keys are optional and read from the host environment or a git-ignored .env next to this
+# file. Without them the oracle planner still runs every scenario at $0.
+services:
+  app:
+    build:
+      context: .
+      args:
+        GIT_COMMIT: ${GIT_COMMIT:-}
+    image: zerodrop:local
+    ports:
+      - "127.0.0.1:8700:8700"
+    environment:
+      ZERODROP_ANTHROPIC_KEY: ${ZERODROP_ANTHROPIC_KEY:-}
+      NEATLOGS_API_KEY: ${NEATLOGS_API_KEY:-}
+      # Public demo mode (see README): guard rails for an internet-facing deployment
+      ZERODROP_PUBLIC_ENABLED: ${ZERODROP_PUBLIC_ENABLED:-false}
+      ZERODROP_PUBLIC_ACCESS_CODE: ${ZERODROP_PUBLIC_ACCESS_CODE:-}
+      ZERODROP_PUBLIC_SPEND_CAP_USD: ${ZERODROP_PUBLIC_SPEND_CAP_USD:-5}
+      ZERODROP_PUBLIC_MAX_RUNS_PER_HOUR: ${ZERODROP_PUBLIC_MAX_RUNS_PER_HOUR:-12}
+    volumes:
+      - zerodrop-runs:/app/runs
+    restart: unless-stopped
+
+  sandbox:
+    image: zerodrop:local
+    depends_on:
+      app:
+        condition: service_healthy
+    command: ["zerodrop", "sandbox", "--host", "0.0.0.0"]
+    ports:
+      - "127.0.0.1:8701:8701"
+      - "127.0.0.1:8702:8702"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8702/openapi.json', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  zerodrop-runs:

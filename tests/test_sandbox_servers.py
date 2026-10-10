@@ -139,3 +139,15 @@ def test_shutdown_is_prompt_with_a_stalled_write_in_flight() -> None:
         assert time.monotonic() - leaving < 1.5
         assert future.result(timeout=2).status_code == 200  # answered, not cancelled
     assert _sandbox_threads() == []
+
+
+def test_bind_host_is_configurable_for_containers_and_defaults_to_loopback() -> None:
+    dataset = generate(3, "small")
+    with run_sandbox(dataset) as handle:
+        assert handle.source_url.startswith("http://127.0.0.1:")
+    # In a container the servers must listen on all interfaces to be published; the handle
+    # still talks to them over loopback.
+    with run_sandbox(dataset, bind_host="0.0.0.0") as handle:
+        assert handle.target_url.startswith("http://127.0.0.1:")
+        with _client() as client:
+            assert client.get(f"{handle.target_url}/api/meta").json() == {"api_version": "v1"}
