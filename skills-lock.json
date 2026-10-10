@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "neatlogs-public-api-cli": {
+      "source": "neatlogs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/neatlogs-public-api-cli/SKILL.md",
+      "computedHash": "38ef03c2ca8b4ae421ec6c513ea513198b7cb9555215b0f986ee9c93224d0cc3"
+    },
+    "neatlogs-py": {
+      "source": "neatlogs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/neatlogs-py/SKILL.md",
+      "computedHash": "fde1d70ce83aced147d7540535b1e3e86b3bf0a764bbf3012dae33cae28edc48"
+    },
+    "neatlogs-py-openai": {
+      "source": "neatlogs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/neatlogs-py-openai/SKILL.md",
+      "computedHash": "66d01cad65a3fcae744d567263f34b9049b78d281f458b6b196ace9eac04121d"
+    }
+  }
+}
