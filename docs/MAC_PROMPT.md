@@ -1,22 +1,26 @@
-# ZeroDrop: Mac kickoff
+# ZeroDrop: Mac prompt
 
-## Step A: paste this into Terminal (once, about 10 minutes)
-
-```bash
-brew install gh 2>/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-gh auth login --web
-mkdir -p ~/code && cd ~/code && gh repo clone Eartherai/zerodrop && cd zerodrop
-bash scripts/mac_setup.sh
-claude
-```
-
-The script asks for two keys at hidden prompts (Anthropic API key, Neatlogs key) and a browser
-approval for Entire. That is the only typing. The keys go into the git-ignored `.env`, not into
-the prompt below: this session is recorded by Entire and those checkpoints become public.
-
-## Step B: paste everything below into Claude Code
+Open Terminal, run `claude`, paste everything below the line. Nothing else to do: Claude Code sets
+up the machine itself. When a macOS popup asks for a key, paste it there (Anthropic key:
+console.anthropic.com > API keys; Neatlogs key: app.neatlogs.com > project settings). The popup
+writes the key only to the git-ignored `.env`, so it never enters this session's transcript, which
+Entire publishes as the hackathon checkpoint.
 
 ---
+
+### Task 0: set up this Mac (do this yourself, ask me only for browser approvals)
+1. If Homebrew is missing, install it. Then `brew install gh`.
+2. If `gh auth status` fails, run `gh auth login --web --git-protocol https` and show me the
+   one-time code to approve in the browser.
+3. `mkdir -p ~/code && cd ~/code && gh repo clone Eartherai/zerodrop` (skip if present), then work
+   in `~/code/zerodrop` for the rest of the session.
+4. Run `bash scripts/mac_setup.sh`. It installs uv, node, gitleaks, jq, the Entire CLI, the
+   Claude Code plugins and Neatlogs skills, builds the UI, asks for the two keys in macOS
+   popups, adds a gitleaks pre-commit hook and runs `entire login` (show me the code to approve)
+   and `entire enable`. If a step fails, fix the cause and re-run; the script is idempotent.
+5. Plugins and skills only load in a new session. Tell me in one line to restart `claude` in
+   `~/code/zerodrop` and paste this prompt again; on the second pass skip Task 0 items that
+   already pass.
 
 You are the lead engineer for team Tokenmaxing in neatHack 2026. Goal: first place. Work
 autonomously until the submission package is complete; ask me only at the decision points marked
@@ -110,6 +114,5 @@ ASK ME.
     visibility, and the final post text.
 
 ### How to report to me
-I have ADHD: lead with the next action I must take (if any), number steps, restate which task
-number you are on, give concrete time estimates, show what now works, no recaps or pleasantries.
+Short updates: what now works, what you need from me (if anything), which task number is next.
 Update `hackathon.md` with a dated, honest entry after each task.

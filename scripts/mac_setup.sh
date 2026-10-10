@@ -27,18 +27,23 @@ done
 for s in neatlogs-py neatlogs-py-openai neatlogs-public-api-cli; do
   npx -y skills add neatlogs/skills --skill "$s" -y || echo "skill $s: install manually"
 done
-npx -y skills add ayghri/i-have-adhd -y || echo "i-have-adhd: install manually"
 
 say "Python and UI dependencies"
 uv sync
 (cd ui && npm ci && npm run build)
 
-say "Runtime keys -> .env (hidden input; press Enter to keep an existing value)"
+say "Runtime keys -> .env (hidden input or a macOS dialog; empty keeps the current value)"
 touch .env && chmod 600 .env
 set_key() {
   local name="$1" value
-  printf '%s: ' "$name"
-  read -rs value; printf '\n'
+  if grep -q "^${name}=." .env; then echo "$name already set"; return 0; fi
+  if [ -t 0 ]; then
+    printf '%s: ' "$name"
+    read -rs value; printf '\n'
+  else
+    # No terminal (run by Claude Code): ask in a macOS dialog so the value never reaches the transcript.
+    value=$(osascript -e "text returned of (display dialog \"Paste ${name} (hidden; saved only to .env)\" default answer \"\" with hidden answer with title \"ZeroDrop setup\")" 2>/dev/null) || value=""
+  fi
   [ -z "$value" ] && return 0
   grep -v "^${name}=" .env > .env.tmp || true
   printf '%s=%s\n' "$name" "$value" >> .env.tmp
