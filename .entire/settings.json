@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "telemetry": false,
+  "checkpoints": {
+    "primary": {
+      "type": "git-refs"
+    }
+  },
+  "redaction": {
+    "custom_redactions": {
+      "anthropic_key": "sk-ant-[A-Za-z0-9_-]{20,}",
+      "neatlogs_secret": "nlsa_[A-Za-z0-9_-]{16,}",
+      "neatlogs_project_key": "nlpk_[A-Za-z0-9_-]{16,}",
+      "aws_access_key_id": "(AKIA|ASIA)[0-9A-Z]{16}"
+    },
+    "pii": {
+      "enabled": true,
+      "email": true,
+      "phone": true,
+      "custom_patterns": {
+        "in_mobile": "\\+91[ -]?[6-9]\\d{9}"
+      }
+    }
+  }
+}
