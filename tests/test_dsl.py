@@ -757,7 +757,9 @@ ZONES = ["UTC", "Asia/Kolkata", "America/New_York", "Europe/London", "Australia/
     zone=st.sampled_from(ZONES),
 )
 def test_parse_datetime_matches_zoneinfo(moment: datetime, zone: str) -> None:
-    moment = moment.replace(microsecond=0)
+    # A wall-clock string cannot carry `fold`: ambiguous local times (DST fall-back) resolve to the
+    # first occurrence (fold=0), Python's default and the verifier's rule too.
+    moment = moment.replace(microsecond=0, fold=0)
     fm = field("t", "t", op("parse_datetime", formats=["%Y-%m-%d %H:%M:%S"], assume_tz=zone))
     out = value_of(fm, {"t": moment.strftime("%Y-%m-%d %H:%M:%S")})
     expected = moment.replace(tzinfo=ZoneInfo(zone)).astimezone(UTC)

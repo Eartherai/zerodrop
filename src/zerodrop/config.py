@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     max_wall_seconds: int = 900
     max_replans: int = 3
     max_attempts_per_request: int = 6
+    # 429 + Retry-After means "wait", not "broken": counted separately (the wall-clock cap still applies).
+    max_rate_limit_waits: int = 40
 
     # Endpoints.
     source_url: str = "http://127.0.0.1:8701"

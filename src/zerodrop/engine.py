@@ -1007,6 +1007,7 @@ class MigrationEngine:
         st = self._state
         pending = list(items)
         attempt = 0
+        rate_waits = 0
         while pending:
             if st.version_dirty:  # attempts are not reset here: a flapping version must not loop forever
                 self._recover(entity, "version_change")
@@ -1025,7 +1026,18 @@ class MigrationEngine:
             self.ledger.mark_attempts(st.run_id, entity.value, [it.source_id for it in pending])
             result, error = self._post_batch(entity, pending, attempt)
             if error is not None:
-                pending = self._handle_request_failure(entity, pending, attempt, error)
+                backoff_step = attempt
+                if _is_rate_limited(error):
+                    attempt -= 1  # a server-requested wait is not a failed attempt
+                    rate_waits += 1
+                    backoff_step = rate_waits  # Retry-After sets the floor; this grows when it is absent
+                    if rate_waits > self.settings.max_rate_limit_waits:
+                        self._fail_items(entity, pending, f"rate-limited {rate_waits} times in a row")
+                        raise _Halt(
+                            FailureClass.TRANSIENT,
+                            f"{entity.value}: still rate-limited after {self.settings.max_rate_limit_waits} waits",
+                        )
+                pending = self._handle_request_failure(entity, pending, backoff_step, error)
                 continue
             pending, changed = self._apply_results(entity, pending, result, attempt)
             if changed:
@@ -1347,6 +1359,7 @@ class MigrationEngine:
         if self._st is None:
             return fn(*args)
         attempt = 0
+        rate_waits = 0
         while True:
             attempt += 1
             try:
@@ -1362,6 +1375,11 @@ class MigrationEngine:
                 raise
             except Exception as exc:
                 failure = classify_exception(exc, write=False)
+                if _is_rate_limited(exc) and rate_waits < self.settings.max_rate_limit_waits:
+                    attempt -= 1  # a server-requested wait is not a failed attempt
+                    rate_waits += 1
+                    self._backoff(entity, rate_waits, getattr(exc, "retry_after", None), f"{label}: {exc}")
+                    continue
                 if failure == FailureClass.TRANSIENT and attempt < self.settings.max_attempts_per_request:
                     self._backoff(entity, attempt, getattr(exc, "retry_after", None), f"{label}: {exc}")
                     continue
@@ -1660,6 +1678,11 @@ def _sort_results(pending: list[_Item], results: Sequence[Any], version_changed:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _is_rate_limited(exc: Exception) -> bool:
+    """True for an HTTP 429: the server asked us to wait (Retry-After), which is not a failure."""
+    return getattr(exc, "status", None) == 429
 
 
 def _clamp(value: int, low: int, high: int) -> int:
