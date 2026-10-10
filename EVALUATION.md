@@ -8,9 +8,20 @@
 - Reproduce: `uv run zerodrop eval --planner oracle --label <name>` writes JSON + Markdown to `evidence/eval/`; compare with `uv run python scripts/compare_evals.py <a.json> <b.json> ...`.
 
 ## What these runs measure (and what they do not)
-The runs below use the **oracle planner**: a deterministic, scripted stand-in for Claude that always proposes the correct mapping. They measure the reliability of everything around the model: engine, recovery policies, crash/resume, the sandbox and the verifier. They cost nothing and are exactly repeatable. **They do not measure Claude's mapping quality.** Real-model evaluations (`--planner claude`) are pending a configured `ZERODROP_ANTHROPIC_KEY` and will be added with their Neatlogs trace IDs.
+The runs below use the **oracle planner**: a deterministic, scripted stand-in for Claude that always proposes the correct mapping. They measure the reliability of everything around the model: engine, recovery policies, crash/resume, the sandbox and the verifier. They cost nothing and are exactly repeatable. **They do not measure Claude's mapping quality.** The first real-model runs are in the section above; a full real-model evaluation is still pending.
 
 The **naive planner** (a plausible but flawed agent: two decimals for every currency) shows what the verifier is for. On S01 the engine believed SUCCESS, and the verifier reported FAILED: JPY invoice totals were 100x too large (`tests/test_runner_api.py::test_naive_planner_is_caught_by_the_verifier`).
+
+## Real-model runs so far (Gemini planner)
+Three single runs at commit `d656f98`, not an evaluation. Files: `evidence/runs/`. Cost is list price; the key was on the free tier, so nothing was charged.
+
+| Scenario | Model | Verified outcome | Checks | Model calls | Cost (list) | Replans | Notes |
+|---|---|---|---|---|---|---|---|
+| S01-clean | `gemini-3.8-flash` | SUCCESS | 24/24 | 6 | $0.083 | 0 | Mapping inferred from samples and docs; trace `a3e4055baf826c2f7c59859c739a7247` |
+| S16-demo-chaos | `gemini-3.8-flash` | FAILED (expected SUCCESS) | 17/24 | 8 | $0.082 | 0 | Daily free-tier quota (20 requests) ran out mid-run. Engine halted and claimed FAILED: no false success. Trace `67a01d50a204521684e4849dc1a82def` |
+| S16-demo-chaos | `gemini-3.6-flash` | SUCCESS | 24/24 | 12 | $0.082 | 1 | Rewrote subscriptions and invoices mappings after the v1 to v2 change; 50 records recovered by lookup, 0 re-sent. Trace `0652c95c208d53311eecccf73fe1cae0` |
+
+A 20-scenario real-model evaluation has not been run: it needs more model calls than the free tier allows per day.
 
 ## Results: baseline, fix 1, fix 2 (oracle planner)
 

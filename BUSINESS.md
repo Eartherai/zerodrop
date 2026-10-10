@@ -42,7 +42,7 @@ A run that ends FAILED is not billed.
 ## Unit economics
 | Item | Value | Source |
 |---|---|---|
-| Model cost per verified migration | **pending measurement** | Will be filled from the real-model evaluation in `evidence/eval/` |
+| Model cost per verified migration | **$0.08 measured** (two verified runs: $0.083 and $0.082 at Gemini Flash list price) | `evidence/runs/S01-clean-gemini.json`, `evidence/runs/S16-demo-chaos-gemini-3.6-flash.json`. Two runs on sandbox data, not an average over an evaluation |
 | Hard ceiling on model cost per run | $1.50 | Enforced in code (`max_cost_usd`), run stops safely at the cap |
 | Compute and storage per migration | $0.50 | Assumption: one small container for under an hour plus the ledger |
 | Support time per migration | 0.5 h at $40/h = $20 | Assumption: reviewing quarantined records with the customer |
