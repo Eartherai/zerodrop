@@ -129,7 +129,9 @@ class MappingSpec(BaseModel):
     version: int = 1
     target_api_version: str  # the target schema version this mapping was written for, e.g. "v1"
     fields: list[FieldMapping]
-    exclude_if: list[Condition] = Field(default_factory=list)  # source records matching any condition are skipped
+    exclude_if: list[Condition] = Field(
+        default_factory=list
+    )  # source records matching any condition are skipped
     rationale: str = ""  # short human-readable justification (shown in UI and traces)
 
 
