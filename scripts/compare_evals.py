@@ -13,7 +13,9 @@ from pathlib import Path
 
 def main(paths: list[str]) -> None:
     runs = [json.loads(Path(p).read_text(encoding="utf-8")) for p in paths]
-    labels = [f"{r['summary']['label'] or r['summary']['planner']} (`{r['summary']['git_commit']}`)" for r in runs]
+    labels = [
+        f"{r['summary']['label'] or r['summary']['planner']} (`{r['summary']['git_commit']}`)" for r in runs
+    ]
     print("| Metric | " + " | ".join(labels) + " |")
     print("|---|" + "---|" * len(runs))
     for key, title in [
