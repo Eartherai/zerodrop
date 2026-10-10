@@ -1,0 +1,1708 @@
+{
+ "scenario": {
+  "id": "naive-planner",
+  "title": "False-success trap (naive mapping)",
+  "description": "A deliberately naive planner treats JPY like a 2-decimal currency. The engine believes it succeeded; the independent verifier catches the money mismatch. Small dataset."
+ },
+ "fault_plan": {
+  "seed": 5,
+  "rules": []
+ },
+ "summary": {
+  "run_id": "run_87307cccaf63",
+  "status": "FAILED",
+  "agent_claimed_status": "SUCCESS",
+  "goal": "Move all customers, subscriptions and invoices from LegacyBill to NovaBill. Do not lose or duplicate anything.",
+  "scenario_id": "naive-planner",
+  "created_at": 1791630972.5304067,
+  "counts": {
+   "customers": {
+    "total": 28,
+    "written": 28,
+    "quarantined": 0,
+    "pending": 0
+   },
+   "subscriptions": {
+    "total": 32,
+    "written": 32,
+    "quarantined": 0,
+    "pending": 0
+   },
+   "invoices": {
+    "total": 105,
+    "written": 105,
+    "quarantined": 0,
+    "pending": 0
+   }
+  },
+  "mapping_versions": {
+   "customers": 2,
+   "subscriptions": 1,
+   "invoices": 1
+  },
+  "llm": {
+   "calls": 0,
+   "cost_usd": 0.0
+  }
+ },
+ "events": [
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 1,
+   "ts": 1791630972.5306573,
+   "kind": "state",
+   "message": "run created: Move all customers, subscriptions and invoices from LegacyBill to NovaBill. Do not lose or duplicate anything.",
+   "state": "CREATED",
+   "entity": null,
+   "data": {
+    "scenario": "naive-planner"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 2,
+   "ts": 1791630972.5308495,
+   "kind": "state",
+   "message": "CREATED -> DISCOVERING",
+   "state": "DISCOVERING",
+   "entity": null,
+   "data": {
+    "previous": "CREATED"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 3,
+   "ts": 1791630972.9286673,
+   "kind": "info",
+   "message": "discovered 167 source records; target API v1",
+   "state": "DISCOVERING",
+   "entity": null,
+   "data": {
+    "counts_reported": {
+     "customers": 30,
+     "invoices": 105,
+     "subscriptions": 32
+    },
+    "records_loaded": {
+     "customers": 30,
+     "invoices": 105,
+     "subscriptions": 32
+    },
+    "target_api_version": "v1",
+    "timezone": "Asia/Kolkata"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 4,
+   "ts": 1791630972.9288626,
+   "kind": "state",
+   "message": "DISCOVERING -> PLANNING",
+   "state": "PLANNING",
+   "entity": null,
+   "data": {
+    "previous": "DISCOVERING"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 5,
+   "ts": 1791630972.9296198,
+   "kind": "llm",
+   "message": "plan: 0 LLM calls so far ($0.0000)",
+   "state": "PLANNING",
+   "entity": null,
+   "data": {
+    "calls": 0,
+    "cost_usd": 0.0
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 6,
+   "ts": 1791630972.9301422,
+   "kind": "plan",
+   "message": "plan: customers -> subscriptions -> invoices",
+   "state": "PLANNING",
+   "entity": null,
+   "data": {
+    "entity_order": [
+     "customers",
+     "subscriptions",
+     "invoices"
+    ],
+    "mappings": {
+     "customers": {
+      "exclude_if": [
+       {
+        "equals": true,
+        "field": "deleted"
+       }
+      ],
+      "fields": [
+       "external_id",
+       "given_name",
+       "family_name",
+       "email",
+       "country",
+       "status",
+       "created_at",
+       "notes"
+      ],
+      "rationale": "Split full_name, normalize email/country case, local dates in Asia/Kolkata to UTC; skip soft-deleted.",
+      "target_api_version": "v1",
+      "version": 1
+     },
+     "invoices": {
+      "exclude_if": [],
+      "fields": [
+       "external_id",
+       "customer_id",
+       "subscription_id",
+       "amount_minor",
+       "currency",
+       "issued_at",
+       "status"
+      ],
+      "rationale": "Amounts to ISO-4217 minor units per currency; issue dates are UTC; empty sub_id -> null.",
+      "target_api_version": "v1",
+      "version": 1
+     },
+     "subscriptions": {
+      "exclude_if": [],
+      "fields": [
+       "external_id",
+       "customer_id",
+       "plan_code",
+       "status",
+       "start_at",
+       "quantity"
+      ],
+      "rationale": "Plan code is the catalog lookup_key. Naive start times are Asia/Kolkata wall-clock.",
+      "target_api_version": "v1",
+      "version": 1
+     }
+    },
+    "notes": "FakePlanner (naive) plan; account timezone Asia/Kolkata."
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 7,
+   "ts": 1791630972.9304843,
+   "kind": "state",
+   "message": "PLANNING -> DRY_RUN",
+   "state": "DRY_RUN",
+   "entity": null,
+   "data": {
+    "previous": "PLANNING"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 8,
+   "ts": 1791630972.9366586,
+   "kind": "decision",
+   "message": "dry run customers v1 on v1: 16/28 samples valid",
+   "state": "DRY_RUN",
+   "entity": "customers",
+   "data": {
+    "checked": 28,
+    "dominant_code": "not_lowercase",
+    "errors": [
+     {
+      "errors": [
+       "email: not_lowercase: 'Olivia.Miller@example.net' does not match pattern ^[^A-Z\\s@]+@[^A-Z\\s@]+\\.[^A-Z\\s@]+$"
+      ],
+      "source_id": "C000001"
+     },
+     {
+      "errors": [
+       "email: not_lowercase: 'Liam.Smith@example.org' does not match pattern ^[^A-Z\\s@]+@[^A-Z\\s@]+\\.[^A-Z\\s@]+$"
+      ],
+      "source_id": "C000004"
+     },
+     {
+      "errors": [
+       "email: not_lowercase: 'Ethan.Wilson@example.org' does not match pattern ^[^A-Z\\s@]+@[^A-Z\\s@]+\\.[^A-Z\\s@]+$"
+      ],
+      "source_id": "C000007"
+     },
+     {
+      "errors": [
+       "email: not_lowercase: 'STAKAHASHI@MAIL.EXAMPLE' does not match pattern ^[^A-Z\\s@]+@[^A-Z\\s@]+\\.[^A-Z\\s@]+$"
+      ],
+      "source_id": "C000008"
+     },
+     {
+      "errors": [
+       "email: not_lowercase: 'Ananya_patel@example.com' does not match pattern ^[^A-Z\\s@]+@[^A-Z\\s@]+\\.[^A-Z\\s@]+$"
+      ],
+      "source_id": "C000010"
+     }
+    ],
+    "excluded": 2,
+    "failed": 12,
+    "mapping_problem": true,
+    "mapping_version": 1,
+    "ok": false,
+    "passed": 16,
+    "systematic_codes": [
+     "not_lowercase"
+    ],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 9,
+   "ts": 1791630972.9408877,
+   "kind": "decision",
+   "message": "dry run subscriptions v1 on v1: 32/32 samples valid",
+   "state": "DRY_RUN",
+   "entity": "subscriptions",
+   "data": {
+    "checked": 32,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 1,
+    "ok": true,
+    "passed": 32,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 10,
+   "ts": 1791630972.95537,
+   "kind": "decision",
+   "message": "dry run invoices v1 on v1: 105/105 samples valid",
+   "state": "DRY_RUN",
+   "entity": "invoices",
+   "data": {
+    "checked": 105,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 1,
+    "ok": true,
+    "passed": 105,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 11,
+   "ts": 1791630972.955774,
+   "kind": "decision",
+   "message": "asking the planner to repair the customers mapping (10 failing samples, 2 other pending mappings)",
+   "state": "DRY_RUN",
+   "entity": "customers",
+   "data": {
+    "codes": [
+     "not_lowercase"
+    ]
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 12,
+   "ts": 1791630972.9560022,
+   "kind": "llm",
+   "message": "repair: 0 LLM calls so far ($0.0000)",
+   "state": "DRY_RUN",
+   "entity": null,
+   "data": {
+    "calls": 0,
+    "cost_usd": 0.0
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 13,
+   "ts": 1791630972.9564497,
+   "kind": "plan",
+   "message": "mapping customers v1 -> v2 (for v1)",
+   "state": "DRY_RUN",
+   "entity": "customers",
+   "data": {
+    "changes": {
+     "added": [],
+     "changed": [
+      "email"
+     ],
+     "removed": []
+    },
+    "rationale": "Split full_name, normalize email/country case, local dates in Asia/Kolkata to UTC; skip soft-deleted.",
+    "version_from": 1,
+    "version_to": 2
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 14,
+   "ts": 1791630972.959748,
+   "kind": "decision",
+   "message": "dry run customers v2 on v1: 28/28 samples valid",
+   "state": "DRY_RUN",
+   "entity": "customers",
+   "data": {
+    "checked": 28,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 2,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 2,
+    "ok": true,
+    "passed": 28,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 15,
+   "ts": 1791630972.9631143,
+   "kind": "decision",
+   "message": "dry run subscriptions v1 on v1: 32/32 samples valid",
+   "state": "DRY_RUN",
+   "entity": "subscriptions",
+   "data": {
+    "checked": 32,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 1,
+    "ok": true,
+    "passed": 32,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 16,
+   "ts": 1791630972.9755566,
+   "kind": "decision",
+   "message": "dry run invoices v1 on v1: 105/105 samples valid",
+   "state": "DRY_RUN",
+   "entity": "invoices",
+   "data": {
+    "checked": 105,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 1,
+    "ok": true,
+    "passed": 105,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 17,
+   "ts": 1791630972.9757185,
+   "kind": "state",
+   "message": "DRY_RUN -> EXECUTING",
+   "state": "EXECUTING",
+   "entity": null,
+   "data": {
+    "previous": "DRY_RUN"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 18,
+   "ts": 1791630973.0290127,
+   "kind": "batch",
+   "message": "customers batch (attempt 1): 28/28 written",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 28,
+    "written": 28
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 19,
+   "ts": 1791630973.0292053,
+   "kind": "decision",
+   "message": "customers complete: 28 written, 0 quarantined",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "failed": 0,
+    "pending": 0,
+    "quarantined": 0,
+    "total": 28,
+    "written": 28
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 20,
+   "ts": 1791630973.121034,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 32/32 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 32,
+    "written": 32
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 21,
+   "ts": 1791630973.1212177,
+   "kind": "decision",
+   "message": "subscriptions complete: 32 written, 0 quarantined",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "failed": 0,
+    "pending": 0,
+    "quarantined": 0,
+    "total": 32,
+    "written": 32
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 22,
+   "ts": 1791630973.2133186,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 23,
+   "ts": 1791630973.263651,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 24,
+   "ts": 1791630973.3090124,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 5/5 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 5,
+    "written": 5
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 25,
+   "ts": 1791630973.3092606,
+   "kind": "decision",
+   "message": "invoices complete: 105 written, 0 quarantined",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "failed": 0,
+    "pending": 0,
+    "quarantined": 0,
+    "total": 105,
+    "written": 105
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 26,
+   "ts": 1791630973.3095193,
+   "kind": "decision",
+   "message": "engine believes the run is SUCCESS; handing over to the verifier",
+   "state": "EXECUTING",
+   "entity": null,
+   "data": {}
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 27,
+   "ts": 1791630973.3096213,
+   "kind": "state",
+   "message": "EXECUTING -> VERIFYING",
+   "state": "VERIFYING",
+   "entity": null,
+   "data": {
+    "previous": "EXECUTING"
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 28,
+   "ts": 1791630973.620482,
+   "kind": "verify",
+   "message": "independent verifier: FAILED (21/24 checks passed)",
+   "state": "VERIFYING",
+   "entity": null,
+   "data": {
+    "agent_claimed_status": "SUCCESS",
+    "failed_checks": [
+     "source_fidelity",
+     "money_by_currency",
+     "golden_records"
+    ],
+    "false_success_claim": true,
+    "report_hash": "0bd47a0ef2e30100123c5a1e5ea457d44a1708122b1424415af3fc18241fa78a",
+    "source_counts": {
+     "customers": 28,
+     "invoices": 105,
+     "subscriptions": 32
+    },
+    "status": "FAILED",
+    "target_counts": {
+     "customers": 28,
+     "invoices": 105,
+     "subscriptions": 32
+    }
+   }
+  },
+  {
+   "run_id": "run_87307cccaf63",
+   "seq": 29,
+   "ts": 1791630973.6208508,
+   "kind": "state",
+   "message": "VERIFYING -> FAILED",
+   "state": "FAILED",
+   "entity": null,
+   "data": {
+    "previous": "VERIFYING"
+   }
+  }
+ ],
+ "mappings": [
+  {
+   "entity": "customers",
+   "version": 1,
+   "spec": {
+    "entity": "customers",
+    "version": 1,
+    "target_api_version": "v1",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "cust_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "given_name",
+      "source": "full_name",
+      "ops": [
+       {
+        "op": "split_name",
+        "part": "first",
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "family_name",
+      "source": "full_name",
+      "ops": [
+       {
+        "op": "split_name",
+        "part": "last",
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "email",
+      "source": "email",
+      "ops": [
+       {
+        "op": "strip",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "country",
+      "source": "country",
+      "ops": [
+       {
+        "op": "strip",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       },
+       {
+        "op": "upper",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "status",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "A",
+          "target": "active"
+         },
+         {
+          "source": "S",
+          "target": "suspended"
+         },
+         {
+          "source": "X",
+          "target": "closed"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "created_at",
+      "source": "created",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%m/%d/%Y"
+        ],
+        "assume_tz": "Asia/Kolkata",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "notes",
+      "source": "notes",
+      "ops": [
+       {
+        "op": "null_if_empty",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": false
+     }
+    ],
+    "exclude_if": [
+     {
+      "field": "deleted",
+      "equals": true
+     }
+    ],
+    "rationale": "Split full_name, normalize email/country case, local dates in Asia/Kolkata to UTC; skip soft-deleted."
+   }
+  },
+  {
+   "entity": "customers",
+   "version": 2,
+   "spec": {
+    "entity": "customers",
+    "version": 2,
+    "target_api_version": "v1",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "cust_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "given_name",
+      "source": "full_name",
+      "ops": [
+       {
+        "op": "split_name",
+        "part": "first",
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "family_name",
+      "source": "full_name",
+      "ops": [
+       {
+        "op": "split_name",
+        "part": "last",
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "email",
+      "source": "email",
+      "ops": [
+       {
+        "op": "strip",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       },
+       {
+        "op": "lower",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "country",
+      "source": "country",
+      "ops": [
+       {
+        "op": "strip",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       },
+       {
+        "op": "upper",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "status",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "A",
+          "target": "active"
+         },
+         {
+          "source": "S",
+          "target": "suspended"
+         },
+         {
+          "source": "X",
+          "target": "closed"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "created_at",
+      "source": "created",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%m/%d/%Y"
+        ],
+        "assume_tz": "Asia/Kolkata",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "notes",
+      "source": "notes",
+      "ops": [
+       {
+        "op": "null_if_empty",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": false
+     }
+    ],
+    "exclude_if": [
+     {
+      "field": "deleted",
+      "equals": true
+     }
+    ],
+    "rationale": "Split full_name, normalize email/country case, local dates in Asia/Kolkata to UTC; skip soft-deleted."
+   }
+  },
+  {
+   "entity": "subscriptions",
+   "version": 1,
+   "spec": {
+    "entity": "subscriptions",
+    "version": 1,
+    "target_api_version": "v1",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "sub_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "customer_id",
+      "source": "cust_id",
+      "ops": [
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "customers",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "plan_code",
+      "source": "plan_code",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "state",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "live",
+          "target": "active"
+         },
+         {
+          "source": "past_due",
+          "target": "delinquent"
+         },
+         {
+          "source": "cancelled",
+          "target": "canceled"
+         },
+         {
+          "source": "trial",
+          "target": "trialing"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "start_at",
+      "source": "started",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%Y-%m-%d %H:%M:%S"
+        ],
+        "assume_tz": "Asia/Kolkata",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "quantity",
+      "source": "seats",
+      "ops": [
+       {
+        "op": "to_int",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     }
+    ],
+    "exclude_if": [],
+    "rationale": "Plan code is the catalog lookup_key. Naive start times are Asia/Kolkata wall-clock."
+   }
+  },
+  {
+   "entity": "invoices",
+   "version": 1,
+   "spec": {
+    "entity": "invoices",
+    "version": 1,
+    "target_api_version": "v1",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "inv_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "customer_id",
+      "source": "cust_id",
+      "ops": [
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "customers",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "subscription_id",
+      "source": "sub_id",
+      "ops": [
+       {
+        "op": "null_if_empty",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       },
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "subscriptions",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": false
+     },
+     {
+      "target": "amount_minor",
+      "source": "amount",
+      "ops": [
+       {
+        "op": "decimal_to_minor",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": 2,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "currency",
+      "source": "currency",
+      "ops": [
+       {
+        "op": "strip",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "issued_at",
+      "source": "issued",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%Y-%m-%d"
+        ],
+        "assume_tz": "UTC",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "paid",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "Y",
+          "target": "paid"
+         },
+         {
+          "source": "N",
+          "target": "open"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     }
+    ],
+    "exclude_if": [],
+    "rationale": "Amounts to ISO-4217 minor units per currency; issue dates are UTC; empty sub_id -> null."
+   }
+  }
+ ],
+ "report": {
+  "run_id": "run_87307cccaf63",
+  "status": "FAILED",
+  "checks": [
+   {
+    "name": "count",
+    "passed": true,
+    "entity": "customers",
+    "expected": 28,
+    "actual": 28,
+    "detail": "source 28 (2 soft-deleted excluded), quarantined 0, target 28"
+   },
+   {
+    "name": "no_duplicate_external_ids",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "missing_records_quarantined",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "no_unexpected_records",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "unique_emails",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "source_fidelity",
+    "passed": true,
+    "entity": "customers",
+    "expected": 28,
+    "actual": 28,
+    "detail": ""
+   },
+   {
+    "name": "count",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 32,
+    "actual": 32,
+    "detail": "source 32 (0 soft-deleted excluded), quarantined 0, target 32"
+   },
+   {
+    "name": "no_duplicate_external_ids",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "missing_records_quarantined",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "no_unexpected_records",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "source_fidelity",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 32,
+    "actual": 32,
+    "detail": ""
+   },
+   {
+    "name": "referential_integrity",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "count",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 105,
+    "actual": 105,
+    "detail": "source 105 (0 soft-deleted excluded), quarantined 0, target 105"
+   },
+   {
+    "name": "no_duplicate_external_ids",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "missing_records_quarantined",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "no_unexpected_records",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "source_fidelity",
+    "passed": false,
+    "entity": "invoices",
+    "expected": 105,
+    "actual": 87,
+    "detail": "18 problem(s): I000005.amount_minor: expected 23760, got 2376000; I000006.amount_minor: expected 180000, got 18000000; I000013.amount_minor: expected 742500, got 74250000; I000026.amount_minor: expected 148500, got 14850000; I000029.amount_minor: expected 742500, got 74250000 ..."
+   },
+   {
+    "name": "referential_integrity",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "money_by_currency",
+    "passed": false,
+    "entity": "invoices",
+    "expected": {
+     "EUR": 472052,
+     "INR": 23948820,
+     "JPY": 4492710,
+     "USD": 1747100
+    },
+    "actual": {
+     "EUR": 472052,
+     "INR": 23948820,
+     "JPY": 449271000,
+     "USD": 1747100
+    },
+    "detail": "1 problem(s): JPY: expected 4492710, got 449271000 (x100)"
+   },
+   {
+    "name": "golden_records",
+    "passed": true,
+    "entity": "customers",
+    "expected": 28,
+    "actual": 28,
+    "detail": ""
+   },
+   {
+    "name": "golden_records",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 32,
+    "actual": 32,
+    "detail": ""
+   },
+   {
+    "name": "golden_records",
+    "passed": false,
+    "entity": "invoices",
+    "expected": 105,
+    "actual": 87,
+    "detail": "18 problem(s): I000005.amount_minor: expected 23760, got 2376000; I000006.amount_minor: expected 180000, got 18000000; I000013.amount_minor: expected 742500, got 74250000; I000026.amount_minor: expected 148500, got 14850000; I000029.amount_minor: expected 742500, got 74250000 ..."
+   },
+   {
+    "name": "golden_quarantine",
+    "passed": true,
+    "entity": null,
+    "expected": [],
+    "actual": [],
+    "detail": ""
+   },
+   {
+    "name": "quarantine_reasons",
+    "passed": true,
+    "entity": null,
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   }
+  ],
+  "quarantined": [],
+  "source_counts": {
+   "customers": 28,
+   "subscriptions": 32,
+   "invoices": 105
+  },
+  "target_counts": {
+   "customers": 28,
+   "subscriptions": 32,
+   "invoices": 105
+  },
+  "money_source_minor": {
+   "EUR": 472052,
+   "INR": 23948820,
+   "JPY": 4492710,
+   "USD": 1747100
+  },
+  "money_target_minor": {
+   "EUR": 472052,
+   "INR": 23948820,
+   "JPY": 449271000,
+   "USD": 1747100
+  },
+  "report_hash": "0bd47a0ef2e30100123c5a1e5ea457d44a1708122b1424415af3fc18241fa78a"
+ },
+ "metrics": {
+  "counts": {
+   "customers": {
+    "total": 28,
+    "written": 28,
+    "quarantined": 0,
+    "failed": 0,
+    "pending": 0
+   },
+   "subscriptions": {
+    "total": 32,
+    "written": 32,
+    "quarantined": 0,
+    "failed": 0,
+    "pending": 0
+   },
+   "invoices": {
+    "total": 105,
+    "written": 105,
+    "quarantined": 0,
+    "failed": 0,
+    "pending": 0
+   }
+  },
+  "excluded": {
+   "customers": 2,
+   "subscriptions": 0,
+   "invoices": 0
+  },
+  "quarantined": 0,
+  "batch_requests": 5,
+  "records_written": 165,
+  "retries": 0,
+  "backoff_seconds": 0.0,
+  "ambiguous_writes": 0,
+  "lookups": 0,
+  "recovered_by_lookup": 0,
+  "idempotent_replays": 0,
+  "already_present": 0,
+  "skipped_already_resolved": 0,
+  "replans": 0,
+  "dry_run_repairs": 1,
+  "version_changes": 0,
+  "token_refreshes": 0,
+  "mapping_versions": {
+   "customers": 2,
+   "subscriptions": 1,
+   "invoices": 1
+  },
+  "target_api_version": "v1",
+  "llm_calls": 0,
+  "cost_usd": 0.0,
+  "wall_seconds": 1.091,
+  "resumed": false,
+  "false_success_claim": true
+ }
+}
