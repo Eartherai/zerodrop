@@ -1,0 +1,51 @@
+[project]
+name = "zerodrop"
+version = "0.1.0"
+description = "Autonomous SaaS data-migration agent that recovers from failures and proves nothing was lost."
+readme = "README.md"
+authors = [
+    { name = "Team Tokenmaxing" }
+]
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "anthropic>=1.13.0",
+    "fastapi>=0.143.0",
+    "httpx>=0.28.1",
+    "jsonschema>=4.26.0",
+    "neatlogs[anthropic]>=1.4.26",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.15.0",
+    "pyyaml>=6.0.3",
+    "typer>=0.27.3",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+zerodrop = "zerodrop.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.11.32,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.168.5",
+    "pytest>=9.1.1",
+    "ruff>=0.17.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: tests that start real HTTP servers or run long scenarios",
+    "live: tests that call the real Anthropic API (never run by default)",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
