@@ -18,6 +18,10 @@ Choices where the contract is silent:
 - Rotated credentials are installed with ``target.set_token(token)`` when the target has
   it, otherwise by replacing the connector's ``_token_provider``.
 - Budgets are per invocation for wall time; LLM calls/cost accumulate across resumes.
+- A planner call that raises the agent layer's ``BudgetExceeded`` halts as BUDGET; one whose agent
+  loop ends without a submission (``AgentRefused``, ``AgentTurnsExhausted``, ``AgentGaveUp``,
+  ``AgentTruncated``) halts FAILED with the reason (UNKNOWN for ``plan``, CONTRACT for ``repair``).
+  Both are matched by class name, so the engine never imports the agent package.
 - A failure before any write ends the run FAILED without verification; once executing
   started, every stop goes through the verifier for an honest report, except
   WAITING_FOR_APPROVAL (credentials are needed first; resume later).
@@ -103,6 +107,11 @@ DSL_TO_TARGET_CODE: dict[str, str] = {
     "out_of_range": "invalid_value",
 }
 _VERIFIER_STATUSES = frozenset({RunStatus.SUCCESS, RunStatus.PARTIAL_SUCCESS, RunStatus.FAILED})
+# Agent-layer exceptions (zerodrop.agent.llm), matched by class name so the engine never imports it.
+BUDGET_ERROR_NAMES: frozenset[str] = frozenset({"BudgetExceeded"})
+AGENT_ERROR_NAMES: frozenset[str] = frozenset(
+    {"AgentError", "AgentRefused", "AgentTurnsExhausted", "AgentGaveUp", "AgentTruncated"}
+)
 
 
 class SimulatedCrash(RuntimeError):
@@ -616,11 +625,8 @@ class MigrationEngine:
         self._set_status(RunStatus.PLANNING)
         ctx = self._discovery_context()
         self._check_budget(llm=True)
-        try:
-            with telemetry.trace("planner.plan", kind="AGENT", run_id=st.run_id):
-                raw = self.planner.plan(ctx)
-        finally:  # persist usage even when the planner fails, so budgets hold across resumes
-            self._record_llm_usage("plan")
+        with telemetry.trace("planner.plan", kind="AGENT", run_id=st.run_id):
+            raw = self._call_planner("plan", lambda: self.planner.plan(ctx))
         plan = raw if isinstance(raw, MigrationPlan) else MigrationPlan.model_validate(raw)
         self._adopt_plan(plan, save=True)
         self.ledger.set_plan(st.run_id, plan.model_dump_json())
@@ -782,12 +788,63 @@ class MigrationEngine:
             entity=entity,
             codes=sorted({s.error.code for s in samples if s.error}),
         )
-        try:
-            with telemetry.trace("planner.repair", kind="AGENT", entity=entity.value, failed=len(samples)):
-                raw = self.planner.repair(ctx)
-        finally:
-            self._record_llm_usage("repair")
+        with telemetry.trace("planner.repair", kind="AGENT", entity=entity.value, failed=len(samples)):
+            raw = self._call_planner("repair", lambda: self.planner.repair(ctx), entity)
         return [s if isinstance(s, MappingSpec) else MappingSpec.model_validate(s) for s in (raw or [])]
+
+    def _call_planner(self, phase: str, call: Callable[[], Any], entity: Entity | None = None) -> Any:
+        """Run `planner.plan` / `planner.repair`; agent-layer failures become an explained, safe halt.
+
+        LLM usage is persisted even when the planner fails, so budgets hold across resumes.
+        """
+        try:
+            return call()
+        except (SimulatedCrash, _Halt, _AwaitApproval):
+            raise  # raised by the engine's own read tools while the planner was using them
+        except Exception as exc:
+            halt = self._planner_halt(exc, phase, entity)
+            if halt is None:
+                raise
+            raise halt from exc
+        finally:
+            self._record_llm_usage(phase)
+
+    def _planner_halt(self, exc: Exception, phase: str, entity: Entity | None) -> _Halt | None:
+        """BUDGET for the agent layer's budget guard; FAILED with the reason when the agent loop gave up.
+
+        Matched by class name (the agent layer is never imported here). Other errors return None.
+        """
+        names = {cls.__name__ for cls in type(exc).__mro__}
+        task = "produce a plan" if phase == "plan" else f"repair the {entity.value if entity else ''} mapping"
+        reason = str(exc).strip() or "no reason given"
+        if names & BUDGET_ERROR_NAMES:
+            message = f"LLM budget exhausted while the planner tried to {task}: {reason}"
+            with telemetry.trace(f"recovery.{FailureClass.BUDGET.value}", kind="CHAIN", reason=message):
+                self._emit(
+                    "decision",
+                    f"{message}; stopping safely",
+                    entity=entity,
+                    failure_class=FailureClass.BUDGET.value,
+                    phase=phase,
+                )
+            return _Halt(FailureClass.BUDGET, message)
+        if not names & AGENT_ERROR_NAMES:
+            return None
+        error_name = type(exc).__name__
+        # A failed repair leaves the mapping invalid for the target contract; a failed plan has no
+        # observed target failure behind it.
+        failure = FailureClass.UNKNOWN if phase == "plan" else FailureClass.CONTRACT
+        message = f"the planner could not {task} ({error_name}): {reason}"
+        self._emit(
+            "decision",
+            f"{message}; stopping safely",
+            entity=entity,
+            failure_class=failure.value,
+            phase=phase,
+            agent_error=error_name,
+            refusal_category=getattr(exc, "category", None),
+        )
+        return _Halt(failure, message)
 
     def _accept_specs(self, specs: Iterable[MappingSpec], allowed: list[Entity]) -> None:
         st = self._state
@@ -1784,9 +1841,16 @@ def _planner_tools(planner: Any) -> PlannerTools | None:
 
 
 def _install_token(target: Any, token: str) -> bool:
+    """Install rotated credentials: `target.set_token` when available, else replace `_token_provider`.
+
+    The private-attribute fallback keeps older or fake targets without `set_token` working.
+    """
     setter = getattr(target, "set_token", None)
     if callable(setter):
-        setter(token)
+        try:
+            setter(token)
+        except ValueError:  # the target refused the token (e.g. empty): treat as not refreshed
+            return False
         return True
     if hasattr(target, "_token_provider"):
         target._token_provider = lambda: token

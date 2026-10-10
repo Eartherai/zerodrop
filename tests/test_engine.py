@@ -20,6 +20,8 @@ from hypothesis import settings as hyp_settings
 from hypothesis import strategies as st
 
 from zerodrop import telemetry
+from zerodrop.agent.llm import AgentError, AgentGaveUp, AgentRefused, AgentTruncated, AgentTurnsExhausted
+from zerodrop.agent.llm import BudgetExceeded as AgentBudgetExceeded
 from zerodrop.config import Settings
 from zerodrop.connectors.errors import SourceError, TargetHTTPError, TargetTimeout
 from zerodrop.connectors.target import BatchResult, ItemResult
@@ -982,6 +984,210 @@ def test_planner_budget_error_is_classified_as_budget() -> None:
     assert result.status == RunStatus.FAILED and result.report is not None
     halted = [e for e in h.events if e.kind == "failure" and "halted" in e.message]
     assert halted and halted[0].data["failure_class"] == "BUDGET"
+
+
+class FailingPlanner(ScriptedPlanner):
+    """Charges one LLM call, then raises the given error from plan() and/or repair()."""
+
+    def __init__(self, plan_error: Exception | None = None, repair_error: Exception | None = None) -> None:
+        super().__init__()
+        self.plan_error = plan_error
+        self.repair_error = repair_error
+
+    def plan(self, ctx: Any) -> MigrationPlan:
+        if self.plan_error is None:
+            return super().plan(ctx)
+        self._charge()
+        raise self.plan_error
+
+    def repair(self, ctx: RepairContext) -> list[MappingSpec]:
+        if self.repair_error is None:
+            return super().repair(ctx)
+        self._charge()
+        self.repair_contexts.append(ctx)
+        raise self.repair_error
+
+
+def halt_event(h: Harness) -> Any:
+    halted = [e for e in h.events if e.kind == "failure" and e.message.startswith("run halted")]
+    assert len(halted) == 1, [e.message for e in halted]
+    return halted[0]
+
+
+def run_error(h: Harness, run_id: str) -> str | None:
+    run = h.ledger.get_run(run_id)
+    assert run is not None
+    return run.error
+
+
+def test_agent_budget_exceeded_while_planning_halts_as_budget() -> None:
+    planner = FailingPlanner(plan_error=AgentBudgetExceeded("LLM call budget reached (30/30 calls)"))
+    h = Harness(planner=planner)
+    result = h.run()
+    assert result.status == RunStatus.FAILED and result.agent_claimed_status == RunStatus.FAILED
+    assert result.report is None and h.verifier.calls == 0 and h.target.batch_calls == []
+    assert halt_event(h).data["failure_class"] == "BUDGET"
+    assert run_error(h, result.run_id) == (
+        "LLM budget exhausted while the planner tried to produce a plan: LLM call budget reached (30/30 calls)"
+    )
+    decision = [e for e in h.events if e.kind == "decision" and e.data.get("phase") == "plan"]
+    assert decision and decision[0].data["failure_class"] == "BUDGET"
+    assert decision[0].message.endswith("stopping safely")
+    run = h.ledger.get_run(result.run_id)
+    assert run is not None and run.llm_calls == 1  # usage is persisted although the planner raised
+
+
+def test_agent_budget_exceeded_while_repairing_halts_as_budget_and_is_verified() -> None:
+    planner = FailingPlanner(repair_error=AgentBudgetExceeded("LLM cost budget would be exceeded"))
+    h = Harness([Rule("schema_flip", "subscriptions")], planner=planner)
+    result = h.run()
+    assert result.status == RunStatus.FAILED and result.agent_claimed_status == RunStatus.FAILED
+    assert result.report is not None and h.verifier.calls == 1  # writes happened: honest report
+    assert halt_event(h).data["failure_class"] == "BUDGET"
+    assert run_error(h, result.run_id) == (
+        "LLM budget exhausted while the planner tried to repair the subscriptions mapping: "
+        "LLM cost budget would be exceeded"
+    )
+    assert set(h.target.external_ids("customers")) == expected_ids(h.data, "customers")
+    assert result.metrics["llm_calls"] == 2
+
+
+AGENT_LOOP_ERRORS = [
+    (AgentRefused("the model declined the request (category: cyber)", "cyber"), "cyber"),
+    (AgentTurnsExhausted("no accepted submit_plan within 12 model turns"), None),
+    (AgentGaveUp("the model stopped twice without calling submit_plan"), None),
+    (AgentTruncated("the model response hit max_tokens (after one retry with a larger limit)"), None),
+]
+
+
+@pytest.mark.parametrize(
+    ("error", "category"), AGENT_LOOP_ERRORS, ids=["refused", "turns_exhausted", "gave_up", "truncated"]
+)
+def test_agent_loop_failure_while_planning_fails_with_the_reason(
+    error: Exception, category: str | None
+) -> None:
+    h = Harness(planner=FailingPlanner(plan_error=error))
+    result = h.run()  # never raises
+    assert result.status == RunStatus.FAILED and result.agent_claimed_status == RunStatus.FAILED
+    assert result.report is None and h.verifier.calls == 0 and h.target.batch_calls == []
+    name = type(error).__name__
+    expected = f"the planner could not produce a plan ({name}): {error}"
+    assert run_error(h, result.run_id) == expected
+    halted = halt_event(h)
+    assert halted.data["failure_class"] == "UNKNOWN" and expected in halted.message
+    decision = next(e for e in h.events if e.data.get("agent_error") == name)
+    assert decision.kind == "decision" and decision.data["phase"] == "plan"
+    assert decision.data["refusal_category"] == category
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        AgentTurnsExhausted("no accepted submit_repair within 8 model turns"),
+        AgentRefused("the model declined the request (category: None)"),
+    ],
+    ids=["turns_exhausted", "refused"],
+)
+def test_agent_loop_failure_while_repairing_fails_with_the_reason_and_is_verified(error: Exception) -> None:
+    planner = FailingPlanner(repair_error=error)
+    h = Harness([Rule("schema_flip", "subscriptions")], planner=planner)
+    result = h.run()  # never raises
+    assert result.status == RunStatus.FAILED and result.agent_claimed_status == RunStatus.FAILED
+    assert result.report is not None and h.verifier.calls == 1
+    expected = f"the planner could not repair the subscriptions mapping ({type(error).__name__}): {error}"
+    assert run_error(h, result.run_id) == expected
+    assert halt_event(h).data["failure_class"] == "CONTRACT"
+    assert planner.repair_contexts and planner.repair_contexts[0].entity == E.subscriptions
+    assert set(h.target.external_ids("customers")) == expected_ids(h.data, "customers")
+    assert h.target.external_ids("subscriptions") == []  # every v1 payload was rejected by v2
+
+
+def test_agent_errors_are_matched_by_class_name_and_base_class() -> None:
+    class AgentGaveUp(Exception):  # same name as the agent layer's error, not imported from it
+        pass
+
+    h = Harness(planner=FailingPlanner(plan_error=AgentGaveUp("stopped twice")))
+    result = h.run()
+    assert run_error(h, result.run_id) == "the planner could not produce a plan (AgentGaveUp): stopped twice"
+
+    class NewAgentError(AgentError):  # any future AgentError subclass is covered through the MRO
+        pass
+
+    h2 = Harness(planner=FailingPlanner(plan_error=NewAgentError("")))
+    result2 = h2.run()
+    assert result2.status == RunStatus.FAILED
+    assert (
+        run_error(h2, result2.run_id)
+        == "the planner could not produce a plan (NewAgentError): no reason given"
+    )
+
+
+def test_unexpected_planner_error_still_stops_safely_as_unknown() -> None:
+    h = Harness(planner=FailingPlanner(plan_error=RuntimeError("boom")))
+    result = h.run()
+    assert result.status == RunStatus.FAILED and result.report is None
+    assert run_error(h, result.run_id) == "RuntimeError: boom"
+    assert halt_event(h).data["failure_class"] == "UNKNOWN"
+    assert not any(e.data.get("agent_error") for e in h.events)
+
+
+class SettableTarget(FakeTarget):
+    """A target exposing `set_token`, like the real `TargetClient`."""
+
+    def __init__(self, rules: list[Rule] | tuple[Rule, ...] = ()) -> None:
+        super().__init__(rules)
+        self.current = ORIGINAL_TOKEN
+        self.set_tokens: list[str] = []
+        self._token_provider = self._provider
+        self.provider_at_start = self._token_provider
+
+    def _provider(self) -> str:
+        return self.current
+
+    def set_token(self, token: str) -> None:
+        self.set_tokens.append(token)
+        self.current = token
+
+
+def test_rotated_token_is_installed_with_set_token_when_available(tmp_path: Path) -> None:
+    token_file = tmp_path / "token"
+    token_file.write_text(ROTATED_TOKEN + "\n")
+    h = Harness(settings=make_settings(target_token_file=str(token_file)))
+    h.target = SettableTarget([Rule("auth_revoke", "subscriptions")])
+    h.engine = h.build()
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS and result.metrics["token_refreshes"] == 1
+    assert h.target.set_tokens == [ROTATED_TOKEN]
+    assert h.target._token_provider == h.target.provider_at_start  # the engine did not replace it
+    assert h.target.tokens_seen[-1] == ROTATED_TOKEN
+
+
+def test_install_token_prefers_set_token_and_keeps_the_provider_fallback() -> None:
+    import httpx
+
+    from zerodrop.connectors.target import TargetClient
+    from zerodrop.engine import _install_token
+
+    seen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request.headers["Authorization"])
+        return httpx.Response(200, json={"api_version": "v1"})
+
+    client = TargetClient("http://nova.test", lambda: "old", transport=httpx.MockTransport(handler))
+    assert _install_token(client, "new") is True
+    client.meta()
+    assert seen == ["Bearer new"]
+
+    legacy = types.SimpleNamespace(_token_provider=lambda: "old")  # no set_token: backward compatible
+    assert _install_token(legacy, "new") is True and legacy._token_provider() == "new"
+
+    class Refusing:
+        def set_token(self, token: str) -> None:
+            raise ValueError("token must be a non-empty string")
+
+    assert _install_token(Refusing(), "new") is False
+    assert _install_token(object(), "new") is False
 
 
 def test_llm_usage_is_read_from_usage_object_attributes_or_llm() -> None:

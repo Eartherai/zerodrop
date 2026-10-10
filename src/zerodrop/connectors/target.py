@@ -68,6 +68,17 @@ class TargetClient:
         """`NovaBill-Version` of the most recent response that carried the header."""
         return self._last_version
 
+    def set_token(self, token: str) -> None:
+        """Send `token` on every later request (e.g. rotated credentials re-read after a 401).
+
+        Replaces the token provider given to the constructor. Surrounding whitespace is
+        stripped; an empty token is refused, so a bad credential file cannot blank the header.
+        """
+        if not isinstance(token, str) or not token.strip():
+            raise ValueError("token must be a non-empty string")
+        fixed = token.strip()
+        self._token_provider = lambda: fixed
+
     # -- API ---------------------------------------------------------------
 
     def meta(self) -> dict[str, Any]:

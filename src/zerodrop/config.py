@@ -2,8 +2,16 @@
 
 from __future__ import annotations
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# The LLM layer always sends adaptive thinking and an effort level; older model families reject them.
+SUPPORTED_MODEL_PREFIXES: tuple[str, ...] = (
+    "claude-opus-5",
+    "claude-sonnet-5",
+    "claude-fable-5",
+    "claude-haiku-5",
+)
 
 
 class Settings(BaseSettings):
@@ -11,7 +19,7 @@ class Settings(BaseSettings):
 
     # Model access: a dedicated variable so Claude Code never picks it up as ANTHROPIC_API_KEY.
     zerodrop_anthropic_key: SecretStr | None = None
-    model: str = "claude-opus-5-5"
+    model: str = "claude-opus-5-5"  # validated: must start with one of SUPPORTED_MODEL_PREFIXES
     effort_plan: str = "medium"  # mapping and diagnosis
     effort_light: str = "low"  # small classification-style calls
 
@@ -37,6 +45,19 @@ class Settings(BaseSettings):
 
     # Neatlogs reads NEATLOGS_API_KEY itself; listed here only for documentation.
     neatlogs_api_key: SecretStr | None = Field(default=None, repr=False)
+
+    @field_validator("model")
+    @classmethod
+    def _supported_model(cls, value: str) -> str:
+        model = value.strip()
+        if not model.startswith(SUPPORTED_MODEL_PREFIXES):
+            allowed = ", ".join(f"{prefix}*" for prefix in SUPPORTED_MODEL_PREFIXES)
+            raise ValueError(
+                f"unsupported model {value!r}: ZeroDrop always sends adaptive thinking and an effort "
+                f"level, which older models reject; use a model id starting with one of {allowed} "
+                "(default claude-opus-5-5)"
+            )
+        return model
 
 
 def get_settings() -> Settings:

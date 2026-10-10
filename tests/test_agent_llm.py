@@ -160,7 +160,7 @@ def test_request_follows_opus_5_5_rules() -> None:
 
 def test_request_without_streaming_or_fallback_support() -> None:
     backend = ScriptedBackend([text_message()])
-    llm = LLMClient(settings(model="claude-haiku-4-5"), backend, streaming=False)
+    llm = LLMClient(settings(model="claude-haiku-5-5"), backend, streaming=False)
     llm.complete(system="s", tools=[{"name": "t", "description": "d", "input_schema": {}}], messages=[])
     request = backend.requests[0]
     assert "fallbacks" not in request and "betas" not in request

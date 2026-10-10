@@ -194,6 +194,48 @@ def test_target_sends_fresh_bearer_token_each_request() -> None:
     assert seen == ["Bearer first", "Bearer second"]
 
 
+def test_target_set_token_replaces_the_provider() -> None:
+    provider_calls: list[int] = []
+    seen: list[str] = []
+
+    def provider() -> str:
+        provider_calls.append(1)
+        return "original"
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request.headers["Authorization"])
+        if request.url.path.endswith(":batch"):
+            return nb(200, {"results": [{"index": 0, "status": 201, "id": "cus_1"}]})
+        return nb(200, {"items": [], "next_cursor": None})
+
+    client = target(handler, token=provider)
+    client.meta()
+    client.set_token("  rotated\n")
+    client.meta()
+    client.lookup("customers", "C000001")
+    client.batch("customers", [{"idempotency_key": "customers:C000001", "payload": {}}])
+    assert seen == ["Bearer original", "Bearer rotated", "Bearer rotated", "Bearer rotated"]
+    assert len(provider_calls) == 1  # the constructor's provider is no longer consulted
+    client.set_token("rotated-again")
+    client.meta()
+    assert seen[-1] == "Bearer rotated-again"
+
+
+@pytest.mark.parametrize("bad", ["", "   ", "\n", None, 42])
+def test_target_set_token_refuses_empty_or_non_string_tokens(bad: Any) -> None:
+    seen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request.headers["Authorization"])
+        return nb(200, {"api_version": "v1"})
+
+    client = target(handler, token=lambda: "tok")
+    with pytest.raises(ValueError, match="non-empty string"):
+        client.set_token(bad)
+    client.meta()
+    assert seen == ["Bearer tok"]  # the previous credentials stay in place
+
+
 def test_target_captures_version_header() -> None:
     versions = iter(["v1", None, "v2"])
 
