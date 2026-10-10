@@ -27,6 +27,7 @@
 - 18:06 IST: dashboard verified in a real browser against a live S16 demo-chaos run (light and dark themes): 7 failures, 16 recovery steps, subscription and invoice mappings v1 -> v2, 50 committed records found after a timeout (0 re-sent), verifier 24/24 checks passed.
 - 18:08 IST: **fix 1** (commit 8c0a017): 429 waits get their own budget. Re-evaluation at that commit: 20/20 matched, 0 false success claims.
 - 18:10 IST: **fix 2** (commit 574aa2b): wait exactly the server's Retry-After instead of a longer own backoff. S03 12.1 s -> 2.8 s; outcomes unchanged (20/20). Details and tables: `EVALUATION.md`.
+- 22:15 IST: **Neatlogs connected.** Key stored in git-ignored `.env`. Two traced agent runs (oracle planner): S07 `run_9ac0d4eb1354` and S16 `run_08b45d4bf581`, both verified SUCCESS. `neatlogs doctor --probe`: export accepted and durably stored (stage `raw_durable`), readback still `processing` at check time (TRACE_READBACK_TIMEOUT, remediation WAIT_FOR_TRACE). Dashboard confirmation pending.
 - Provenance and honesty notes:
   - All code so far was written in a Claude Code cloud session and its subagents.
   - These session transcripts will **not** be attached to Entire, because they contain private account information pasted during setup. Entire checkpoints start with clean coding sessions.
