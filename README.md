@@ -67,7 +67,8 @@ uv run pytest -q
 ```
 The oracle and naive planners need no keys and cost nothing. For the real model, copy
 `.env.example` to `.env` and set `ZERODROP_ANTHROPIC_KEY` (and `NEATLOGS_API_KEY` for traces),
-then use `--planner claude`. Each run is capped in code: 30 model calls, $1.50, 15 minutes.
+then use `--planner claude`. For Gemini as the planner model instead, set `ZERODROP_GEMINI_KEY`
+and use `--planner gemini`. Each run is capped in code: 30 model calls, $1.50, 15 minutes.
 
 ## Sponsor tools
 **Neatlogs: the runtime record.** Each run is one trace. The root WORKFLOW span carries the

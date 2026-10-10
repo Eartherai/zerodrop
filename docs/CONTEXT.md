@@ -41,6 +41,8 @@ ZeroDrop is an autonomous SaaS data-migration agent that proves nothing was lost
   per call; forced tool_choice returns 400, so the planner relies on instructions. Pricing used
   for cost tracking: $4 / $20 per million input / output tokens, cache reads $0.20.
   Config refuses models outside the claude-*-5 families.
+- Second planner provider: google-genai SDK with `gemini-3.8-flash` (`gemini_model`), planner
+  mode `gemini`, adapter in `src/zerodrop/agent/gemini.py`. Not yet run against the live API.
 - Neatlogs SDK 1.4.26: `init`, `wrap`, spans (WORKFLOW, AGENT, TOOL, CHAIN, EVALUATOR),
   `flush`, `shutdown`; `python -m neatlogs doctor --local` / `--probe`. Telemetry no-ops when
   `NEATLOGS_API_KEY` is unset.
@@ -52,6 +54,7 @@ ZeroDrop is an autonomous SaaS data-migration agent that proves nothing was lost
 ## 4. Runtime settings (names only; values in `.env`)
 - `ZERODROP_ANTHROPIC_KEY`: the app's Anthropic API key, deliberately not `ANTHROPIC_API_KEY`
   so Claude Code's own subscription login stays separate.
+- `ZERODROP_GEMINI_KEY`: Gemini API key for `--planner gemini` (optional).
 - `NEATLOGS_API_KEY`: Neatlogs project key.
 - Limits per run: 30 LLM calls, $1.50, 900 s wall clock, 3 replans, 6 attempts per request,
   40 rate-limit waits. Batch size 50, HTTP timeout 2 s.
@@ -72,7 +75,7 @@ ZeroDrop is an autonomous SaaS data-migration agent that proves nothing was lost
 uv run pytest -q
 uv run ruff check . && uv run ruff format --check .
 uv run zerodrop scenarios
-uv run zerodrop run S16-demo-chaos --planner oracle|naive|claude
+uv run zerodrop run S16-demo-chaos --planner oracle|naive|claude|gemini
 uv run zerodrop eval --planner claude --exclude-tags scale --label <label>
 uv run zerodrop serve            # dashboard on the printed port
 uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json

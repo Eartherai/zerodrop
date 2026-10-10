@@ -69,8 +69,10 @@ class _PlanAcceptor:
 
 
 class ClaudePlanner:
-    """The `Planner` implementation backed by Claude (docs/CONTRACTS.md section 4).
+    """The model-backed `Planner` implementation (docs/CONTRACTS.md section 4).
 
+    It drives whichever backend its `LLMClient` has (Claude by default, Gemini for planner mode
+    "gemini"); the name is kept because it is part of the frozen interface.
     `llm` is an `LLMClient`, or `Settings` to build one with the real Anthropic backend.
     The engine supplies the read-only toolbox via `bind_tools` (or pass `tools=`).
     """

@@ -12,6 +12,7 @@ SUPPORTED_MODEL_PREFIXES: tuple[str, ...] = (
     "claude-fable-5",
     "claude-haiku-5",
 )
+GEMINI_MODEL_PREFIX = "gemini-"
 
 
 class Settings(BaseSettings):
@@ -22,6 +23,9 @@ class Settings(BaseSettings):
     model: str = "claude-opus-5-5"  # validated: must start with one of SUPPORTED_MODEL_PREFIXES
     effort_plan: str = "medium"  # mapping and diagnosis
     effort_light: str = "low"  # small classification-style calls
+    # Second planner provider (planner mode "gemini"); Claude stays the default.
+    zerodrop_gemini_key: SecretStr | None = None
+    gemini_model: str = "gemini-3.8-flash"  # validated: must start with GEMINI_MODEL_PREFIX
 
     # Hard limits per run.
     max_llm_calls: int = 30
@@ -56,6 +60,17 @@ class Settings(BaseSettings):
                 f"unsupported model {value!r}: ZeroDrop always sends adaptive thinking and an effort "
                 f"level, which older models reject; use a model id starting with one of {allowed} "
                 "(default claude-opus-5-5)"
+            )
+        return model
+
+    @field_validator("gemini_model")
+    @classmethod
+    def _gemini_model(cls, value: str) -> str:
+        model = value.strip()
+        if not model.startswith(GEMINI_MODEL_PREFIX) or model == GEMINI_MODEL_PREFIX:
+            raise ValueError(
+                f"unsupported Gemini model {value!r}: planner mode gemini needs a model id starting "
+                f"with {GEMINI_MODEL_PREFIX}* (default gemini-3.8-flash)"
             )
         return model
 

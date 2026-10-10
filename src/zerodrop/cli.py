@@ -1,6 +1,6 @@
 """ZeroDrop command line: run scenarios, evaluate, serve the sandbox or the dashboard API.
 
-Telemetry is initialised before anything imports the Anthropic SDK.
+Telemetry is initialised before anything imports a model SDK (Anthropic or Gemini).
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from zerodrop import telemetry
 app = typer.Typer(add_completion=False, no_args_is_help=True, help=__doc__)
 
 PlannerOpt = Annotated[
-    str, typer.Option("--planner", help="claude (real model), oracle or naive (offline fakes)")
+    str, typer.Option("--planner", help="claude or gemini (real models), oracle or naive (offline fakes)")
 ]
 
 
@@ -125,6 +125,7 @@ def summarize(outcomes: list, planner: str, label: str, commit: str) -> dict:  #
     median = durations[n // 2] if n else 0.0
     return {
         "planner": planner,
+        "model": next((o.model for o in outcomes if o.model), None),  # None for the offline fakes
         "label": label,
         "git_commit": commit,
         "scenarios": n,
@@ -140,8 +141,9 @@ def summarize(outcomes: list, planner: str, label: str, commit: str) -> dict:  #
 
 
 def render_markdown(summary: dict, outcomes: list) -> str:  # type: ignore[type-arg]
+    model = f" model={summary['model']}" if summary.get("model") else ""
     lines = [
-        f"# ZeroDrop evaluation: planner={summary['planner']} {summary['label']}".rstrip(),
+        f"# ZeroDrop evaluation: planner={summary['planner']}{model} {summary['label']}".rstrip(),
         "",
         f"- Commit: `{summary['git_commit']}`",
         f"- Scenarios: {summary['scenarios']}; matched expected outcome: {summary['matched_expected_outcome']}",

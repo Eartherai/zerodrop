@@ -59,9 +59,10 @@ Records already WRITTEN in the ledger are never re-sent. Idempotency key = `"{en
 - Source records, notes and the legacy data dictionary are treated as untrusted data in prompts; the planner has no write or delete tools.
 - Keys come from the environment only (`ZERODROP_ANTHROPIC_KEY`, `NEATLOGS_API_KEY`); `ZERODROP_ANTHROPIC_KEY` is deliberately not `ANTHROPIC_API_KEY`, so coding tools never pick it up.
 - Hard limits per run: LLM calls, cost (USD), wall clock, replans, attempts.
+- The planner model is pluggable: Claude Opus 5.5 is the default and `--planner gemini` runs the same tool loop on Gemini through an adapter (`agent/gemini.py`, key `ZERODROP_GEMINI_KEY`). The verifier does not care which model planned; it judges the target data.
 
 ## Observability (Neatlogs)
-`telemetry.py` initialises Neatlogs once per process (no-op without a key). The Anthropic client is wrapped with `neatlogs.wrap()`, so model calls are LLM spans. The engine adds a WORKFLOW root (`zerodrop.migration`), AGENT spans for the planner and diagnoser loops, TOOL spans for discovery, batch writes and lookups, CHAIN spans for recovery decisions, and an EVALUATOR span for the independent verifier.
+`telemetry.py` initialises Neatlogs once per process (no-op without a key). The model client (Anthropic, or google-genai for the Gemini planner) is wrapped with `neatlogs.wrap()`, so model calls are LLM spans. The engine adds a WORKFLOW root (`zerodrop.migration`), AGENT spans for the planner and diagnoser loops, TOOL spans for discovery, batch writes and lookups, CHAIN spans for recovery decisions, and an EVALUATOR span for the independent verifier.
 
 ## Test environment
 LegacyBill and NovaBill (`sandbox/`) are services built for this project. Faults come from a seeded fault plan (`FaultPlan`), so every scenario is reproducible; the agent never sees the plan. The dashboard labels them as sandbox services.

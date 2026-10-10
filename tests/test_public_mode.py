@@ -437,3 +437,48 @@ def test_public_mode_runs_a_real_oracle_scenario_end_to_end(tmp_path: Path) -> N
         assert run["llm"] == {"calls": 0, "cost_usd": 0.0}
         assert any(r["run_id"] == run_id for r in client.get("/api/runs").json())
         assert client.get("/api/meta").json()["spend_used_usd"] == 0.0
+
+
+# --- Gemini: every paid planner is gated ------------------------------------------------------
+
+
+def test_gemini_needs_the_access_code(tmp_path: Path) -> None:
+    runner = FakeRunner()
+    app = create_app(str(tmp_path / "z.db"), public=public(), runner=runner)
+    with TestClient(app) as client:
+        assert post_run(client, planner="gemini").status_code == 403
+        assert post_run(client, planner="gemini", code=CODE[:-1] + "!").status_code == 403
+        assert post_run(client, planner="gemini", code=CODE).status_code == 200
+    assert runner.planners == ["gemini"]
+
+
+def test_spend_cap_refuses_gemini_runs_with_402(tmp_path: Path) -> None:
+    seed_runs(tmp_path / "z.db", count=2, at=LONG_AGO, cost_usd=2.75)  # $5.50 recorded
+    runner = FakeRunner()
+    app = create_app(str(tmp_path / "z.db"), public=public(), runner=runner)
+    with TestClient(app) as client:
+        response = post_run(client, planner="gemini", code=CODE)
+        assert response.status_code == 402
+        assert (
+            "spend cap reached" in response.json()["detail"] and "$5.50 of $5.00" in response.json()["detail"]
+        )
+        assert post_run(client, planner="naive", code=CODE).status_code == 200  # offline fake: $0, not capped
+    assert runner.planners == ["naive"]
+
+
+@pytest.mark.parametrize(
+    ("planner", "status"), [("claude", 402), ("gemini", 402), ("oracle", None), ("naive", None)]
+)
+def test_spend_cap_covers_every_model_planner(planner: str, status: int | None) -> None:
+    refusal = check_budget(public(), planner, spend_used_usd=5.0, recent_run_times=[], now=time.time())
+    assert (refusal.status if refusal else None) == status
+
+
+def test_gemini_is_a_known_planner_and_typos_are_rejected(tmp_path: Path) -> None:
+    runner = FakeRunner()
+    app = create_app(str(tmp_path / "z.db"), public=public(enabled=False), runner=runner)
+    with TestClient(app) as client:
+        assert post_run(client, planner="gemini").status_code == 200
+        response = post_run(client, planner="gemnii")
+        assert response.status_code == 422 and "gemini" in response.json()["detail"]
+    assert runner.planners == ["gemini"]

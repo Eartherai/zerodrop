@@ -50,6 +50,7 @@ set_key() {
   mv .env.tmp .env && chmod 600 .env
 }
 set_key ZERODROP_ANTHROPIC_KEY
+set_key ZERODROP_GEMINI_KEY
 set_key NEATLOGS_API_KEY
 git check-ignore -q .env && echo ".env is git-ignored: OK"
 

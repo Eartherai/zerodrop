@@ -50,11 +50,14 @@
   - These session transcripts will **not** be attached to Entire, because they contain private account information pasted during setup. Entire checkpoints start with clean coding sessions.
   - Everything above used the deterministic oracle/naive planners (no model calls, $0). Real Claude runs and Neatlogs traces are pending API keys.
 
+### 2026-10-11 (Day 2)
+- 00:45 IST: Ruling: the owner's Anthropic API account had no credit and the owner offered a Gemini API key instead, so Gemini was added as a second planner provider behind the existing backend protocol (`src/zerodrop/agent/gemini.py`, planner mode `gemini`, key `ZERODROP_GEMINI_KEY`). Claude Opus 5.5 remains the default planner. Every evaluation file records which planner and model produced it (`planner` and `model` in the summary and in each outcome). No Gemini run has been made yet: the adapter is tested only against fakes and the google-genai SDK over an offline transport.
+
 ## Demo
 - Local: `uv sync && (cd ui && npm ci && npm run build) && uv run zerodrop serve --planner oracle`, then open http://127.0.0.1:8700 and start "Demo - everything goes wrong".
 
 ## Known limitations and next steps
-- Real model runs and Neatlogs traces need `ZERODROP_ANTHROPIC_KEY` and `NEATLOGS_API_KEY` in the environment.
+- Real model runs and Neatlogs traces need `ZERODROP_ANTHROPIC_KEY` (or `ZERODROP_GEMINI_KEY` for `--planner gemini`) and `NEATLOGS_API_KEY` in the environment.
 
 ## Submission
 - Confirmed requirements (from neatlogs.com/hackathon, read 2026-10-10):

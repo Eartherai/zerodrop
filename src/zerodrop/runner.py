@@ -26,13 +26,14 @@ from zerodrop.sandbox import fixtures, servers
 from zerodrop.scenarios import Scenario
 from zerodrop.verifier.verify import verify
 
-PlannerMode = Literal["oracle", "naive", "claude"]
+PlannerMode = Literal["oracle", "naive", "claude", "gemini"]
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 class ScenarioOutcome(BaseModel):
     scenario_id: str
     planner: str
+    model: str | None = None  # configured model id of a model planner; None for the offline fakes
     run_id: str
     status: RunStatus  # decided by the independent verifier (or the engine for halts/approval waits)
     agent_claimed_status: RunStatus | None = None
@@ -72,9 +73,18 @@ def make_planner(mode: PlannerMode, settings: Settings) -> Any:
         from zerodrop.agent.fake import FakePlanner
 
         return FakePlanner(mode)
-    from zerodrop.agent.planner import ClaudePlanner  # imports the SDK lazily (after telemetry init)
+    model = planner_model(mode, settings)
+    if model is None:
+        raise ValueError(f"unknown planner {mode!r}: use oracle, naive, claude or gemini")
+    from zerodrop.agent.llm import LLMClient  # imports the SDK lazily (after telemetry init)
+    from zerodrop.agent.planner import ClaudePlanner
 
-    return ClaudePlanner(settings)
+    return ClaudePlanner(LLMClient(settings, model=model))  # the model id selects the provider
+
+
+def planner_model(mode: str, settings: Settings) -> str | None:
+    """The model id a model planner uses; None for the fakes and for unknown modes."""
+    return {"claude": settings.model, "gemini": settings.gemini_model}.get(mode)
 
 
 def run_scenario(
@@ -161,6 +171,7 @@ def run_scenario(
     return ScenarioOutcome(
         scenario_id=scenario.id,
         planner=planner_mode,
+        model=planner_model(planner_mode, settings),
         run_id=result.run_id,
         status=result.status,
         agent_claimed_status=claimed,

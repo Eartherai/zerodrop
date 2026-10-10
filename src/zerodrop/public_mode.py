@@ -4,11 +4,11 @@ Settings come from the environment (prefix ``ZERODROP_PUBLIC_``) or a git-ignore
 file, like ``config.Settings``. With ``enabled`` true, the dashboard API (``zerodrop.api``):
 
 - lets anyone start runs with the deterministic oracle planner ($0, no model calls); every
-  other planner, including ``claude``, needs the ``X-ZeroDrop-Access-Code`` header to match
+  other planner, including ``claude`` and ``gemini``, needs the ``X-ZeroDrop-Access-Code`` header to match
   ``access_code`` (compared in constant time). A request that names no planner gets ``oracle``;
 - allows at most ``max_runs_per_hour`` runs in any rolling hour, for every planner, counted
   from the run ledger (so a restart does not reset the window);
-- refuses new Claude runs (HTTP 402) once the LLM cost recorded in the ledger
+- refuses new model runs, ``claude`` and ``gemini`` alike (HTTP 402), once the LLM cost recorded in the ledger
   (``runs.cost_usd``, summed over all runs) has reached ``spend_cap_usd``.
 
 The access code is a ``SecretStr``: it is never logged, returned or put in an error message,
@@ -29,6 +29,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ACCESS_CODE_HEADER = "X-ZeroDrop-Access-Code"
 OPEN_PLANNER = "oracle"  # deterministic, no model calls, $0: the only planner open to everyone
+FREE_PLANNERS = frozenset({"oracle", "naive"})  # offline fakes; every other planner is paid and capped
 MIN_ACCESS_CODE_LENGTH = 16
 RATE_WINDOW_S = 3600.0
 
@@ -51,7 +52,7 @@ class PublicSettings(BaseSettings):
     @classmethod
     def _long_enough(cls, value: SecretStr | None) -> SecretStr | None:
         if value is None or not value.get_secret_value().strip():
-            return None  # unset or blank: Claude runs stay closed
+            return None  # unset or blank: model runs stay closed
         if len(value.get_secret_value()) < MIN_ACCESS_CODE_LENGTH:
             raise ValueError(
                 f"must be at least {MIN_ACCESS_CODE_LENGTH} characters; generate one with "
@@ -90,10 +91,11 @@ def default_planner(server_default: str, settings: PublicSettings) -> str:
 
 
 def claude_runs_allowed(settings: PublicSettings, spend_used_usd: float) -> bool:
-    """Whether the policy lets Claude runs start (in public mode: with the access code, under the cap).
+    """Whether the policy lets paid model runs start (in public mode: with the access code, under the cap).
 
-    It does not check that a model key is configured; without one a Claude run fails at its
-    first model call.
+    The name is kept for the `/api/meta` key; it covers every paid planner (claude, gemini).
+    It does not check that a model key is configured; without one a model run fails before
+    it starts.
     """
     if not settings.enabled:
         return True
@@ -127,17 +129,17 @@ def check_budget(
     recent_run_times: Sequence[float],
     now: float,
 ) -> Refusal | None:
-    """Stateful checks: the Claude spend cap, then the hourly run limit.
+    """Stateful checks: the model spend cap (every paid planner), then the hourly run limit.
 
     ``recent_run_times`` holds the creation times (epoch seconds) of the newest
     ``max_runs_per_hour`` runs in the ledger, in any order.
     """
     if not settings.enabled:
         return None
-    if planner == "claude" and spend_used_usd >= settings.spend_cap_usd:
+    if planner not in FREE_PLANNERS and spend_used_usd >= settings.spend_cap_usd:
         return Refusal(
             402,
-            f"Claude spend cap reached on this public demo: ${spend_used_usd:.2f} of "
+            f"Model spend cap reached on this public demo: ${spend_used_usd:.2f} of "
             f"${settings.spend_cap_usd:.2f} used. Planner '{OPEN_PLANNER}' (deterministic, $0) "
             "is still available.",
         )

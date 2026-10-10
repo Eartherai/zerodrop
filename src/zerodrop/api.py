@@ -2,7 +2,7 @@
 
 Public demo mode (``zerodrop.public_mode``, env prefix ``ZERODROP_PUBLIC_``) adds guard rails
 for an internet-facing deployment: without the access code only oracle runs ($0) may start,
-runs per hour are capped, Claude runs stop at a spend cap, and error details are reduced to
+runs per hour are capped, model runs (claude, gemini) stop at a spend cap, and error details are reduced to
 one line. ``GET /api/meta`` reports the policy (never the access code).
 """
 
@@ -34,7 +34,7 @@ from zerodrop.scenarios import get_scenario, load_scenarios
 UI_DIST = Path(__file__).resolve().parents[2] / "ui" / "dist"
 SSE_POLL_S = 0.25
 SSE_PING_S = 15.0
-PLANNERS = ("oracle", "naive", "claude")
+PLANNERS = ("oracle", "naive", "claude", "gemini")
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ def create_app(
     if public.enabled:
         logger.warning(
             "public mode on: oracle runs open to everyone; other planners %s; "
-            "Claude spend cap $%.2f; at most %d runs per hour",
+            "model spend cap $%.2f; at most %d runs per hour",
             "need the access code" if public.access_code is not None else "turned off (no access code set)",
             public.spend_cap_usd,
             public.max_runs_per_hour,
@@ -143,7 +143,7 @@ def create_app(
             raise HTTPException(404, str(exc)) from exc
         planner = public_mode.effective_planner(body.planner, default_planner, public)
         if planner not in PLANNERS:
-            raise HTTPException(422, "planner must be oracle, naive or claude")
+            raise HTTPException(422, f"planner must be one of: {', '.join(PLANNERS)}")
         refusal = public_mode.check_access(public, planner, access_code)
         if refusal is not None:
             raise _http(refusal)

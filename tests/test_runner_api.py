@@ -124,3 +124,68 @@ def test_api_run_detail_carries_the_neatlogs_trace_id(monkeypatch, tmp_path) -> 
         assert finished("S01-clean")["trace_id"] is None  # tracing off: nothing to link
         monkeypatch.setattr(telemetry, "current_trace_id", lambda: "cd" * 16)
         assert finished("S01-clean")["trace_id"] == "cd" * 16
+
+
+# --- planner modes ----------------------------------------------------------------------------
+
+
+def _settings(**overrides):  # type: ignore[no-untyped-def]
+    from zerodrop.config import Settings
+
+    return Settings(_env_file=None, **overrides)  # type: ignore[call-arg]
+
+
+def test_gemini_mode_builds_the_planner_on_the_gemini_model(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from zerodrop.agent.planner import ClaudePlanner
+    from zerodrop.runner import make_planner, planner_model
+
+    built: list[str] = []
+
+    class Backend:
+        def __init__(self, api_key: str, **_: object) -> None:
+            built.append(api_key)
+
+    monkeypatch.setattr("zerodrop.agent.gemini.GeminiBackend", Backend)
+    settings = _settings(zerodrop_gemini_key="synthetic-gemini-key", zerodrop_anthropic_key=None)
+    planner = make_planner("gemini", settings)
+    assert isinstance(planner, ClaudePlanner) and planner.llm.model == "gemini-3.8-flash"
+    assert built == ["synthetic-gemini-key"]  # the Anthropic key is not needed
+    assert planner_model("gemini", settings) == "gemini-3.8-flash"
+    assert planner_model("claude", settings) == "claude-opus-5-5"
+    assert planner_model("oracle", settings) is None
+
+
+def test_model_planners_need_their_own_key_and_unknown_modes_are_refused() -> None:
+    from zerodrop.agent.llm import LLMConfigError
+    from zerodrop.runner import make_planner
+
+    no_keys = _settings(zerodrop_gemini_key=None, zerodrop_anthropic_key=None)
+    with pytest.raises(LLMConfigError, match="ZERODROP_GEMINI_KEY"):
+        make_planner("gemini", no_keys)
+    with pytest.raises(LLMConfigError, match="ZERODROP_ANTHROPIC_KEY"):
+        make_planner("claude", no_keys)
+    with pytest.raises(ValueError, match="gemnii"):
+        make_planner("gemnii", no_keys)  # type: ignore[arg-type]  # used to fall through to Claude
+
+
+def test_a_gemini_run_without_a_key_fails_before_any_run_exists() -> None:
+    from zerodrop.agent.llm import LLMConfigError
+
+    no_key = _settings(zerodrop_gemini_key=None)
+    with pytest.raises(LLMConfigError, match="ZERODROP_GEMINI_KEY"):
+        run_scenario(get_scenario("S01-clean"), "gemini", base_settings=no_key)
+
+
+def test_outcomes_and_eval_summaries_record_the_planner_and_its_model(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from zerodrop import cli, runner
+    from zerodrop.agent.fake import FakePlanner
+
+    # the oracle fake stands in for the model; only the bookkeeping of mode and model id is under test
+    monkeypatch.setattr(runner, "make_planner", lambda mode, settings: FakePlanner("oracle"))
+    outcome = run_scenario(get_scenario("S01-clean"), "gemini", base_settings=_settings())
+    assert (outcome.planner, outcome.model) == ("gemini", "gemini-3.8-flash")
+    summary = cli.summarize([outcome], "gemini", "", "abc")
+    assert (summary["planner"], summary["model"]) == ("gemini", "gemini-3.8-flash")
+    assert "planner=gemini model=gemini-3.8-flash" in cli.render_markdown(summary, [outcome])
+    oracle = run_scenario(get_scenario("S01-clean"), "oracle")
+    assert oracle.model is None and cli.summarize([oracle], "oracle", "", "abc")["model"] is None

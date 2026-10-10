@@ -3,6 +3,9 @@
 `anthropic` is imported lazily (inside `AnthropicBackend`) because
 `telemetry.init_telemetry()` must run before the SDK is first imported.
 
+Requests and responses are Anthropic-shaped everywhere in this module. Model ids starting with
+``gemini-`` go to `agent/gemini.py`, which translates both directions behind `LLMBackend`.
+
 Request shape for Claude Opus 5.5 (per the claude-api skill):
 - thinking is always on: we send ``{"type": "adaptive"}`` and steer depth with
   ``output_config.effort`` (the Opus 5.5 default is ``medium``; we set it explicitly);
@@ -29,7 +32,7 @@ from pydantic import ValidationError
 
 from zerodrop import telemetry
 from zerodrop.agent.prompts import untrusted_block
-from zerodrop.config import Settings
+from zerodrop.config import GEMINI_MODEL_PREFIX, Settings
 
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
 # Models that accept `fallbacks="default"` (Claude API); other models get no fallback parameter.
@@ -50,7 +53,7 @@ class LLMError(Exception):
 
 
 class LLMConfigError(LLMError):
-    """The model cannot be called (no API key configured)."""
+    """The model cannot be called (no API key configured for its provider)."""
 
 
 class BudgetExceeded(LLMError):
@@ -146,6 +149,14 @@ _FABLE_5_1_TIER = ModelPricing(
 _FABLE_5_TIER = ModelPricing(
     input=10.00, output=50.00, cache_write_5m=12.50, cache_write_1h=20.00, cache_read=1.00
 )
+
+
+def _gemini(*, input: float, output: float, cache_read: float) -> ModelPricing:
+    return ModelPricing(
+        input=input, output=output, cache_write_5m=input, cache_write_1h=input, cache_read=cache_read
+    )
+
+
 PRICING: dict[str, ModelPricing] = {
     "claude-opus-5-5": OPUS_5_5_PRICING,
     "claude-opus-5": _OPUS_5_TIER,
@@ -156,6 +167,20 @@ PRICING: dict[str, ModelPricing] = {
     "claude-mythos-5-1": _FABLE_5_1_TIER,
     "claude-fable-5": _FABLE_5_TIER,
     "claude-mythos-5": _FABLE_5_TIER,
+    # Gemini Developer API, paid Standard tier, read 2026-10-11. No cache-write surcharge (implicit
+    # caching), so both cache-write rates repeat the input rate; output includes thinking tokens.
+    # Introductory rates valid through 2026-12-31; they double on 2027-01-01.
+    # https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash
+    "gemini-3.8-flash": _gemini(input=0.75, output=3.75, cache_read=0.075),
+    # Same introductory rates and expiry: https://ai.google.dev/gemini-api/docs/pricing#gemini-3.6-flash
+    "gemini-3.6-flash": _gemini(input=0.75, output=3.75, cache_read=0.075),
+    # https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite
+    "gemini-3.5-flash-lite": _gemini(input=0.30, output=2.50, cache_read=0.03),
+    # https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-flash-lite
+    "gemini-3.1-flash-lite": _gemini(input=0.25, output=1.50, cache_read=0.025),
+    # Tiered by prompt size ($2 / $12 / $0.20 up to 200k tokens): the >200k rates, so never undercounted.
+    # https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-pro-preview
+    "gemini-3.1-pro-preview": _gemini(input=4.00, output=18.00, cache_read=0.40),
 }
 # Conservative for the budget guard: every rate is at least the highest known one.
 UNKNOWN_MODEL_PRICING = ModelPricing(
@@ -168,7 +193,13 @@ UNKNOWN_MODEL_PRICING = ModelPricing(
 
 
 def price_for(model: str | None) -> ModelPricing:
-    return PRICING.get(model or "", UNKNOWN_MODEL_PRICING)
+    model = model or ""
+    if model in PRICING or not model.startswith(GEMINI_MODEL_PREFIX):
+        return PRICING.get(model, UNKNOWN_MODEL_PRICING)
+    # Gemini reports the served model as `model_version`, which may extend the configured id
+    # with a version suffix: price it as the longest listed id it extends.
+    listed = [known for known in PRICING if model.startswith(known + "-")]
+    return PRICING[max(listed, key=len)] if listed else UNKNOWN_MODEL_PRICING
 
 
 @dataclass(frozen=True)
@@ -382,7 +413,11 @@ def normalize_response(response: Any, requested_model: str) -> LLMResponse:
 
 
 class LLMBackend(Protocol):
-    """Sends one Messages API request (keyword arguments of `client.beta.messages.create`)."""
+    """Sends one request and returns one message, both Anthropic-shaped.
+
+    The request is the keyword arguments of `client.beta.messages.create`; a backend for another
+    provider translates it and returns an object with the same content blocks, stop reasons and usage.
+    """
 
     def create(self, request: dict[str, Any]) -> Any: ...
 
@@ -416,6 +451,21 @@ class AnthropicBackend:
             return stream.get_final_message()
 
 
+def _default_backend(settings: Settings, model: str, streaming: bool) -> LLMBackend:
+    """The real backend for `model`: the provider is chosen by the model id."""
+    if model.startswith(GEMINI_MODEL_PREFIX):
+        # Blank counts as missing: with an empty key the SDK would fall back to an ambient GOOGLE_API_KEY.
+        key = settings.zerodrop_gemini_key.get_secret_value().strip() if settings.zerodrop_gemini_key else ""
+        if not key:
+            raise LLMConfigError("ZERODROP_GEMINI_KEY is not set; use the fake planner or configure a key")
+        from zerodrop.agent.gemini import GeminiBackend  # lazy: it imports this module
+
+        return GeminiBackend(key)
+    if settings.zerodrop_anthropic_key is None:
+        raise LLMConfigError("ZERODROP_ANTHROPIC_KEY is not set; use the fake planner or configure a key")
+    return AnthropicBackend(settings.zerodrop_anthropic_key.get_secret_value(), streaming=streaming)
+
+
 def _snapshot(stream: Any) -> Any:
     try:
         return stream.current_message_snapshot
@@ -436,21 +486,15 @@ class LLMClient:
         settings: Settings,
         backend: LLMBackend | None = None,
         *,
+        model: str | None = None,
         streaming: bool = True,
         max_tokens: int | None = None,
     ) -> None:
         self.settings = settings
+        self.model = model or settings.model  # e.g. settings.gemini_model for planner mode "gemini"
         self.streaming = streaming
         self.max_tokens = max_tokens or (DEFAULT_MAX_TOKENS if streaming else NONSTREAMING_MAX_TOKENS)
-        if backend is None:
-            if settings.zerodrop_anthropic_key is None:
-                raise LLMConfigError(
-                    "ZERODROP_ANTHROPIC_KEY is not set; use the fake planner or configure a key"
-                )
-            backend = AnthropicBackend(
-                settings.zerodrop_anthropic_key.get_secret_value(), streaming=streaming
-            )
-        self.backend = backend
+        self.backend = backend if backend is not None else _default_backend(settings, self.model, streaming)
         self.usage = UsageTotals()
         self.history: list[CallUsage] = []
         self._baseline_calls = 0
@@ -502,7 +546,7 @@ class LLMClient:
         effort: str | None = None,
         max_tokens: int | None = None,
     ) -> dict[str, Any]:
-        model = self.settings.model
+        model = self.model
         request: dict[str, Any] = {
             "model": model,
             "max_tokens": max_tokens or self.max_tokens,
@@ -549,7 +593,7 @@ class LLMClient:
                     raise
                 malformed_retry = False
                 continue
-            response = normalize_response(raw, self.settings.model)
+            response = normalize_response(raw, self.model)
             self._record(response.usage)
             if response.stop_reason == "max_tokens" and truncation_retry and max_tokens < ceiling:
                 truncation_retry = False
@@ -559,7 +603,7 @@ class LLMClient:
 
     def _malformed_usage(self, exc: MalformedModelOutput) -> CallUsage:
         """Usage of a call whose stream failed to parse: its partial snapshot, else the costliest call so far."""
-        model = self.settings.model
+        model = self.model
         if exc.partial is not None:
             usage = usage_from_response(exc.partial, model)
             if usage.cost_usd > 0:

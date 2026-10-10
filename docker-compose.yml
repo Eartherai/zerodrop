@@ -19,6 +19,7 @@ services:
       - "127.0.0.1:8700:8700"
     environment:
       ZERODROP_ANTHROPIC_KEY: ${ZERODROP_ANTHROPIC_KEY:-}
+      ZERODROP_GEMINI_KEY: ${ZERODROP_GEMINI_KEY:-}
       NEATLOGS_API_KEY: ${NEATLOGS_API_KEY:-}
       # Public demo mode (see README): guard rails for an internet-facing deployment
       ZERODROP_PUBLIC_ENABLED: ${ZERODROP_PUBLIC_ENABLED:-false}

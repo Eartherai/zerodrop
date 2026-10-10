@@ -1,8 +1,8 @@
 """Neatlogs integration: initialise once per process, no-op when no key is configured.
 
 Every module traces through this file so the SDK is imported and initialised in
-exactly one place. `init_telemetry()` must run before `anthropic` is imported
-anywhere (the CLI and API entry points call it first).
+exactly one place. `init_telemetry()` must run before a model SDK (`anthropic`,
+`google.genai`) is imported anywhere (the CLI and API entry points call it first).
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def enabled() -> bool:
 
 
 def wrap_client(client: Any) -> Any:
-    """Wrap an Anthropic client so every model call becomes an LLM span (no manual LLM spans elsewhere)."""
+    """Wrap a model client (Anthropic or google-genai) so every model call becomes an LLM span (no manual LLM spans elsewhere)."""
     if not _enabled:
         return client
     import neatlogs
