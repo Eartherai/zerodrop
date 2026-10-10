@@ -1338,13 +1338,15 @@ class MigrationEngine:
         st.backoff_seconds += delay
 
     def _backoff_delay(self, attempt: int, retry_after: float | None) -> float:
-        """Capped exponential backoff with seeded jitter, never shorter than Retry-After.
+        """Retry-After (when given) sets the wait exactly; otherwise capped exponential backoff with seeded jitter.
 
-        Retry-After is honored in full (up to RETRY_AFTER_MAX_S); the cap only bounds our own backoff.
+        Retry-After is honored in full (up to RETRY_AFTER_MAX_S); BACKOFF_CAP_S only bounds our own backoff.
         """
+        if retry_after is not None and retry_after > 0:
+            # The server said when to come back: wait exactly that long (capped), not our own longer backoff.
+            return min(retry_after, RETRY_AFTER_MAX_S)
         base = BACKOFF_BASE_S * 2 ** max(0, attempt - 1)
-        jittered = min(BACKOFF_CAP_S, base * (0.5 + 0.5 * self._rng.random()))
-        return max(jittered, min(max(retry_after or 0.0, 0.0), RETRY_AFTER_MAX_S))
+        return min(BACKOFF_CAP_S, base * (0.5 + 0.5 * self._rng.random()))
 
     def _call_with_retries(
         self,
