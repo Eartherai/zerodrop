@@ -90,6 +90,25 @@ def set_attr(span_obj: Any, key: str, value: Any) -> None:
         span_obj.set_attribute(key, value)
 
 
+def current_trace_id() -> str | None:
+    """The active Neatlogs trace id (32 hex characters), or None when tracing is off or no span is active.
+
+    Neatlogs keeps its spans in a private context, so the id is read the supported way: from the
+    W3C ``traceparent`` header the SDK writes for outbound propagation.
+    """
+    if not _enabled:
+        return None
+    with contextlib.suppress(Exception):
+        import neatlogs
+
+        carrier: dict[str, str] = {}
+        if neatlogs.inject_trace_context(carrier):
+            parts = carrier.get("traceparent", "").split("-")
+            if len(parts) == 4 and len(parts[1]) == 32 and int(parts[1], 16) != 0:
+                return parts[1]
+    return None
+
+
 def log(message: str, level: str = "info", **data: Any) -> None:
     if not _enabled:
         return

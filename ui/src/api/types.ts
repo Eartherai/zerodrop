@@ -177,5 +177,6 @@ export interface RunDetail {
   mapping_versions: Partial<Record<Entity, number>>;
   llm: { calls: number; cost_usd: number };
   trace_url?: string | null;
+  trace_id?: string | null;
   commit?: string | null;
 }

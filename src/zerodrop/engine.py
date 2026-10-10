@@ -495,6 +495,8 @@ class MigrationEngine:
         self._clock = clock
         self._rng = random.Random(rng_seed)
         self._st: _RunState | None = None
+        self._trace_id: str | None = None  # Neatlogs trace of the current invocation (None: tracing off)
+        self._root_span: Any = None  # the WORKFLOW span of the current invocation
         self.tools = _planner_tools(planner) or PlannerTools(source, target)
         self.tools.attach(call=self._call_with_retries, id_map=self._known_id)
         binder = getattr(planner, "bind_tools", None)
@@ -571,8 +573,19 @@ class MigrationEngine:
             raise RuntimeError("no active run")
         return self._st
 
-    @telemetry.span(kind="WORKFLOW", name="zerodrop.migration")
     def _workflow(self, plan: MigrationPlan | None) -> RunResult:
+        st = self._state
+        with telemetry.trace(
+            "zerodrop.migration", kind="WORKFLOW", run_id=st.run_id, resumed=st.resumed
+        ) as root:
+            self._root_span = root
+            self._trace_id = telemetry.current_trace_id()
+            if self._trace_id is not None:
+                # Ties the run to its trace: shown in the dashboard and stored with the outcome.
+                self._emit("info", f"neatlogs trace {self._trace_id}", neatlogs_trace_id=self._trace_id)
+            return self._run_workflow(plan)
+
+    def _run_workflow(self, plan: MigrationPlan | None) -> RunResult:
         try:
             self._discover()
             if plan is None:
@@ -1563,6 +1576,19 @@ class MigrationEngine:
             self.ledger.set_report(st.run_id, report)
         self.ledger.set_error(st.run_id, error)  # None clears an error left by an earlier invocation
         self._set_status(status)
+        outcome = {
+            "status": status.value,
+            "agent_claimed_status": claim.value,
+            "false_success_claim": claim == RunStatus.SUCCESS and status != RunStatus.SUCCESS,
+            "replans": st.replans,
+            "records_written": st.metrics["records_written"],
+        }
+        if report is not None:
+            outcome["checks_total"] = len(report.checks)
+            outcome["checks_failed"] = sum(not c.passed for c in report.checks)
+            outcome["report_hash"] = report.report_hash
+        for key, value in outcome.items():
+            telemetry.set_attr(self._root_span, key, value)
         return RunResult(
             run_id=st.run_id,
             status=status,
@@ -1633,6 +1659,7 @@ class MigrationEngine:
             "wall_seconds": round(self._clock() - st.started, 3),
             "resumed": st.resumed,
             "false_success_claim": claim == RunStatus.SUCCESS and status != RunStatus.SUCCESS,
+            "neatlogs_trace_id": self._trace_id,
         }
 
     def _stored_result(self, record: RunRecord) -> RunResult:

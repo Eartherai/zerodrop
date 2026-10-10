@@ -99,3 +99,28 @@ def test_git_commit_falls_back_to_the_image_build_commit(monkeypatch, tmp_path) 
     assert runner.git_commit() == "abc123def456"
     monkeypatch.delenv("ZERODROP_GIT_COMMIT")
     assert runner.git_commit() == ""
+
+
+def test_api_run_detail_carries_the_neatlogs_trace_id(monkeypatch, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from zerodrop import telemetry
+
+    app = create_app(db_path=str(tmp_path / "api.db"), default_planner="oracle")
+    with TestClient(app) as client:
+
+        def finished(scenario_id: str) -> dict:  # type: ignore[type-arg]
+            deadline = time.monotonic() + 60
+            started = client.post("/api/runs", json={"scenario_id": scenario_id})
+            while started.status_code == 409 and time.monotonic() < deadline:
+                time.sleep(0.1)  # the previous run's worker thread is still winding down
+                started = client.post("/api/runs", json={"scenario_id": scenario_id})
+            run_id = started.json()["run_id"]
+            while time.monotonic() < deadline:
+                detail = client.get(f"/api/runs/{run_id}").json()
+                if detail["status"] in {"SUCCESS", "PARTIAL_SUCCESS", "FAILED", "WAITING_FOR_APPROVAL"}:
+                    return detail
+                time.sleep(0.1)
+            raise AssertionError("run did not finish")
+
+        assert finished("S01-clean")["trace_id"] is None  # tracing off: nothing to link
+        monkeypatch.setattr(telemetry, "current_trace_id", lambda: "cd" * 16)
+        assert finished("S01-clean")["trace_id"] == "cd" * 16

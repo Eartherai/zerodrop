@@ -1608,9 +1608,9 @@ def test_telemetry_spans_cover_workflow_tools_recovery_and_verifier(monkeypatch:
     h = Harness([Rule("rate_limit", "customers", retry_after=0.1), Rule("timeout_after_write", "invoices")])
     result = h.run()
     assert result.status == RunStatus.SUCCESS
-    assert ("zerodrop.migration", "WORKFLOW") in fake.spans
     names = {(t.name, t.kind) for t in fake.traces}
     assert {
+        ("zerodrop.migration", "WORKFLOW"),
         ("discovery", "TOOL"),
         ("novabill.batch_write", "TOOL"),
         ("novabill.lookup", "TOOL"),
@@ -1623,6 +1623,10 @@ def test_telemetry_spans_cover_workflow_tools_recovery_and_verifier(monkeypatch:
     assert {"entity", "batch_size", "attempt", "outcome"} <= set(write.attrs)
     verifier = next(t for t in fake.traces if t.name == "independent-verifier")
     assert verifier.attrs["status"] == "SUCCESS"
+    root = next(t for t in fake.traces if t.name == "zerodrop.migration")
+    assert root.attrs["run_id"] == result.run_id and root.attrs["status"] == "SUCCESS"
+    assert root.attrs["false_success_claim"] is False and root.attrs["checks_failed"] == 0
+    assert root.attrs["checks_total"] > 0 and root.attrs["report_hash"] == result.report.report_hash
 
 
 @dataclass
@@ -1975,3 +1979,22 @@ def test_end_to_end_with_the_agent_fake_planner(mode: str, tmp_path: Path) -> No
         assert result.status == RunStatus.FAILED  # the verifier catches what the engine could not
         failed = {c.name for c in result.report.checks if not c.passed}
         assert "money_by_currency" in failed
+
+
+def test_run_records_its_neatlogs_trace_id_in_an_event_and_the_metrics(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    trace_id = "ab" * 16
+    monkeypatch.setattr(telemetry, "current_trace_id", lambda: trace_id)
+    h = Harness([])
+    result = h.run()
+    assert result.metrics["neatlogs_trace_id"] == trace_id
+    events = h.ledger.events_since(result.run_id)
+    assert [e.data["neatlogs_trace_id"] for e in events if "neatlogs_trace_id" in e.data] == [trace_id]
+
+
+def test_run_without_tracing_has_no_trace_id() -> None:
+    h = Harness([])
+    result = h.run()
+    assert result.metrics["neatlogs_trace_id"] is None
+    assert not any("neatlogs_trace_id" in e.data for e in h.ledger.events_since(result.run_id))

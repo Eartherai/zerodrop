@@ -21,7 +21,7 @@ function LinkOrText({ value, label }: { value: string; label: string }) {
 }
 
 export function Footer({ detail, mock }: { detail: RunDetail | null; mock: boolean }) {
-  const trace = detail?.trace_url ?? null;
+  const trace = detail?.trace_url ?? detail?.trace_id ?? null;
   const commit = detail?.commit ?? null;
   return (
     <footer className="mt-6 border-t border-line bg-surface">

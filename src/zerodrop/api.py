@@ -53,6 +53,12 @@ class _Runs:
         self.errors: dict[str, str] = {}
 
 
+def _trace_id(ledger: Ledger, run_id: str) -> str | None:
+    """Neatlogs trace id of the run's latest invocation (the engine logs it as an event), if traced."""
+    ids = [e.data["neatlogs_trace_id"] for e in ledger.events_since(run_id) if "neatlogs_trace_id" in e.data]
+    return ids[-1] if ids else None
+
+
 def _spend_used_usd(ledger: Ledger) -> float:
     """Cumulative LLM cost over every run in the ledger (runs.cost_usd).
 
@@ -207,6 +213,7 @@ def create_app(
             "mapping_versions": mapping_versions,
             "llm": {"calls": record.llm_calls, "cost_usd": record.cost_usd},
             "error": record.error or shown_error(runs.errors.get(run_id)),
+            "trace_id": _trace_id(ledger, run_id),
             "trace_url": None,
             "commit": git_commit() or None,
         }
