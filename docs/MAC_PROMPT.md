@@ -27,7 +27,7 @@ autonomously until the submission package is complete; ask me only at the decisi
 ASK ME.
 
 ### Context (read before doing anything)
-1. Read `CLAUDE.md`, `hackathon.md`, `docs/PLAN.md`, `docs/CONTRACTS.md`, `ARCHITECTURE.md`,
+1. Read `docs/CONTEXT.md` first (full handoff), then `docs/SKILLS.md`, `CLAUDE.md`, `hackathon.md`, `docs/PLAN.md`, `docs/CONTRACTS.md`, `ARCHITECTURE.md`,
    `EVALUATION.md`, `README.md`. They are the source of truth. Do not reopen product or
    architecture decisions; log any ruling in `hackathon.md` as "Ruling:".
 2. Project: ZeroDrop, an autonomous SaaS data-migration agent (LegacyBill -> NovaBill) that proves
