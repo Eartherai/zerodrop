@@ -12,6 +12,8 @@ report from an independent verifier that the agent cannot influence.
 Built during neatHack 2026 by team Tokenmaxing. The dated build log, including what failed, is
 in [`hackathon.md`](hackathon.md).
 
+![ZeroDrop dashboard during the chaos demo: rate-limit failures and recovery steps streaming](evidence/screenshots/01-s16-running.png)
+
 ## Why
 Every SaaS switch is a data migration, and migrations fail quietly: a batch dropped by a rate
 limit, a duplicate after a timeout that hid a successful write, an API that changes version
@@ -43,6 +45,10 @@ correct mapping. They measure the engine, recovery and verifier, not the model. 
 deliberately flawed planner the engine claims SUCCESS and the verifier reports FAILED (yen
 totals 100 times too large). Real-model results are added to
 [`EVALUATION.md`](EVALUATION.md) only once they are measured. Evidence files: `evidence/eval/`.
+
+When the agent's claim and the verifier disagree, the certificate says so:
+
+![Verification certificate: false-success claim caught, JPY totals 100x too large](evidence/screenshots/06-naive-false-success-certificate.png)
 
 ## Quick start
 Docker:

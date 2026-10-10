@@ -42,6 +42,7 @@
 | Video | 20% | 3 | Script only | Record dashboard assets, write recording steps |
 | Building in public | 15% | 2 | Drafts only, nothing posted | Owner approval to post |
 | Usefulness, originality | 10% | 7 | Clear problem, independent verifier is the differentiator | Business plan in cfo.ai |
+- 23:50 IST: **Video assets, first pass.** Recorded with Playwright at 1920x1080 against the live dashboard (oracle and naive planners, $0): `evidence/video/s16-demo-chaos-oracle-dashboard.mp4` (run `run_113d17d09ecf`, verified SUCCESS, 24/24 checks, trace `808ee43d4bc2e50e1766d8e46549d0b8`), `evidence/video/s01-naive-false-success-dashboard.mp4` (run `run_6f860e513488`: agent claimed SUCCESS, verifier FAILED, 21/24), and six screenshots in `evidence/screenshots/`. Recording and voice-over steps for the owner: `evidence/video/RECORDING.md`. These are backup assets; the final take should use the Claude planner once it is measured.
 - Provenance and honesty notes:
   - All code so far was written in a Claude Code cloud session and its subagents.
   - These session transcripts will **not** be attached to Entire, because they contain private account information pasted during setup. Entire checkpoints start with clean coding sessions.
