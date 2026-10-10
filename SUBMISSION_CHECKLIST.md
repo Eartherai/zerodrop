@@ -12,13 +12,13 @@ Status key: DONE (verified, evidence linked) / PARTIAL / TODO / OWNER (needs the
 | 1 | Demo video, 3 minutes or less, covering Neatlogs, Entire and cfo.ai (architecture, implementation, runtime, reasoning, result) | PARTIAL | Script: `DEMO.md`. Recording steps: `evidence/video/RECORDING.md`. Backup dashboard recordings and screenshots (oracle planner): `evidence/video/`, `evidence/screenshots/`. Final recording, voice-over and upload: OWNER |
 | 2 | Public repository with commits dated during the hackathon | OWNER | Repo `github.com/Eartherai/zerodrop` is private until the security gate passes and the owner approves. First commit after the window opened (Oct 10, 12:30 IST); history never rewritten |
 | 3 | Accessible Entire checkpoint link plus its ID | PARTIAL | ID `01M4KEGN3Q174N063453HK5XC6`. Link: https://entire.io/gh/Eartherai/zerodrop/commit/dda3a4ea468bd53ff5a64618fe179ed57a36f820 . Ref pushed: `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`. Not reachable by outsiders while the repo is private: re-check logged out after it goes public |
-| 4 | cfo.ai business plan (pricing, costs, revenue, runway) | PARTIAL | Input written: `BUSINESS.md`. Building it in cfo.ai needs the owner's sign-in |
+| 4 | cfo.ai business plan (pricing, costs, revenue, runway) | PARTIAL | Built in cfo.ai on Oct 11 from `BUSINESS.md`: 24-month model with assumptions, monthly forecast, scenarios and a written plan. Base case as cfo.ai computed it: break-even month Mar 2027, lowest cash $35,861, cash never runs out. Capture: `evidence/screenshots/08-cfo-ai-monthly-forecast.png`. Still to do: share link or export, and fold cfo.ai's own critique (20% monthly growth is aggressive; fixed costs never rise; failed runs are not costed) into `BUSINESS.md` |
 | 5 | X quote post with team, name, project, repo, demo link | OWNER | Draft: `posts/06-submission.md`. Posting is the owner's action |
 
 ## Judging criteria
 | Weight | Criterion | Status | Evidence or what is missing |
 |---|---|---|---|
-| 30% | Agent that works | PARTIAL | Engine, recovery, crash/resume and verifier: 20/20 scenarios with the deterministic oracle planner (`EVALUATION.md`). **Real Claude planner not measured yet** (blocked: API credit balance) |
+| 30% | Agent that works | PARTIAL | Engine, recovery, crash/resume and verifier: 20/20 scenarios with the deterministic oracle planner (`EVALUATION.md`). Real model (Gemini planner): S01 and S16 chaos verified SUCCESS, 24/24 checks each (`evidence/runs/`). **Full 20-scenario real-model evaluation not run** (free-tier quota: 20 requests per model per day) |
 | 25% | Sponsor tools | PARTIAL | Neatlogs: traced runs with trace id linked to each run; trace-tree screenshots TODO. Entire: checkpoint created and pushed. cfo.ai: plan input ready |
 | 20% | Video | PARTIAL | Script, recording steps and backup dashboard recordings ready; Neatlogs, Entire and cfo.ai footage not captured yet |
 | 15% | Building in public | TODO | Drafts in `posts/`; posting is the owner's action |
