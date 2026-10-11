@@ -101,6 +101,7 @@ STRUCTURAL_MAPPING_CODES: frozenset[str] = frozenset(
         "invalid_param",
         "duplicate_target",
         "duplicate_identity",
+        "refused_reference",
     }
 )
 # DSL error codes -> the NovaBill 422 code a quarantine reason carries.
@@ -276,6 +277,9 @@ class PlannerTools:
         self._field_docs: dict[str, Any] | None = None
         self._schema: dict[str, Any] | None = None
         self._tables: dict[str, list[dict[str, Any]]] = {}
+        self._refused: dict[
+            str, dict[str, dict[Any, str]]
+        ] = {}  # entity -> field -> value -> target's reason
 
     # -- tool surface (what the planner calls) ----------------------------------
 
@@ -339,11 +343,24 @@ class PlannerTools:
 
     def refresh_target(self) -> dict[str, Any]:
         """Refetch the target schema and reference tables (after a contract change)."""
+        before = (self._schema or {}).get("version")
         self._schema = None
         self._tables = {}
         schema = self.schema()
         self.reference_tables()
+        if schema.get("version") != before:
+            self._refused = {}  # a new contract may accept what the old one refused
         return schema
+
+    def note_refused(self, entity: str, field: str, values: Iterable[Any], reason: str) -> None:
+        """Remember reference values the target refused, so a dry run can fail a mapping that repeats them."""
+        known = self._refused.setdefault(entity, {}).setdefault(field, {})
+        for value in values:
+            if _hashable(value):
+                known.setdefault(value, reason)
+
+    def refused_values(self, entity: str) -> dict[str, dict[Any, str]]:
+        return {field: dict(values) for field, values in self._refused.get(entity, {}).items() if values}
 
     def check_mapping(self, spec: MappingSpec, n: int = DRY_RUN_SAMPLES) -> DryRunReport:
         entity = spec.entity.value
@@ -355,6 +372,7 @@ class PlannerTools:
         failures: list[tuple[str, dict[str, Any] | None, list[str]]] = []
         codes: list[str | None] = []
         identities: dict[Any, list[tuple[int, str, dict[str, Any]]]] = {}  # identity -> valid samples
+        valid: list[tuple[int, str, dict[str, Any]]] = []
         excluded = 0
         for index, record in enumerate(spread(self.records(entity), n)):
             if matches_exclusion(spec, record):
@@ -371,8 +389,12 @@ class PlannerTools:
             row_id = source_id_of(spec, record) or f"row-{index}"
             if errors:
                 failures.append((row_id, payload, errors))
-            elif payload is not None and payload.get(IDENTITY_FIELD) is not None:
-                identities.setdefault(payload[IDENTITY_FIELD], []).append((len(codes) - 1, row_id, payload))
+            elif payload is not None:
+                valid.append((len(codes) - 1, row_id, payload))
+                if payload.get(IDENTITY_FIELD) is not None:
+                    identities.setdefault(payload[IDENTITY_FIELD], []).append(
+                        (len(codes) - 1, row_id, payload)
+                    )
         # Each payload can be valid on its own while the mapping gives every record the same identity
         # (a constant instead of the source id): the target would then fold them into one record.
         for identity, rows in identities.items():
@@ -384,6 +406,23 @@ class PlannerTools:
                 for position, row_id, payload in rows:
                     codes[position] = "duplicate_identity"
                     failures.append((row_id, payload, [error]))
+        # A payload can pass the schema and still carry a reference the target has already refused in
+        # this run. On most samples that is the mapping's fault; on a few it is the records' (quarantine).
+        repeats = [
+            (position, row_id, payload, field, refused[payload[field]])
+            for position, row_id, payload in valid
+            if codes[position] is None
+            for field, refused in self._refused.get(entity, {}).items()
+            if _hashable(payload.get(field)) and payload.get(field) in refused
+        ]
+        if repeats and len({position for position, *_ in repeats}) * 2 >= len(valid):
+            for position, row_id, payload, field, reason in repeats:
+                codes[position] = "refused_reference"
+                error = (
+                    f"{field}: refused_reference: the target already refused the value {payload[field]!r} "
+                    f"for {field} in this run ({reason}); the mapping must produce a different value"
+                )
+                failures.append((row_id, payload, [error]))
         suspect, dominant = contract_signal(codes, structural=STRUCTURAL_MAPPING_CODES)
         structural = any(
             error_code(error) in STRUCTURAL_MAPPING_CODES | {"unknown_entity"}
@@ -1257,6 +1296,7 @@ class MigrationEngine:
                 )
                 for item, res in out.contract[:MAX_FAILED_SAMPLES]
             ]
+            self._note_refused_references(entity, out.contract)
             self._recover(entity, "contract", samples)
             current = st.mappings[entity].version
             kept = [(item, res) for item, res in out.contract if item.mapping_version == current]
@@ -1277,6 +1317,17 @@ class MigrationEngine:
         resend = {id(it) for it in retry} | {id(it) for it, _ in out.contract + out.held}
         again = [(it.source_id, it.record) for it in pending if id(it) in resend]  # keep source order
         return self._map_chunk(entity, again), bool(out.contract)
+
+    def _note_refused_references(self, entity: Entity, rejected: list[tuple[_Item, Any]]) -> None:
+        """Tell the dry run which reference values the target just refused, so a repair cannot repeat them."""
+        for item, res in rejected:
+            error = _item_error(res)
+            if error is None or error.code != "invalid_reference" or not error.field:
+                continue
+            if error.field in item.payload:
+                self.tools.note_refused(
+                    entity.value, error.field, [item.payload[error.field]], error.message or error.code
+                )
 
     # -- recovery -------------------------------------------------------------------
 
@@ -1863,6 +1914,10 @@ def _dsl_reason(errors: Sequence[str]) -> str:
     first = errors[0] if errors else "<record>: invalid_value: mapping failed"
     code = error_code(first) or "invalid_value"
     return f"{DSL_TO_TARGET_CODE.get(code, 'invalid_value')}: {first}"
+
+
+def _hashable(value: Any) -> bool:
+    return isinstance(value, (str, int)) and not isinstance(value, bool)
 
 
 def _item_error(result: Any) -> TargetItemError | None:

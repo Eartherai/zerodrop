@@ -1427,6 +1427,79 @@ def test_record_level_target_rejections_in_a_small_batch_are_quarantined_after_o
     assert_no_duplicates(h.target)
 
 
+def price_id_as_plan_code(extra_ops: tuple[str, ...] = ()) -> MappingSpec:
+    """The subscriptions mapping a real model wrote for API v1 (run_ab090e6c2fc6): it looked the plan
+    code up in the price table and sent the price id. The shape is valid; NovaBill v1 refuses the value."""
+    spec = subscriptions_mapping("v1")
+    lookup = op("lookup", table="prices", match_field="lookup_key", return_field="id")
+    wrong = FieldMapping(
+        target="plan_code", source="plan_code", ops=[*(op(name) for name in extra_ops), lookup]
+    )
+    return spec.model_copy(update={"fields": [wrong if f.target == "plan_code" else f for f in spec.fields]})
+
+
+def wrong_reference_plan() -> MigrationPlan:
+    plan = v1_plan()
+    mappings = [price_id_as_plan_code() if m.entity == E.subscriptions else m for m in plan.mappings]
+    return plan.model_copy(update={"mappings": mappings})
+
+
+def test_a_repair_that_still_produces_values_the_target_refused_is_not_sent_again() -> None:
+    answers = iter([[price_id_as_plan_code(("upper",))], [subscriptions_mapping("v1")]])
+    planner = ScriptedPlanner(plan=wrong_reference_plan(), repair=lambda ctx: next(answers))
+    h = Harness(planner=planner)
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS, run_error(h, result.run_id)
+    assert len(planner.repair_contexts) == 2
+    # The second request tells the planner which value the target already refused, and why.
+    second = planner.repair_contexts[1].failed_samples
+    assert second and all(s.error is not None and s.error.code == "refused_reference" for s in second)
+    assert "price_" in second[0].error.message and "plan_code" in second[0].error.message  # type: ignore[union-attr]
+    # No subscription was refused twice: the unchanged repair never reached the target.
+    refused_twice = {
+        key: statuses
+        for key, statuses in h.target.history.items()
+        if key.startswith("subscriptions:") and statuses.count(422) > 1
+    }
+    assert refused_twice == {}
+    assert h.target.external_ids("subscriptions") and assert_no_duplicates(h.target) is None
+
+
+def test_the_dry_run_fails_a_mapping_whose_values_the_target_already_refused() -> None:
+    h = Harness()
+    tools = PlannerTools(h.source, h.target)
+    spec = price_id_as_plan_code()
+    assert tools.check_mapping(spec).ok  # the shape is valid, so nothing is known yet
+    tools.note_refused(
+        "subscriptions", "plan_code", ["price_basic_m", "price_pro_m"], "no price with this lookup_key"
+    )
+    report = tools.check_mapping(spec)
+    assert not report.ok and report.hard_problem
+    assert report.dominant_code == "refused_reference"
+    assert tools.dry_run(spec)["ok"] is False  # the model's own dry-run tool and submit gate see it too
+    assert tools.check_mapping(subscriptions_mapping("v1")).ok  # a mapping with other values passes
+
+
+def test_refused_values_on_a_few_records_do_not_fail_the_dry_run() -> None:
+    data = make_data()
+    data["subscriptions"][0]["plan_code"] = "GOLD_M"
+    h = Harness(data=data)
+    tools = PlannerTools(h.source, h.target)
+    tools.note_refused("subscriptions", "plan_code", ["GOLD_M"], "no price with this lookup_key")
+    assert tools.check_mapping(subscriptions_mapping("v1")).ok  # one record: quarantine, not a mapping fault
+
+
+def test_refused_values_are_forgotten_when_the_target_version_changes() -> None:
+    h = Harness()
+    tools = PlannerTools(h.source, h.target)
+    tools.note_refused(
+        "subscriptions", "plan_code", ["price_basic_m", "price_pro_m"], "no price with this lookup_key"
+    )
+    h.target.version = "v2"
+    tools.refresh_target()
+    assert tools.refused_values("subscriptions") == {}
+
+
 def test_retry_after_is_capped_at_a_minute_and_never_outlives_the_wall_clock_budget() -> None:
     h = Harness([Rule("rate_limit", "invoices", retry_after=600)])
     result = h.run()
