@@ -83,6 +83,27 @@ key was on the free tier, so nothing was charged.
 - Scripted evaluation at the fix commit: 18 of 18 matched (large-scale scenarios excluded),
   `evidence/eval/*after-fix3-identity-guard.md`.
 
+### Single-model evaluation after fix 3 (commit f858712)
+The whole standard suite on one model in one pass: `gemini-3.1-flash-lite`, the smallest model
+and the one that produced the false successes above.
+`uv run zerodrop eval --planner gemini --exclude-tags scale --label gemini-3.1-flash-lite-single-model`
+(with `GEMINI_MODEL=gemini-3.1-flash-lite`). Files: `evidence/eval/20261011T130853Z-gemini-gemini-3.1-flash-lite-single-model.{json,md}`.
+
+| Metric | Value |
+|---|---|
+| Scenarios | 18 (the two large-scale ones are excluded by `--exclude-tags scale`) |
+| Matched expected verified outcome | 18 |
+| Verified SUCCESS | 15 (two PARTIAL_SUCCESS and one WAITING_FOR_APPROVAL are the expected outcomes) |
+| False success claims | 0 |
+| Crash and resume runs | 3 |
+| Model calls | 111 |
+| Model cost at list price | $0.2233 in total, $0.0149 per verified success |
+| Median duration | 17.0 s |
+
+Before the fix this model produced a false success in five of eight runs. After it, eighteen of
+eighteen in a single pass. It is one pass, so it shows the suite passes on this model, not a
+failure rate.
+
 ### Limits
 One run per scenario and model, on sandbox data. Five different Flash-class models, chosen by
 which had free-tier quota left, so results are not comparable between models.

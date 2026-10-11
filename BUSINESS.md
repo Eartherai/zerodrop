@@ -42,7 +42,7 @@ A run that ends FAILED is not billed.
 ## Unit economics
 | Item | Value | Source |
 |---|---|---|
-| Model cost per verified migration | **$0.02 median, $0.01 to $0.11 range** (twenty verified runs, one per scenario, Gemini Flash-class models, list price) | `evidence/runs/`, table in `EVALUATION.md`. Sandbox data; the cheapest model also made the mapping mistake described there |
+| Model cost per verified migration | **$0.015 on the smallest model** (single-model pass: $0.2233 over 15 verified successes); **$0.02 median, $0.01 to $0.11** across five Flash-class models | `evidence/eval/*single-model.md`, `evidence/runs/`, tables in `EVALUATION.md`. Sandbox data, list price |
 | Hard ceiling on model cost per run | $1.50 | Enforced in code (`max_cost_usd`), run stops safely at the cap |
 | Compute and storage per migration | $0.50 | Assumption: one small container for under an hour plus the ledger |
 | Support time per migration | 0.5 h at $40/h = $20 | Assumption: reviewing quarantined records with the customer |

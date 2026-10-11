@@ -18,7 +18,7 @@ Status key: DONE (verified, evidence linked) / PARTIAL / TODO / OWNER (needs the
 ## Judging criteria
 | Weight | Criterion | Status | Evidence or what is missing |
 |---|---|---|---|
-| 30% | Agent that works | DONE (single runs) | All 20 scenarios verified with a real Gemini model, one run each (`evidence/runs/`, `EVALUATION.md`). A real false success from the smallest model was caught by the verifier in 5 runs, root-caused, fixed test first (`251cdd4`) and re-verified. Scripted evaluation 18/18 at the fix commit. Not done: repeat runs on one model, any Claude run |
+| 30% | Agent that works | DONE (single runs) | All 20 scenarios verified with a real Gemini model, one run each (`evidence/runs/`, `EVALUATION.md`). A real false success from the smallest model was caught by the verifier in 5 runs, root-caused, fixed test first (`251cdd4`) and re-verified. Scripted evaluation 18/18 at the fix commit. Single-model evaluation on `gemini-3.1-flash-lite`: 18/18, 0 false successes (`evidence/eval/*single-model.md`). Not done: repeated passes, any Claude run |
 | 25% | Sponsor tools | PARTIAL | Neatlogs: every run traced, trace linked from the dashboard, captures of real-model traces in `evidence/screenshots/07` to `11`. cfo.ai: plan built, six scenarios and its criticism in `BUSINESS.md`. Entire: checkpoint exists and is referenced by every commit, but its web page is not reachable yet (row 3) |
 | 20% | Video | PARTIAL | `evidence/video/zerodrop-demo.mp4` (2:35) and `zerodrop-demo-x.mp4` (2:18 for X); synthetic narration; needs the owner's review and an upload link |
 | 15% | Building in public | OWNER | Seven drafts in `posts/`, none posted |
@@ -31,7 +31,7 @@ Status key: DONE (verified, evidence linked) / PARTIAL / TODO / OWNER (needs the
 | Docker kit | DONE | Rebuilt Oct 11, 18:20 IST with the redesigned UI: `docker compose up`, both services healthy, S07 through `POST /api/runs` verified SUCCESS |
 | Secret scan, full history | DONE | `gitleaks git --log-opts=--all --redact`: no leaks, 24 commits (Oct 10, 23:18 IST). Re-run before going public |
 | `/security-review` | DONE | Oct 10, 23:55 IST: reviewed the API (run start, public-mode access code and budget checks, static file serving), the sandbox bind-host option, the trace-id link and the Docker kit. No high-confidence findings. Static serving resolves paths and requires them inside `ui/dist`; the access code is compared in constant time; the container runs as a non-root user and ports publish to 127.0.0.1 only. Re-run before going public |
-| Real-model evaluation with saved evidence | DONE (single runs) | 20 of 20 scenarios matched, 28 runs in `evidence/runs/`, table by `scripts/runs_table.py`. Repeat runs on one model need a billed key |
+| Real-model evaluation with saved evidence | DONE | Single-model pass: 18/18 on `gemini-3.1-flash-lite` (`evidence/eval/*single-model.md`). Per-scenario runs: 20 of 20 matched, 28 runs in `evidence/runs/`. One pass each; repeated passes need a billed key |
 | Neatlogs trace screenshots in `evidence/` | DONE | `evidence/screenshots/07`, `09`, `10`: real Gemini runs with WORKFLOW, AGENT, LLM, TOOL, CHAIN and EVALUATOR spans |
 
 ## Links to fill in at submission

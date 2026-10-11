@@ -56,7 +56,8 @@ The most useful result was a failure. With the smallest model, five runs ended w
 believing SUCCESS while the verifier reported FAILED: the model had given every record the same
 id, so the target kept one record per entity. The independent verifier caught all five. We then
 taught the dry run to reject that mapping before any write, and the same five scenarios passed
-on the same model. Per-run table, root cause, limits and files:
+on the same model. A full pass of the standard suite on that one model then matched 18 of 18
+with no false success. Per-run table, root cause, limits and files:
 [`EVALUATION.md`](EVALUATION.md), `evidence/runs/`.
 
 When the agent's claim and the verifier disagree, the certificate says so:
