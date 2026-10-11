@@ -27,9 +27,9 @@ halfway through. A migration that looks finished is not the same as one that is 
 ## How it works
 | Step | Who | What |
 |---|---|---|
-| Understand both schemas, write the mapping | Claude (bounded tool loop) | A `MappingSpec` in a whitelisted mapping language: no arbitrary code from the model |
+| Understand both schemas, write the mapping | The model (bounded tool loop; Gemini in every run recorded here, Claude is the configured default) | A `MappingSpec` in a whitelisted mapping language: no arbitrary code from the model |
 | Execute | Deterministic engine | Idempotent batches, SQLite ledger, checkpoint after every batch, crash and resume |
-| Recover | Classifier, then Claude only for contract changes | Wait on 429, look up before re-sending after a timeout, rewrite the mapping when the API changes |
+| Recover | Classifier, then the model only for contract changes | Wait on 429, look up before re-sending after a timeout, rewrite the mapping when the API changes |
 | Judge | Independent verifier | Counts, duplicates, money per currency in minor units, references, every field against golden records |
 
 The verifier imports nothing from the engine, the mapping language, the ledger or the agent.

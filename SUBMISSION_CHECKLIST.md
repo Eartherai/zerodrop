@@ -30,7 +30,7 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 | Gate | Status | Evidence |
 |---|---|---|
 | Tests, lint, format | DONE | `uv run pytest -q`: 766 tests pass; `ruff check` and `ruff format --check` clean (Oct 12, 00:35 IST); 61 UI tests (Oct 11) |
-| Docker kit | DONE | Rebuilt Oct 11, 18:20 IST with the redesigned UI: `docker compose up`, both services healthy, S07 through `POST /api/runs` verified SUCCESS |
+| Docker kit | DONE | Rebuilt Oct 12, 00:38 IST from the final code: `docker compose up --build`, both services healthy, the chaos demo (S16) through `POST /api/runs` verified SUCCESS, 24 of 24 checks, dashboard served |
 | Secret scan, full history | DONE | `gitleaks git --log-opts=--all --redact`: no leaks, 52 commits (Oct 12, 00:12 IST). The only findings in a scan of the folder are in the git-ignored `.env`. Re-run right before going public |
 | `/security-review` | DONE | Oct 10, 23:55 IST: reviewed the API (run start, public-mode access code and budget checks, static file serving), the sandbox bind-host option, the trace-id link and the Docker kit. No high-confidence findings. Static serving resolves paths and requires them inside `ui/dist`; the access code is compared in constant time; the container runs as a non-root user and ports publish to 127.0.0.1 only. Re-run before going public |
 | Real-model evaluation with saved evidence | DONE | Seven passes in `evidence/eval/` (see `EVIDENCE.md` section 6), 28 single runs in `evidence/runs/`, four experiment runs in `evidence/experiments/`. $3.13 at list price in total, $0 charged |

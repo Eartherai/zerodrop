@@ -30,12 +30,12 @@
 
 | Responsibility | Owner | Why |
 |---|---|---|
-| Understand both schemas, infer the field mapping | **Claude** (`agent/planner.py`), bounded tool loop | Semantic matching, units, codes, time zones |
+| Understand both schemas, infer the field mapping | **The model** (`agent/planner.py`), bounded tool loop | Semantic matching, units, codes, time zones |
 | Mapping language | Whitelisted DSL ops (`models.OpName`, executed by `dsl.py`) | No arbitrary code from the model; safe against prompt injection in source data |
-| Dry-run every mapping against the target schema | Deterministic (`engine.PlannerTools.dry_run`, `validation.py`) | Cheap, repeatable; feeds errors back to the model |
+| Dry-run every mapping against the target schema | Deterministic (`engine.PlannerTools.dry_run`, `validation.py`) | Cheap, repeatable; feeds errors back to the model. Beyond the schema it rejects four mistakes real models made: one identity for many records, contradictory amount parameters, fixed decimals that do not fit a record's currency, and values the target already refused in this run |
 | Bulk transfer, batching, idempotency, checkpoints | Deterministic engine | Reliability must not depend on the model |
 | Failure classification | Deterministic (`classify.py`) | Predictable; the model is consulted only for contract changes |
-| Diagnose a breaking API change and patch mappings | **Claude** (`agent/diagnoser.py`) | Needs reasoning over errors and a schema diff |
+| Diagnose a breaking API change and patch mappings | **The model** (`agent/diagnoser.py`) | Needs reasoning over errors and a schema diff |
 | Final verdict | **Independent verifier** (`verifier/verify.py`) | The agent cannot certify its own work |
 
 ## Failure taxonomy and recovery
@@ -59,10 +59,10 @@ Records already WRITTEN in the ledger are never re-sent. Idempotency key = `"{en
 - Source records, notes and the legacy data dictionary are treated as untrusted data in prompts; the planner has no write or delete tools.
 - Keys come from the environment only (`ZERODROP_ANTHROPIC_KEY`, `NEATLOGS_API_KEY`); `ZERODROP_ANTHROPIC_KEY` is deliberately not `ANTHROPIC_API_KEY`, so coding tools never pick it up.
 - Hard limits per run: LLM calls, cost (USD), wall clock, replans, attempts.
-- The planner model is pluggable: Claude Opus 5.5 is the default and `--planner gemini` runs the same tool loop on Gemini through an adapter (`agent/gemini.py`, key `ZERODROP_GEMINI_KEY`). The verifier does not care which model planned; it judges the target data.
+- The planner model is pluggable: Claude Opus 5.5 is the configured default and `--planner gemini` runs the same tool loop on Gemini through an adapter (`agent/gemini.py`, key `ZERODROP_GEMINI_KEY`). Every real-model run recorded in this repository used Gemini; the Anthropic account had no credit during the hackathon. The verifier does not care which model planned; it judges the target data.
 
 ## Observability (Neatlogs)
-`telemetry.py` initialises Neatlogs once per process (no-op without a key). The model client (Anthropic, or google-genai for the Gemini planner) is wrapped with `neatlogs.wrap()`, so model calls are LLM spans. The engine adds a WORKFLOW root (`zerodrop.migration`), AGENT spans for the planner and diagnoser loops, TOOL spans for discovery, batch writes and lookups, CHAIN spans for recovery decisions, and an EVALUATOR span for the independent verifier.
+`telemetry.py` initialises Neatlogs once per process (no-op without a key). The model client (Anthropic, or google-genai for the Gemini planner) is wrapped with `neatlogs.wrap()`, so model calls are LLM spans. The engine adds a WORKFLOW root (`zerodrop.migration`), AGENT spans for the planner and diagnoser loops, TOOL spans for discovery, batch writes, lookups and each tool the model calls (with input and result), a GUARDRAIL span per dry run, CHAIN spans per entity, per recovery decision (`recovery.<class>`) and per state change (`state.<STATUS>`), and an EVALUATOR span for the independent verifier with its verdict and a score. The root span carries the outcome, and every run stores its trace id. Tool results in traces include sample records; the data here is synthetic, and a production deployment would mask fields before export.
 
 ## Test environment
 LegacyBill and NovaBill (`sandbox/`) are services built for this project. Faults come from a seeded fault plan (`FaultPlan`), so every scenario is reproducible; the agent never sees the plan. The dashboard labels them as sandbox services.
