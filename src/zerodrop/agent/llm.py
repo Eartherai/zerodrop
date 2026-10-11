@@ -23,6 +23,7 @@ Request shape for Claude Opus 5.5 (per the claude-api skill):
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any, Protocol
@@ -192,13 +193,21 @@ UNKNOWN_MODEL_PRICING = ModelPricing(
 )
 
 
+VERSION_SUFFIX = re.compile(r"[0-9][0-9-]*")
+
+
 def price_for(model: str | None) -> ModelPricing:
     model = model or ""
     if model in PRICING or not model.startswith(GEMINI_MODEL_PREFIX):
         return PRICING.get(model, UNKNOWN_MODEL_PRICING)
     # Gemini reports the served model as `model_version`, which may extend the configured id
-    # with a version suffix: price it as the longest listed id it extends.
-    listed = [known for known in PRICING if model.startswith(known + "-")]
+    # with a version suffix (digits or a date): price it as the longest listed id it extends.
+    # A differently named variant ("-lite", "-image") may bill differently and stays unknown.
+    listed = [
+        known
+        for known in PRICING
+        if model.startswith(known + "-") and VERSION_SUFFIX.fullmatch(model[len(known) + 1 :])
+    ]
     return PRICING[max(listed, key=len)] if listed else UNKNOWN_MODEL_PRICING
 
 

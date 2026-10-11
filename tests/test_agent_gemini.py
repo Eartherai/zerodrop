@@ -477,7 +477,8 @@ def test_gemini_pricing_rows_and_the_versioned_id_fallback() -> None:
     pro = price_for("gemini-3.1-pro-preview")
     assert (pro.input, pro.output, pro.cache_read) == (4.00, 18.00, 0.40)  # the >200k tier: never undercount
     assert price_for("gemini-3.8-flash-001") is flash
-    assert price_for("gemini-3.1-pro-preview-customtools") is pro
+    # A named variant is not a version suffix: it gets the conservative unknown rates (never below pro).
+    assert price_for("gemini-3.1-pro-preview-customtools").input >= pro.input
     assert price_for("gemini-3.5-flash-lite-001") is lite  # longest match, not gemini-3.5-flash
     unknown = price_for("gemini-9-ultra")  # unlisted: the conservative rates
     assert unknown.input >= max(p.input for p in PRICING.values())
@@ -773,3 +774,13 @@ def test_other_client_errors_are_not_retried() -> None:
     with pytest.raises(FakeRateLimit):
         llm.complete(system="s", tools=[], messages=[{"role": "user", "content": "hi"}])
     assert waits == [] and len(models.calls) == 1
+
+
+def test_price_fallback_only_follows_version_suffixes() -> None:
+    from zerodrop.agent.llm import PRICING, UNKNOWN_MODEL_PRICING, price_for
+
+    assert price_for("gemini-3.8-flash-001") == PRICING["gemini-3.8-flash"]
+    assert price_for("gemini-3.8-flash-09-2026") == PRICING["gemini-3.8-flash"]
+    # A differently named variant may bill differently: never price it at the cheaper base rate.
+    assert price_for("gemini-3.8-flash-lite") == UNKNOWN_MODEL_PRICING
+    assert price_for("gemini-3.8-flash-image-preview") == UNKNOWN_MODEL_PRICING

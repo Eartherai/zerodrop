@@ -34,6 +34,7 @@ from zerodrop.scenarios import get_scenario, load_scenarios
 UI_DIST = Path(__file__).resolve().parents[2] / "ui" / "dist"
 SSE_POLL_S = 0.25
 SSE_PING_S = 15.0
+NEATLOGS_APP_URL = "https://app.neatlogs.com"  # trace pages need a sign-in to the project
 PLANNERS = ("oracle", "naive", "claude", "gemini")
 
 logger = logging.getLogger(__name__)
@@ -198,6 +199,7 @@ def create_app(
         record = ledger.get_run(run_id)
         if record is None:
             raise HTTPException(404, "unknown run")
+        trace_id = _trace_id(ledger, run_id)
         mapping_versions: dict[str, int] = {}
         for entity in ("customers", "subscriptions", "invoices"):
             latest = ledger.latest_mapping(run_id, entity)
@@ -213,8 +215,8 @@ def create_app(
             "mapping_versions": mapping_versions,
             "llm": {"calls": record.llm_calls, "cost_usd": record.cost_usd},
             "error": record.error or shown_error(runs.errors.get(run_id)),
-            "trace_id": _trace_id(ledger, run_id),
-            "trace_url": None,
+            "trace_id": trace_id,
+            "trace_url": f"{NEATLOGS_APP_URL}/traces/{trace_id}" if trace_id else None,
             "commit": git_commit() or None,
         }
 

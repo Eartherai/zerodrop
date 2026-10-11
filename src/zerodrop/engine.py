@@ -579,6 +579,7 @@ class MigrationEngine:
             "zerodrop.migration", kind="WORKFLOW", run_id=st.run_id, resumed=st.resumed
         ) as root:
             self._root_span = root
+            telemetry.set_attr(root, "input.value", json.dumps({"goal": st.goal, "resumed": st.resumed}))
             self._trace_id = telemetry.current_trace_id()
             if self._trace_id is not None:
                 # Ties the run to its trace: shown in the dashboard and stored with the outcome.
@@ -893,10 +894,15 @@ class MigrationEngine:
         for entity in st.order:
             if self._entity_complete(entity):
                 continue
-            self._sync_version(entity)
-            self._migrate_entity(entity)
-            self.ledger.set_entity_done(st.run_id, entity.value)
-            counts = self.ledger.counts(st.run_id).get(entity.value, {})
+            # One span per entity: its batches, lookups and recoveries nest under it in the trace.
+            with telemetry.trace(f"migrate.{entity.value}", kind="CHAIN", entity=entity.value) as span:
+                self._sync_version(entity)
+                self._migrate_entity(entity)
+                self.ledger.set_entity_done(st.run_id, entity.value)
+                counts = self.ledger.counts(st.run_id).get(entity.value, {})
+                telemetry.set_attr(span, "written", counts.get("written", 0))
+                telemetry.set_attr(span, "quarantined", counts.get("quarantined", 0))
+                telemetry.set_attr(span, "mapping_version", st.mappings[entity].version)
             self._emit(
                 "decision",
                 f"{entity.value} complete: {counts.get('written', 0)} written, "
@@ -1589,6 +1595,7 @@ class MigrationEngine:
             outcome["report_hash"] = report.report_hash
         for key, value in outcome.items():
             telemetry.set_attr(self._root_span, key, value)
+        telemetry.set_attr(self._root_span, "output.value", json.dumps({"run_id": st.run_id, **outcome}))
         return RunResult(
             run_id=st.run_id,
             status=status,

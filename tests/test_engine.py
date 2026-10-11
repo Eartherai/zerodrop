@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import json
 import re
 import sys
 import tempfile
@@ -1611,6 +1612,9 @@ def test_telemetry_spans_cover_workflow_tools_recovery_and_verifier(monkeypatch:
     names = {(t.name, t.kind) for t in fake.traces}
     assert {
         ("zerodrop.migration", "WORKFLOW"),
+        ("migrate.customers", "CHAIN"),
+        ("migrate.subscriptions", "CHAIN"),
+        ("migrate.invoices", "CHAIN"),
         ("discovery", "TOOL"),
         ("novabill.batch_write", "TOOL"),
         ("novabill.lookup", "TOOL"),
@@ -1627,6 +1631,14 @@ def test_telemetry_spans_cover_workflow_tools_recovery_and_verifier(monkeypatch:
     assert root.attrs["run_id"] == result.run_id and root.attrs["status"] == "SUCCESS"
     assert root.attrs["false_success_claim"] is False and root.attrs["checks_failed"] == 0
     assert root.attrs["checks_total"] > 0 and root.attrs["report_hash"] == result.report.report_hash
+    # The root shows what was asked and what came out (the trace list's INPUT and OUTPUT columns).
+    assert (
+        json.loads(root.attrs["input.value"])["goal"] == "Move all billing data from LegacyBill to NovaBill"
+    )
+    shown = json.loads(root.attrs["output.value"])
+    assert shown["status"] == "SUCCESS" and shown["checks_failed"] == 0 and shown["run_id"] == result.run_id
+    customers = next(t for t in fake.traces if t.name == "migrate.customers")
+    assert customers.attrs["entity"] == "customers" and customers.attrs["written"] > 0
 
 
 @dataclass

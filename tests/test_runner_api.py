@@ -121,9 +121,12 @@ def test_api_run_detail_carries_the_neatlogs_trace_id(monkeypatch, tmp_path) -> 
                 time.sleep(0.1)
             raise AssertionError("run did not finish")
 
-        assert finished("S01-clean")["trace_id"] is None  # tracing off: nothing to link
+        untraced = finished("S01-clean")
+        assert untraced["trace_id"] is None and untraced["trace_url"] is None  # tracing off: nothing to link
         monkeypatch.setattr(telemetry, "current_trace_id", lambda: "cd" * 16)
-        assert finished("S01-clean")["trace_id"] == "cd" * 16
+        traced = finished("S01-clean")
+        assert traced["trace_id"] == "cd" * 16
+        assert traced["trace_url"] == "https://app.neatlogs.com/traces/" + "cd" * 16
 
 
 # --- planner modes ----------------------------------------------------------------------------
