@@ -2010,3 +2010,35 @@ def test_run_without_tracing_has_no_trace_id() -> None:
     result = h.run()
     assert result.metrics["neatlogs_trace_id"] is None
     assert not any("neatlogs_trace_id" in e.data for e in h.ledger.events_since(result.run_id))
+
+
+def constant_id_customers() -> MappingSpec:
+    """The mapping a real model produced (gemini-3.1-flash-lite, run_5d0171f3cddf): a constant id."""
+    spec = customers_mapping()
+    spec.fields[0] = FieldMapping(target="external_id", source="cust_id", ops=[op("const", value="C001")])
+    return spec
+
+
+def test_dry_run_rejects_a_mapping_that_gives_different_records_the_same_identity() -> None:
+    h = Harness([])
+    report = h.engine.tools.dry_run(constant_id_customers().model_dump_json(), 5)
+    assert not report["ok"] and report["mapping_problem"]
+    assert any("duplicate_identity" in err for row in report["errors"] for err in row["errors"])
+    assert h.engine.tools.dry_run(customers_mapping().model_dump_json(), 5)["ok"]
+
+
+def test_constant_identity_mapping_is_repaired_before_any_write_not_collapsed_into_one_record() -> None:
+    plan = MigrationPlan(
+        entity_order=[E.customers, E.subscriptions, E.invoices],
+        mappings=[constant_id_customers(), subscriptions_mapping(), invoices_mapping()],
+    )
+
+    def fix(ctx: RepairContext) -> list[MappingSpec]:
+        assert {s.error.code for s in ctx.failed_samples if s.error} == {"duplicate_identity"}
+        return [customers_mapping()]
+
+    h = Harness(planner=ScriptedPlanner(plan, repair=fix))
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS and result.metrics["dry_run_repairs"] == 1
+    assert result.metrics["already_present"] == 0  # nothing was folded onto an existing record
+    assert_no_duplicates(h.target)

@@ -81,26 +81,36 @@ uv run zerodrop serve            # dashboard on the printed port
 uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json
 ```
 
-## 7. Evidence so far (all reproducible from `evidence/eval/`)
-- Baseline at `c4766e2`: 19/20 scenarios matched; S03 (rate-limit storm) FAILED.
-- Root cause: 429 waits consumed the general retry budget. Fix 1 (`8c0a017`): separate 429
-  budget, 20/20. Fix 2 (`574aa2b`): wait exactly Retry-After, 20/20, S03 12.1 s -> 2.8 s.
-- 656 tests pass. Dashboard verified in Chromium on S16: 7 injected failures, 16 recovery steps,
-  mapping v1 -> v2, 50 records found already committed and 0 re-sent, verifier 24/24 checks.
-- Neatlogs: traced oracle runs S07 and S16 arrived in the dashboard (readback was still
-  processing at probe time).
-- **Not done yet: any run with the real Claude planner.** No real-model numbers exist; do not
-  write any until they are measured.
+## 7. Evidence so far (all reproducible from `evidence/`)
+- Scripted (oracle) evaluation: baseline `c4766e2` 19/20 (S03 failed); fix 1 `8c0a017` and fix 2
+  `574aa2b` 20/20. Tables in `EVALUATION.md`.
+- **Real model (Gemini planner, added Oct 11):** single runs per scenario in `evidence/runs/`,
+  table built by `uv run python scripts/runs_table.py`. See `EVALUATION.md` for the current count.
+  Quota-halted runs are kept and named `*-quota-halt.json`. The Anthropic key has no credit, so
+  no Claude run exists. The Gemini key is on the free tier: 5 requests per minute and 20 per day
+  per model, which is why runs are spread over several Flash-class models
+  (`GEMINI_MODEL=<id> uv run zerodrop run <scenario> --planner gemini`).
+- Neatlogs: every run is traced; trace ids are in the run files and the dashboard footer links
+  to `https://app.neatlogs.com/traces/<id>`. Captures in `evidence/screenshots/07` to `11`.
+- Entire: checkpoint `01M4KEGN3Q174N063453HK5XC6` exists as a git ref and is pushed to GitHub. The
+  entire.io page is a 404 because the site only knows the Entire-hosted repo
+  `/et/hackathone/hackathon`; the owner must run
+  `git remote add entire entire://aws-ap-south-1.entire.io/et/hackathone/hackathon` and
+  `git push entire main 'refs/entire/*:refs/entire/*'` (blocked for the agent).
+- cfo.ai: plan built in the owner's workspace; results and criticism are in `BUSINESS.md`.
+- Demo video: `evidence/video/zerodrop-demo.mp4` (source project outside the repo at
+  `~/Desktop/anti/videos/zerodrop-demo`, rendered with HyperFrames, local Kokoro voice).
 
 ## 8. Remaining work (in order)
-1. Real Claude runs (S01, S16) and a real-model eval; fix failures test-first with evidence.
-2. Richer Neatlogs spans and trace screenshots.
-3. Entire checkpoint from a clean session; record the link and ID.
-4. Docker kit (Dockerfile, compose, healthcheck, `.dockerignore`).
-5. `DEMO.md` (2:50 script), `BUSINESS.md`, `SUBMISSION_CHECKLIST.md`, `posts/` drafts, README.
-6. cfo.ai business plan (owner signs in once).
-7. Video assets and recording steps.
-8. `/security-review`, gitleaks over full history, then owner approval to go public and post.
+1. Owner: review the video, upload it, give the link. Owner: the Entire push above.
+2. Owner: enable billing on the Gemini key (or Anthropic credit) for repeat runs and any
+   scenario still missing in `EVALUATION.md`.
+3. Before the repo goes public: the Mac session's transcript is the Entire checkpoint and
+   contains personal details (owner's college and public profiles surfaced by cfo.ai, a Google
+   Cloud project number, a Neatlogs org id, local folder names). Review it with the owner, or
+   replace it with a checkpoint from a clean session, before approving publication.
+4. Re-run `/security-review` and `gitleaks git --log-opts=--all --redact` right before going public.
+5. Owner approval for: repo visibility, posts in `posts/`, the submission quote post.
 
 ## 9. Rules that stay in force
 - Never read, print or echo `.env`, `~/.aws` or environment variables; never run `env` or

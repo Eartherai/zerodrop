@@ -92,8 +92,16 @@ RETRY_AFTER_MAX_S = 60.0  # a server-requested wait is honored in full up to thi
 
 DEFAULT_ID_FIELDS: dict[str, str] = {"customers": "cust_id", "subscriptions": "sub_id", "invoices": "inv_id"}
 # Error codes that only a wrong mapping produces (target 422 codes and DSL spec errors).
+IDENTITY_FIELD = "external_id"  # the target-side identity of a migrated record (and the idempotency key)
 STRUCTURAL_MAPPING_CODES: frozenset[str] = frozenset(
-    {"unknown_field", "missing_field", "missing_param", "invalid_param", "duplicate_target"}
+    {
+        "unknown_field",
+        "missing_field",
+        "missing_param",
+        "invalid_param",
+        "duplicate_target",
+        "duplicate_identity",
+    }
 )
 # DSL error codes -> the NovaBill 422 code a quarantine reason carries.
 DSL_TO_TARGET_CODE: dict[str, str] = {
@@ -346,6 +354,7 @@ class PlannerTools:
         ctx = _MappingContext(self._id_map, self.reference_table, placeholder_refs=True)
         failures: list[tuple[str, dict[str, Any] | None, list[str]]] = []
         codes: list[str | None] = []
+        identities: dict[Any, list[tuple[int, str, dict[str, Any]]]] = {}  # identity -> valid samples
         excluded = 0
         for index, record in enumerate(spread(self.records(entity), n)):
             if matches_exclusion(spec, record):
@@ -359,8 +368,22 @@ class PlannerTools:
                     else [f"<schema>: unknown_entity: target schema has no entity {entity!r}"]
                 )
             codes.append(_primary_code(errors) if errors else None)
+            row_id = source_id_of(spec, record) or f"row-{index}"
             if errors:
-                failures.append((source_id_of(spec, record) or f"row-{index}", payload, errors))
+                failures.append((row_id, payload, errors))
+            elif payload is not None and payload.get(IDENTITY_FIELD) is not None:
+                identities.setdefault(payload[IDENTITY_FIELD], []).append((len(codes) - 1, row_id, payload))
+        # Each payload can be valid on its own while the mapping gives every record the same identity
+        # (a constant instead of the source id): the target would then fold them into one record.
+        for identity, rows in identities.items():
+            if len({row_id for _, row_id, _ in rows}) > 1:
+                error = (
+                    f"{IDENTITY_FIELD}: duplicate_identity: {len(rows)} different source records map to "
+                    f"{IDENTITY_FIELD} {identity!r}; it must come from each record's own id"
+                )
+                for position, row_id, payload in rows:
+                    codes[position] = "duplicate_identity"
+                    failures.append((row_id, payload, [error]))
         suspect, dominant = contract_signal(codes, structural=STRUCTURAL_MAPPING_CODES)
         structural = any(
             error_code(error) in STRUCTURAL_MAPPING_CODES | {"unknown_entity"}
