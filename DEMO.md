@@ -1,6 +1,6 @@
 # Demo video script (hard limit 3:00)
 
-> **Current cut:** `evidence/video/zerodrop-demo.mp4` (2:35, re-rendered Oct 12 with the closing caption "every false success caught by the verifier"; fourth cut, redesigned dashboard). It follows the
+> **Current cut:** `evidence/video/zerodrop-demo.mp4` (2:35, fifth cut, rendered Oct 12: the Entire scene now shows entire-graph output and the closing caption reads "every false success caught by the verifier"). It follows the
 > structure below with these differences: the live run is a replay of the real Gemini S16 run
 > (`run_aa73127580bb`), narration is a synthetic voice (script in the table under "As rendered"),
 > the Entire section shows CLI output, and the model in the run is Gemini, not Claude. The table
@@ -15,7 +15,7 @@
 | 1:02 | Certificate | Then the verifier re-reads both systems. Counts, duplicates, money per currency to the cent, and every field. Twenty four of twenty four checks pass. That verdict comes from the verifier, not from the agent. |
 | 1:16 | A real model's false success | Here is why that matters. The smallest model we tried gave every record the same ID. The engine believed it had succeeded. The verifier disagreed, in five runs. We fixed the engine, and all five passed. |
 | 1:31 | Neatlogs | Neatlogs is the runtime record. Every run is one trace. The planner is an agent span. Each Gemini call shows its tokens and cost. Each batch write is a tool span, and the verifier is an evaluator. Traces are how we found a real bug: rate limits were being counted as failures. |
-| 1:52 | Entire | Entire is the build record. Each commit carries a checkpoint of the coding session behind it: the prompts, the reasoning, and the tests that failed first. It lives in git, with secrets redacted. |
+| 1:52 | Entire | Entire is the build record. Commits carry a checkpoint of the coding session, stored in git with secrets redacted. Its code graph, entire graph, showed what a change would touch before we made it. |
 | 2:05 | cfo.ai | cfo.ai holds the business model. We charge four hundred ninety nine dollars per verified migration. A real run costs about two cents of model time. Its base case breaks even in March twenty twenty seven, and it pushed back on our growth assumption. |
 | 2:24 | Close | All twenty failure scenarios, verified with a real model. ZeroDrop. The migration agent that proves nothing was lost. |
 

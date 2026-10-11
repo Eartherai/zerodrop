@@ -107,6 +107,7 @@
 - 00:20 IST: **`EVIDENCE.md`**: one page for judges that maps each item the rules list to a file, run id or trace, including the weak points. `EVALUATION.md` and `README.md` now carry every pass, the bad ones too. Video closing line changed from "5 false successes caught" to "every false success caught" and both cuts re-rendered.
 - 00:22 IST: **Same pass again on the newest commit: 20 of 20.** `gemini-3.5-flash-lite` at `6c07c9f` (after fix 6), second key: 0 false success claims, 141 model calls, $0.465 at list price, median 18.5 s. `evidence/eval/*after-fix6.md`. Two passes in a row on all 20 scenarios; still not a failure rate.
 - Checked whether Neatlogs can share a trace publicly so judges could open the links: the trace menu offers Markdown and CSV export only, so screenshots stay the evidence for people outside the project.
+- 00:35 IST: **Video, fifth cut** (2:35; X cut 2:18): the Entire scene now names entire-graph and shows its real impact output for `_set_status` (17 callers, 6 co-change files), because the rules ask for checkpoints and entire-graph. One narration line regenerated with the same local voice.
 - Real-model spend so far: $3.09 at list price across all saved runs, $0 charged (free tier), against the $25 cap.
 
 #### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
