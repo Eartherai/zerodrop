@@ -45,6 +45,7 @@ REFUSAL_FINISH_REASONS = frozenset(
 )
 
 RETRY_HINT = re.compile(r"retry in ([0-9]+(?:\.[0-9]+)?)s")
+CHARS_PER_TOKEN_ESTIMATE = 3
 DEFAULT_RATE_LIMIT_WAIT_S = 20.0
 MAX_RATE_LIMIT_WAIT_S = 65.0
 
@@ -135,11 +136,13 @@ class GeminiBackend:
                 waits += 1
                 self._sleep(delay)  # a per-minute quota 429 means "wait", not "broken" (as for NovaBill)
                 continue
-            return self._message(response, request["model"])
+            return self._message(response, request["model"], contents)
 
-    def _message(self, response: Any, requested_model: str) -> GeminiMessage:
+    def _message(self, response: Any, requested_model: str, contents: list[dict[str, Any]]) -> GeminiMessage:
         model = getattr(response, "model_version", None) or requested_model
-        usage = _usage(getattr(response, "usage_metadata", None))
+        meta = getattr(response, "usage_metadata", None)
+        # No usage metadata at all would make the call look free to the cost cap: estimate it high.
+        usage = _usage(meta) if meta is not None else _estimated_usage(contents, response)
 
         def malformed(problem: str) -> MalformedModelOutput:
             # the partial carries the billed tokens, so LLMClient still accounts for the call
@@ -200,6 +203,18 @@ def _usage(meta: Any) -> GeminiUsage:
     )
 
 
+def _estimated_usage(contents: list[dict[str, Any]], response: Any) -> GeminiUsage:
+    """Usage guessed from text sizes at three characters per token (ordinary text is nearer four)."""
+    candidates = getattr(response, "candidates", None) or []
+    parts = getattr(getattr(candidates[0], "content", None), "parts", None) or [] if candidates else []
+    sent, received = len(repr(contents)), sum(len(repr(part)) for part in parts)
+    return GeminiUsage(
+        input_tokens=sent // CHARS_PER_TOKEN_ESTIMATE + 1,
+        output_tokens=received // CHARS_PER_TOKEN_ESTIMATE + 1,
+        cache_read_input_tokens=0,
+    )
+
+
 def _config(request: dict[str, Any]) -> dict[str, Any]:
     config: dict[str, Any] = {
         "system_instruction": "\n\n".join(block["text"] for block in request["system"]),
@@ -236,7 +251,15 @@ def _contents(messages: list[Any]) -> list[dict[str, Any]]:
         if not parts:
             continue  # a model turn without parts is not sent back
         if role == "user" and contents and contents[-1]["role"] == "user":
-            contents[-1]["parts"].extend(parts)  # keep roles alternating after a skipped model turn
+            # keep roles alternating after a skipped model turn
+            previous = contents[-1]["parts"]
+            if "function_response" in previous[-1] and all(set(part) == {"text"} for part in parts):
+                # text beside function responses is not documented: carry it as the response's note
+                answer = previous[-1]["function_response"]["response"]
+                texts = [answer["note"]] if "note" in answer else []
+                answer["note"] = "\n".join(texts + [part["text"] for part in parts])
+            else:
+                previous.extend(parts)
         else:
             contents.append({"role": role, "parts": parts})
     return contents

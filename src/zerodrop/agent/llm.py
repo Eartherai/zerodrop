@@ -177,6 +177,10 @@ PRICING: dict[str, ModelPricing] = {
     "gemini-3.6-flash": _gemini(input=0.75, output=3.75, cache_read=0.075),
     # https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite
     "gemini-3.5-flash-lite": _gemini(input=0.30, output=2.50, cache_read=0.03),
+    # https://ai.google.dev/gemini-api/docs/pricing#gemini-3-flash-preview (read 2026-10-11)
+    "gemini-3-flash-preview": _gemini(input=0.50, output=3.00, cache_read=0.05),
+    # https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash (read 2026-10-11; text rates)
+    "gemini-2.5-flash": _gemini(input=0.30, output=2.50, cache_read=0.03),
     # https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-flash-lite
     "gemini-3.1-flash-lite": _gemini(input=0.25, output=1.50, cache_read=0.025),
     # Tiered by prompt size ($2 / $12 / $0.20 up to 200k tokens): the >200k rates, so never undercounted.

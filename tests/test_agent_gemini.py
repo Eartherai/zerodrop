@@ -460,13 +460,38 @@ def test_usage_counts_thinking_as_output_and_cached_tokens_at_the_cache_rate() -
     assert llm.usage.served_models == {"gemini-3.8-flash-001": 1} and llm.cost_usd == call.cost_usd
 
 
-def test_absent_usage_fields_count_as_zero() -> None:
+def test_absent_usage_fields_count_as_zero_but_absent_metadata_is_estimated_high() -> None:
     partial = reply(FakePart(text="x"), usage_metadata=FakeUsageMetadata(12, None))
-    bare = reply(FakePart(text="x"), usage_metadata=None, model_version=None)
+    bare = reply(FakePart(text="y" * 300), usage_metadata=None, model_version=None)
     llm, _ = client([partial, bare])
-    first, second = complete(llm).usage, complete(llm)
+    first = llm.complete(system="s", tools=[], messages=[{"role": "user", "content": "hi"}]).usage
+    second = llm.complete(system="s", tools=[], messages=[{"role": "user", "content": "z" * 3000}])
     assert (first.input_tokens, first.output_tokens) == (12, 0)
-    assert (second.usage.cost_usd, second.model) == (0.0, MODEL)  # falls back to the requested model
+    # No usage metadata at all: the cost cap must still see the call. Estimated from the text sizes at
+    # three characters per token, which overcounts ordinary text.
+    assert second.usage.input_tokens >= 1000 and second.usage.output_tokens >= 100
+    assert second.usage.cost_usd > 0 and second.model == MODEL  # falls back to the requested model
+
+
+def test_nudge_after_an_empty_model_turn_is_folded_into_the_last_function_response() -> None:
+    call = call_part("get_source_samples", {"entity": "customers"}, id="c1")
+    llm, models = client([reply(call), reply(), text_reply()])
+    messages: list[Any] = [{"role": "user", "content": "go"}]
+    first = llm.complete(system="s", tools=[], messages=messages)
+    messages.append({"role": "assistant", "content": first.content})
+    messages.append(
+        {
+            "role": "user",
+            "content": [{"type": "tool_result", "tool_use_id": first.tool_calls[0].id, "content": "ok"}],
+        }
+    )
+    empty = llm.complete(system="s", tools=[], messages=messages)
+    messages.append({"role": "assistant", "content": empty.content})
+    messages.append({"role": "user", "content": "NUDGE"})
+    llm.complete(system="s", tools=[], messages=messages)
+    last_user = models.calls[-1]["contents"][-1]
+    assert last_user["role"] == "user" and all("text" not in part for part in last_user["parts"])
+    assert last_user["parts"][-1]["function_response"]["response"]["note"] == "NUDGE"
 
 
 def test_gemini_pricing_rows_and_the_versioned_id_fallback() -> None:
