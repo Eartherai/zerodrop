@@ -1721,6 +1721,13 @@ class MigrationEngine:
         previous, st.status = st.status, status
         self.ledger.set_status(st.run_id, status)
         self._emit("state", f"{previous.value} -> {status.value}", previous=previous.value)
+        # State changes belong in the trace too: a reader of the trace sees the run move through its phases.
+        telemetry.log(
+            f"state {previous.value} -> {status.value}",
+            run_id=st.run_id,
+            from_state=previous.value,
+            to_state=status.value,
+        )
 
     def _emit(
         self, kind: EventKind, message: str, entity: Entity | None = None, **data: Any

@@ -2,9 +2,10 @@
 
 - `FakePlanner(mode="oracle")` returns the correct plan for the sandbox semantics
   (docs/CONTRACTS.md section 1) and the correct repair after the v2 schema flip.
-- `FakePlanner(mode="naive")` returns a plausible but flawed plan (a fixed 2 decimals
-  for every currency, no e-mail lower-casing, currency case left as is) and repairs
-  only the entity that failed.
+- `FakePlanner(mode="naive")` returns a plausible but flawed plan (customer dates read as UTC
+  instead of the account's time zone, no e-mail lower-casing, currency case left as is) and
+  repairs only the entity that failed. The time-zone flaw passes every schema check, so only
+  the independent verifier can catch it.
 - `ScriptedBackend` is an `LLMBackend` that replays canned responses for unit tests.
 """
 
@@ -152,12 +153,16 @@ def oracle_spec(entity: Entity, tz: str, schema: dict[str, Any]) -> MappingSpec:
     return invoices_spec(version)
 
 
+NAIVE_TIMEZONE = "UTC"  # what the naive planner assumes instead of the account's time zone
+
+
 def naive_spec(entity: Entity, tz: str, schema: dict[str, Any]) -> MappingSpec:
     version = schema_version(schema)
     if entity == Entity.customers:
-        return customers_spec(tz, version, lower_email=False)
+        # The silent flaw: local wall-clock dates read as UTC, so every instant is off by the offset.
+        return customers_spec(NAIVE_TIMEZONE, version, lower_email=False)
     if entity == Entity.invoices:
-        return invoices_spec(version, fixed_decimals=2, lower_currency=False)
+        return invoices_spec(version, lower_currency=False)
     return oracle_spec(entity, tz, schema)
 
 

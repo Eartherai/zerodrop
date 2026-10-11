@@ -349,6 +349,17 @@ def _decimals_for(op: TransformOp, record: Mapping[str, Any]) -> int:
                 f"decimal_to_minor: decimals={op.decimals} contradicts currency {code.strip().upper()!r}, which "
                 f"has {minor_units(code)} minor-unit digits; give only 'currency_field' for mixed currencies",
             )
+        if op.currency_field is None:
+            # A fixed number of decimals for every record is only right when no record carries a
+            # currency with different minor units (yen has none, dinars have three).
+            for name, held in record.items():
+                units = CURRENCY_MINOR_UNITS.get(held.strip().upper()) if isinstance(held, str) else None
+                if units is not None and units != op.decimals:
+                    raise _OpError(
+                        ERR_INVALID_PARAM,
+                        f"decimal_to_minor: decimals={op.decimals} does not fit currency {held.strip().upper()!r} "
+                        f"in field {name!r} ({units} minor-unit digits); use currency_field={name!r} instead",
+                    )
         return op.decimals
     if op.currency_field is None:
         raise _OpError(ERR_MISSING_PARAM, "decimal_to_minor needs 'decimals' or 'currency_field'")

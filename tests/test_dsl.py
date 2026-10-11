@@ -885,3 +885,15 @@ def test_apply_mapping_never_raises(s: MappingSpec, record: dict[str, Any]) -> N
 def test_customer_spec_never_raises_on_arbitrary_records(record: dict[str, Any]) -> None:
     payload, errors = apply_mapping(CUSTOMER_SPEC, record, ExplodingCtx())
     assert (payload is None) == bool(errors)
+
+
+def test_fixed_decimals_must_fit_the_currency_the_record_carries() -> None:
+    # The mapping a real model wrote (gemini-3.1-flash-lite, run_acc170ca8785): a fixed two decimals
+    # for every invoice, with the currency sitting right there in the record.
+    fixed = money(decimals=2)
+    assert value_of(fixed, {"amount": "129.00", "currency": "USD"}) == 12900
+    assert value_of(fixed, {"amount": "129.00"}) == 12900  # no currency in the record: nothing to contradict
+    assert codes_of(fixed, {"amount": "2295", "currency": "JPY"}) == ["invalid_param"]
+    assert codes_of(fixed, {"amount": "1.234", "cur": "kwd"}) == ["invalid_param"]
+    # Three letters that are not a listed currency are left alone.
+    assert value_of(fixed, {"amount": "5.00", "country": "JPN", "note": "abc"}) == 500

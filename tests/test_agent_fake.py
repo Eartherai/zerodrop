@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Any
 
 import pytest
@@ -273,13 +274,19 @@ def test_naive_plan_is_plausible_but_wrong(dataset: fixtures.Dataset) -> None:
     assert payload["email"] == mixed["email"]
     assert any("not_lowercase" in e for e in validate_payload(schema, payload))
 
+    golden = next(g for g in dataset.golden["customers"] if g["external_id"] == mixed["cust_id"])
+
+    def instant(text: str) -> datetime:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+
+    # The silent flaw: the legacy date is local (Asia/Kolkata) but is read as UTC, so the instant is
+    # 5 h 30 min late. It passes the schema; only a comparison with the source can see it.
+    assert instant(payload["created_at"]) - instant(golden["created_at"]) == timedelta(hours=5, minutes=30)
+
     invoices = plan.mapping_for(Entity.invoices)
     jpy = next(r for r in dataset.source["invoices"] if r["currency"] == "JPY")
     payload, errors = apply_mapping(invoices, jpy, ctx)
-    golden = next(g for g in dataset.golden["invoices"] if g["external_id"] == jpy["inv_id"])
-    assert errors == [] and payload is not None
-    assert payload["amount_minor"] == golden["amount_minor"] * 100  # silent money error
-    assert payload["currency"] == "JPY"
+    assert errors == [] and payload is not None and payload["currency"] == "JPY"  # case left as is
 
 
 def test_naive_repair_patches_only_the_failing_entity(dataset: fixtures.Dataset) -> None:
@@ -421,9 +428,9 @@ def test_naive_planner_is_caught_by_the_verifier_end_to_end() -> None:
     planner = FakePlanner("naive")
     result, _ = run_engine(planner, flip=True)
     assert result.agent_claimed_status == RunStatus.SUCCESS  # the agent believes it succeeded
-    assert result.status == RunStatus.FAILED  # the independent verifier disagrees (JPY amounts x100)
+    assert result.status == RunStatus.FAILED  # the independent verifier disagrees (customer dates shifted)
     failed = {c.name for c in result.report.checks if not c.passed}
-    assert "money_by_currency" in failed
+    assert "source_fidelity" in failed
     assert len(planner.repair_calls) >= 2  # patched one entity at a time
 
 
@@ -440,7 +447,9 @@ def test_naive_flaws_are_exactly_the_documented_ones(dataset: fixtures.Dataset) 
     assert golden["currency"] == "usd" and payload["amount_minor"] == golden["amount_minor"]  # 2-decimal OK
     # everything else about customers matches the oracle
     naive_c, oracle_c = naive.mapping_for(Entity.customers), oracle.mapping_for(Entity.customers)
-    assert [f for f in naive_c.fields if f.target != "email"] == [
-        f for f in oracle_c.fields if f.target != "email"
+    assert [f for f in naive_c.fields if f.target not in ("email", "created_at")] == [
+        f for f in oracle_c.fields if f.target not in ("email", "created_at")
     ]
+    created = next(f for f in naive_c.fields if f.target == "created_at")
+    assert created.ops[0].assume_tz == "UTC"  # the account is in Asia/Kolkata
     assert naive_c.exclude_if == oracle_c.exclude_if

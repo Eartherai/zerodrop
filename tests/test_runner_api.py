@@ -35,7 +35,7 @@ def test_naive_planner_is_caught_by_the_verifier() -> None:
     assert outcome.agent_claimed_status == RunStatus.SUCCESS
     assert outcome.status == RunStatus.FAILED
     assert outcome.false_success_claim
-    assert any(c.startswith("money_by_currency") for c in outcome.failed_checks)
+    assert any(c.startswith("source_fidelity") for c in outcome.failed_checks)
 
 
 @pytest.mark.slow

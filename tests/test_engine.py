@@ -1639,6 +1639,10 @@ def test_telemetry_spans_cover_workflow_tools_recovery_and_verifier(monkeypatch:
     assert shown["status"] == "SUCCESS" and shown["checks_failed"] == 0 and shown["run_id"] == result.run_id
     customers = next(t for t in fake.traces if t.name == "migrate.customers")
     assert customers.attrs["entity"] == "customers" and customers.attrs["written"] > 0
+    # Every state change of the run is in the trace, in order, ending with the verdict.
+    states = [data["to_state"] for message, data in fake.logs if message.startswith("state ")]
+    assert states[:3] == ["DISCOVERING", "PLANNING", "DRY_RUN"] and states[-2:] == ["VERIFYING", "SUCCESS"]
+    assert "RECOVERING" not in states or states.index("RECOVERING") > states.index("EXECUTING")
 
 
 @dataclass
@@ -1656,6 +1660,7 @@ class FakeNeatlogs(types.ModuleType):
         super().__init__("neatlogs")
         self.spans: list[tuple[str, str]] = []
         self.traces: list[_TraceRecord] = []
+        self.logs: list[tuple[str, dict[str, Any]]] = []
 
     def span(self, kind: str, name: str, **_: Any) -> Callable[[Any], Any]:
         def decorator(fn: Any) -> Any:
@@ -1673,8 +1678,8 @@ class FakeNeatlogs(types.ModuleType):
         self.traces.append(record)
         yield record
 
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        return None
+    def log(self, message: str, *args: Any, **kwargs: Any) -> None:
+        self.logs.append((message, kwargs))
 
 
 # ---------------------------------------------------------------------------
@@ -1986,11 +1991,11 @@ def test_end_to_end_with_the_agent_fake_planner(mode: str, tmp_path: Path) -> No
         assert result.status == RunStatus.PARTIAL_SUCCESS
         assert all(c.passed for c in result.report.checks)
         assert result.metrics["replans"] == 1
-    else:  # naive: the lower-case defect is repaired in DRY_RUN; the JPY decimals defect is not detectable
+    else:  # naive: the lower-case defect is repaired in DRY_RUN; the time-zone defect is not detectable
         assert result.metrics["dry_run_repairs"] >= 1
         assert result.status == RunStatus.FAILED  # the verifier catches what the engine could not
         failed = {c.name for c in result.report.checks if not c.passed}
-        assert "money_by_currency" in failed
+        assert "source_fidelity" in failed
 
 
 def test_run_records_its_neatlogs_trace_id_in_an_event_and_the_metrics(
