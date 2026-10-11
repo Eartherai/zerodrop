@@ -13,7 +13,7 @@ somewhere linkable (for example unlisted on YouTube) for the "demo link" the rul
 Team Tokenmaxing · [your name]
 ZeroDrop: the migration agent that proves nothing was lost.
 
-The model decides, code executes, an independent checker judges. 20 of 20 failure scenarios verified with a real model, and 5 false successes caught by the checker.
+20 of 20 failure scenarios verified with a real model. 5 false successes caught by an independent checker.
 
 Repo: [public repo link]
 Demo: [video link]
