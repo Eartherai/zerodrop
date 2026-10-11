@@ -43,8 +43,14 @@ Twenty seeded failure scenarios (`scenarios/scenarios.yaml`), each ending with t
 These three runs use the **oracle planner**, a deterministic stand-in that always proposes the
 correct mapping. They measure the engine, recovery and verifier, not the model. With a
 deliberately flawed planner the engine claims SUCCESS and the verifier reports FAILED (yen
-totals 100 times too large). Real-model results are added to
-[`EVALUATION.md`](EVALUATION.md) only once they are measured. Evidence files: `evidence/eval/`.
+totals 100 times too large).
+
+**With a real model (Gemini planner):** nine scenarios run once each, all nine matched their
+expected verified outcome, with zero false success claims: clean, breaking API change, crash and
+resume, orphans, duplicates, credential rotation, credential revoked, prompt injection, and the
+combined chaos demo. Two further runs halted on the free tier's daily quota and correctly
+reported FAILED. Per-run table, limits and files: [`EVALUATION.md`](EVALUATION.md),
+`evidence/runs/`. The other eleven scenarios have not been run with a real model.
 
 When the agent's claim and the verifier disagree, the certificate says so:
 

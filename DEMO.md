@@ -1,4 +1,25 @@
-# Demo video script (target 2:50, hard limit 3:00)
+# Demo video script (hard limit 3:00)
+
+> **Current cut:** `evidence/video/zerodrop-demo.mp4` (2:31, rendered Oct 11). It follows the
+> structure below with these differences: the live run is a replay of the real Gemini S16 run
+> (`run_aa73127580bb`), narration is a synthetic voice (script in the table under "As rendered"),
+> the Entire section shows CLI output, and the model in the run is Gemini, not Claude. The table
+> further down is the original plan for a human-recorded take.
+
+## As rendered
+| Time | Scene | Narration |
+|---|---|---|
+| 0:00 | Problem | Every time a company switches a software tool, someone has to move the data. And migrations lose data quietly. A dropped batch. A duplicate after a timeout. An API that changes halfway through. |
+| 0:14 | The rule | ZeroDrop is a migration agent built on one rule. The model decides. Code executes. An independent checker judges. The model writes the field mapping in a restricted language. A deterministic engine runs it, with idempotent writes and a durable ledger. |
+| 0:34 | Real run (replay) | Here is a real run, planned by Gemini. It moves customers, subscriptions and invoices while the target API misbehaves. On a rate limit, it waits exactly as long as the server asks. After a timeout on a write that actually landed, it looks the records up instead of sending them twice. Then the API changes version mid run. Retrying cannot fix that. So the agent reads the new schema, rewrites the mapping, and resumes from its checkpoint. |
+| 1:02 | Certificate | Then the verifier re-reads both systems. Counts, duplicates, money per currency to the cent, and every field. Twenty four of twenty four checks pass. That verdict comes from the verifier, not from the agent. |
+| 1:16 | False success | Here is why that matters. With a plausible but wrong mapping, the engine believes it succeeded. The verifier disagrees. Yen totals are one hundred times too large. We count that as a false success claim. |
+| 1:31 | Neatlogs | Neatlogs is the runtime record. Every run is one trace. The planner is an agent span. Each Gemini call shows its tokens and cost. Each batch write is a tool span, and the verifier is an evaluator. Traces are how we found a real bug: rate limits were being counted as failures. |
+| 1:52 | Entire | Entire is the build record. Each commit carries a checkpoint of the coding session behind it: the prompts, the reasoning, and the tests that failed first. It lives in git, with secrets redacted. |
+| 2:05 | cfo.ai | cfo.ai holds the business model. We charge four hundred ninety nine dollars per verified migration. A real run used about eight cents of model time. Its base case breaks even in March twenty twenty seven, and it pushed back on our growth assumption. |
+| 2:24 | Close | ZeroDrop. The migration agent that proves nothing was lost. |
+
+## Original plan for a human-recorded take
 
 Recording steps are in `evidence/video/RECORDING.md`. Every number spoken here must match the
 file named next to it; where a line says **[from evidence]**, read the value from that file on

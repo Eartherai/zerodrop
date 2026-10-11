@@ -42,7 +42,7 @@ A run that ends FAILED is not billed.
 ## Unit economics
 | Item | Value | Source |
 |---|---|---|
-| Model cost per verified migration | **$0.08 measured** (two verified runs: $0.083 and $0.082 at Gemini Flash list price) | `evidence/runs/S01-clean-gemini.json`, `evidence/runs/S16-demo-chaos-gemini-3.6-flash.json`. Two runs on sandbox data, not an average over an evaluation |
+| Model cost per verified migration | **$0.06 median, $0.02 to $0.11 range** (nine verified runs, Gemini Flash-class models, list price) | `evidence/runs/`, table in `EVALUATION.md`. One run per scenario on sandbox data |
 | Hard ceiling on model cost per run | $1.50 | Enforced in code (`max_cost_usd`), run stops safely at the cap |
 | Compute and storage per migration | $0.50 | Assumption: one small container for under an hour plus the ledger |
 | Support time per migration | 0.5 h at $40/h = $20 | Assumption: reviewing quarantined records with the customer |
@@ -96,6 +96,38 @@ evaluation suite of failure scenarios that every change must pass.
   pattern lets us test a connector against injected failures before a customer sees it.
 - **Model price or quality changes.** Mitigation: the model is used for a bounded number of
   decisions per run, with a hard cost cap; the evaluation suite detects quality regressions.
+
+## What the cfo.ai model says
+Built in cfo.ai on Oct 11, 2026 from the inputs in this file (24 months, Nov 2026 to Oct 2028,
+starting cash $60,000). cfo.ai reports that it checked its model against a separate script.
+Capture: `evidence/screenshots/08-cfo-ai-monthly-forecast.png`.
+
+Unit economics as cfo.ai computed them: each $499 sale costs $36.77 to deliver, leaving $462.23
+(92.6% margin); each $1,500 agency plan costs $153.80, leaving $1,346.20 (89.7% margin).
+
+| Scenario | Break-even | Lowest cash | Cash at month 24 |
+|---|---|---|---|
+| Base (20% monthly growth after month 3) | Mar 2027 | $35,861 | $1.88M |
+| $299 price | Apr 2027 | $25,337 | $1.14M |
+| $799 price | Jan 2027 | $44,389 | $2.99M |
+| 0.25 h support per migration | Mar 2027 | $36,589 | $1.93M |
+| 1 h support per migration | Mar 2027 | $34,405 | $1.78M |
+| 10% monthly growth | Mar 2027, by only $215 | $35,213 | $587K |
+
+What this says: price is the biggest lever, support time barely matters at these margins, and
+growth decides how big the business gets but not whether it survives.
+
+### Where cfo.ai pushed back, and what we take from it
+- **Growth is the weak spot.** 20% a month for 21 months is a 46x increase, to about 644
+  migrations a month. **We treat the 10% case as the realistic one**: it still breaks even in
+  March 2027 and never drops below $35,213.
+- **Fixed costs never rise in the model.** At base-case volume, support alone is about 380 hours a
+  month, which is two to three full-time people. A real plan adds a support hire roughly every
+  160 hours of monthly support, so the upside numbers above are too high.
+- **Failed runs are not costed.** They are not billed, but they still use model time, compute and
+  support. The measured model cost is small (median $0.06 a run), so this mainly adds support time.
+- **Other simplifications it named:** no overage or vendor revenue, every agency plan uses all
+  five migrations, cash moves in the month it is earned or spent, no taxes, fractional sales.
 
 ## Runway scenario for cfo.ai (assumption)
 - Starting cash: $60,000.
