@@ -100,9 +100,10 @@ and use `--planner gemini`. Each run is capped in code: 30 model calls, $1.50, 1
 **Neatlogs: the runtime record.** Each run is one trace. The root WORKFLOW span carries the
 verdict (verifier status, the agent's own claim, false-success flag, checks, report hash).
 Under it: AGENT spans for the planner and diagnoser, LLM spans from the wrapped model client
-(tokens, cost, latency), TOOL spans per batch write and lookup, a `recovery.<class>` span per
-failure handled, a `state.<STATUS>` span per state change, and an EVALUATOR span for the
-verifier. Every run stores its trace id, and the dashboard links to it. A before and after pair
+(tokens, cost, latency), TOOL spans per batch write, lookup and model tool call (with input
+and result), a GUARDRAIL span per dry run (the gate before any write), a `recovery.<class>`
+span per failure handled, a `state.<STATUS>` span per state change, and a scored EVALUATOR span
+for the verifier. Every run stores its trace id, and the dashboard links to it. A before and after pair
 of traces with compared numbers is in [`EVIDENCE.md`](EVIDENCE.md). Code:
 `src/zerodrop/telemetry.py`.
 

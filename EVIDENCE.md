@@ -74,7 +74,9 @@ latency, token usage, and cost".
 | Tool calls | TOOL spans for schema discovery, every batch write (`novabill.batch_write`, with attempt number), every lookup, and every tool the model calls (`tool.<name>`) | `src/zerodrop/engine.py`, `src/zerodrop/agent/llm.py` |
 | State changes | One `state.<STATUS>` span per run status change, with `from_state` and `to_state` | `MigrationEngine._set_status` |
 | Retries and failures | One `recovery.<class>` span per failure handled: transient (wait and retry), ambiguous write (look up first), contract change (replan), bad data (quarantine), auth, budget (halt) | `src/zerodrop/engine.py` |
-| The verdict | Root WORKFLOW span: verifier status, the agent's own claim, false-success flag, checks failed, report hash. EVALUATOR span for the verifier | `MigrationEngine._finish` |
+| The verdict | Root WORKFLOW span: verifier status, the agent's own claim, false-success flag, checks failed, report hash. EVALUATOR span for the verifier with its input, verdict and a score (checks passed / total) | `MigrationEngine._finish`, `_verify` |
+| The gate before any write | One GUARDRAIL span per dry run (`dry-run.<entity>`): what was checked, passed or not, share of valid samples, and the reason when it blocks a mapping | `MigrationEngine._guarded_dry_run` |
+| What the model's tools returned | Each tool the model calls records its input and its result, so a rejected dry run or submission is readable in the trace, not only in the next model call | `src/zerodrop/agent/llm.py` |
 
 Every run stores its trace id in the ledger; the dashboard links to it ("Open the trace in
 Neatlogs"). Layer: `src/zerodrop/telemetry.py`.
@@ -87,6 +89,8 @@ Neatlogs"). Layer: `src/zerodrop/telemetry.py`.
 | `11-neatlogs-trace-s07-gemini-grouped.png` | API change run, steps grouped under one span per entity |
 | `13-neatlogs-trace-state-changes.png` | State-change spans (trace `f3cc2e33aa500430a9f221eeb9c468fa`) |
 | `14-…` and `15-…` | The before and after pair in section 1 |
+| `16-neatlogs-guardrail-blocks-refused-values.png` | A whole real-model trace on one page: state changes, three dry-run guardrails, the target refusing a batch, the guardrail then blocking the same mapping (`refused_reference`), the model's repair, the verifier, the verdict |
+| `17-neatlogs-model-dry-run-told-refused-values.png` | Inside a repair: the model's own dry-run calls with input and result |
 
 Each real-model false success has its trace id saved with the run (section 1), so the model
 call that proposed the wrong mapping can be opened next to the verifier's result. Each cause
@@ -144,7 +148,7 @@ have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL
 | **All 20 scenarios, final code (after fix 6)** | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | **0** | 141 | $0.4650 |
 | Scripted regression after fixes 3, 4, 5, 6 | scripted | `251cdd4`, `933a7a9`, `7b34f8c`, `6c07c9f` | 18 of 18 each | 0 | 0 | $0 |
 
-Real-model cost of the saved runs above and the two in `evidence/experiments/`: $3.09 at list
+Real-model cost of the saved runs above and the four in `evidence/experiments/`: $3.13 at list
 price, $0 charged (free tier).
 
 Reading it honestly:
@@ -174,5 +178,5 @@ JSON per single run). Reproduce the scripted ones with no keys:
 | Commit dates | First commit `104ff06` on Oct 10, 15:38 IST, after the window opened at 12:30 IST. More than 50 commits since (`git log`), one per task. History never rewritten or force-pushed |
 | Build log | [`hackathon.md`](hackathon.md): dated entries, including what failed |
 | Posts | Drafts in `posts/`; links to the posted versions are in `SUBMISSION_CHECKLIST.md` once posted |
-| Tests | 764 Python tests and 61 UI tests; `uv run pytest -q` |
+| Tests | 766 Python tests and 61 UI tests; `uv run pytest -q` |
 | Run it yourself | `docker compose up --build`, then http://127.0.0.1:8700 and start "Demo - everything goes wrong". No keys needed |

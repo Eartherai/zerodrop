@@ -696,27 +696,43 @@ def _result(call_id: str, text: str, is_error: bool = False) -> dict[str, Any]:
     return block
 
 
+TRACE_TOOL_CHARS = 4000  # tool inputs and results are clipped in the trace; the model gets the full result
+
+
+def _trace_tool_io(span: Any, call: ToolCall, result: dict[str, Any]) -> dict[str, Any]:
+    """Record on the span what the tool was given and what went back to the model."""
+    given = call.input if call.input is not None else {"unparsed": str(call.input_error)}
+    telemetry.set_attr(span, "neatlogs.tool.name", call.name)
+    telemetry.set_attr(span, "neatlogs.tool.input", _clip(json.dumps(given, default=str), TRACE_TOOL_CHARS))
+    telemetry.set_attr(span, "neatlogs.tool.output", _clip(str(result.get("content", "")), TRACE_TOOL_CHARS))
+    return result
+
+
 def _run_tool(tool: Tool | None, call: ToolCall) -> dict[str, Any]:
     with telemetry.trace(f"tool.{call.name}", kind="TOOL") as span:
-        if tool is None:
-            telemetry.set_attr(span, "tool.is_error", True)
-            return _result(call.id, f"Error: unknown tool {call.name!r}.", is_error=True)
-        if call.input is None:
-            telemetry.set_attr(span, "tool.is_error", True)
-            return _result(call.id, f"Error: {call.input_error}", is_error=True)
-        problems = schema_errors(tool.input_schema, call.input)
-        if problems:
-            telemetry.set_attr(span, "tool.is_error", True)
-            return _result(call.id, "Error: invalid input:\n" + "\n".join(problems), is_error=True)
-        try:
-            text = tool.run(call.input)
-        except Exception as exc:  # tool failures go back to the model, never up the stack
-            telemetry.set_attr(span, "tool.is_error", True)
-            # the message can echo upstream data (source/target responses): mark it as untrusted
-            detail = untrusted_block("tool_error", f"{type(exc).__name__}: {exc}")
-            return _result(call.id, f"Error: the {call.name} tool failed:\n{detail}", is_error=True)
-        telemetry.set_attr(span, "tool.is_error", False)
-        return _result(call.id, text)
+        return _trace_tool_io(span, call, _run_tool_traced(tool, call, span))
+
+
+def _run_tool_traced(tool: Tool | None, call: ToolCall, span: Any) -> dict[str, Any]:
+    if tool is None:
+        telemetry.set_attr(span, "tool.is_error", True)
+        return _result(call.id, f"Error: unknown tool {call.name!r}.", is_error=True)
+    if call.input is None:
+        telemetry.set_attr(span, "tool.is_error", True)
+        return _result(call.id, f"Error: {call.input_error}", is_error=True)
+    problems = schema_errors(tool.input_schema, call.input)
+    if problems:
+        telemetry.set_attr(span, "tool.is_error", True)
+        return _result(call.id, "Error: invalid input:\n" + "\n".join(problems), is_error=True)
+    try:
+        text = tool.run(call.input)
+    except Exception as exc:  # tool failures go back to the model, never up the stack
+        telemetry.set_attr(span, "tool.is_error", True)
+        # the message can echo upstream data (source/target responses): mark it as untrusted
+        detail = untrusted_block("tool_error", f"{type(exc).__name__}: {exc}")
+        return _result(call.id, f"Error: the {call.name} tool failed:\n{detail}", is_error=True)
+    telemetry.set_attr(span, "tool.is_error", False)
+    return _result(call.id, text)
 
 
 def _try_submit[T](submit: SubmitTool[T], call: ToolCall) -> tuple[T | None, dict[str, Any]]:
@@ -732,12 +748,12 @@ def _try_submit[T](submit: SubmitTool[T], call: ToolCall) -> tuple[T | None, dic
                 errors = exc.errors
             else:
                 telemetry.set_attr(span, "submit.accepted", True)
-                return value, _result(call.id, "Accepted.")
+                return value, _trace_tool_io(span, call, _result(call.id, "Accepted."))
         telemetry.set_attr(span, "submit.accepted", False)
         text = f"Rejected; fix these problems and call {submit.name} again:\n" + "\n".join(
             f"- {e}" for e in errors
         )
-        return None, _result(call.id, text, is_error=True)
+        return None, _trace_tool_io(span, call, _result(call.id, text, is_error=True))
 
 
 @dataclass

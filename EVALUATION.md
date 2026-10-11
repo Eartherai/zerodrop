@@ -186,10 +186,16 @@ found a new way.
   `scripts/repro_refused_reference.py` seeds the model's wrong mapping and lets a real model do
   the repairs. On `gemini-3.5-flash-lite`, with the guard off (`run_f5f2c8dc4a2c`) and on
   (`run_29dc26ee4a25`), the model repaired at the first attempt and both runs were verified
-  SUCCESS. So the guard does no harm there, and this model did not need it. The model that
-  did fail, `gemini-3.1-flash-lite`, was out of daily quota, so the guard has **not** been seen
-  rescuing a real run. Files: `evidence/experiments/`. Both runs used the working tree that
-  became this commit; the files record its parent, `1838455`.
+  SUCCESS. So the guard does no harm there, and this model did not need it. Two more runs with
+  the guard on (`run_937b40adc42e`, `run_173c027fcabe`) were also verified SUCCESS. In the
+  second, the trace shows the guard at work inside the repair conversation: the model's first
+  dry-run call came back FAILED with `refused_reference` and the refused values named, and its
+  next attempt passed (trace `464dab9520337ad55f0a685d5bece651`,
+  `evidence/screenshots/17-…png`). What is still **not** shown: a run that fails without the
+  guard and passes with it. The model that did fail, `gemini-3.1-flash-lite`, was out of daily
+  quota. Files: `evidence/experiments/`. The first two runs used the working tree that became
+  commit `6c07c9f` and record its parent, `1838455`; the last two record `a16cfa9` and ran on
+  the tree that became the next commit.
 
 ### The final code on a real model (Oct 12, 00:00 IST)
 All 20 scenarios, including the two large ones, on `gemini-3.5-flash-lite` at commit `1838455`

@@ -642,3 +642,51 @@ def test_every_loop_request_keeps_the_opus_5_5_shape() -> None:
         assert request["messages"][-1]["role"] == "user"  # no assistant prefill
         assert request["system"] == backend.requests[0]["system"]  # stable cached prefix
         assert request["tools"] == backend.requests[0]["tools"]
+
+
+class _SpanRecord:
+    def __init__(self, name: str, kind: str | None) -> None:
+        self.name, self.kind, self.attrs = name, kind, {}
+
+    def set_attribute(self, key: str, value: Any) -> None:
+        self.attrs[key] = value
+
+
+def test_tool_spans_record_what_the_tool_was_given_and_what_it_returned(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import contextlib
+    import sys
+    import types
+
+    from zerodrop import telemetry
+
+    spans: list[_SpanRecord] = []
+    fake = types.ModuleType("neatlogs")
+
+    @contextlib.contextmanager
+    def trace(name: str, kind: str | None = None, **_: Any) -> Any:
+        spans.append(_SpanRecord(name, kind))
+        yield spans[-1]
+
+    fake.trace = trace  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "neatlogs", fake)
+    monkeypatch.setattr(telemetry, "_enabled", True)
+    llm, _ = client(
+        [
+            tool_message(("echo", {"value": 7}), ("echo", {"value": -1})),
+            tool_message(("submit_answer", {"answer": 1})),
+            tool_message(("submit_answer", {"answer": 42})),
+        ]
+    )
+    assert loop(llm, [echo_tool([])]) == 42
+    ok, failed, rejected, accepted = spans
+    assert ok.name == "tool.echo" and ok.kind == "TOOL" and ok.attrs["neatlogs.tool.name"] == "echo"
+    assert json.loads(ok.attrs["neatlogs.tool.input"]) == {"value": 7}
+    assert ok.attrs["neatlogs.tool.output"] == "echo 7"
+    assert failed.attrs["tool.is_error"] is True and "negative" in failed.attrs["neatlogs.tool.output"]
+    # A rejected submission says why in the trace, not only in the next model call.
+    assert rejected.attrs["submit.accepted"] is False
+    assert "answer must be 42" in rejected.attrs["neatlogs.tool.output"]
+    assert json.loads(rejected.attrs["neatlogs.tool.input"]) == {"answer": 1}
+    assert accepted.attrs["submit.accepted"] is True and accepted.attrs["neatlogs.tool.output"] == "Accepted."

@@ -88,7 +88,7 @@ uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json
 - **Real model (Gemini planner):** full passes in `evidence/eval/` (run with
   `GEMINI_MODEL=<id> uv run zerodrop eval --planner gemini --label <label>` after loading `.env`
   into the shell with `set -a && . ./.env && set +a`, which also turns tracing on); single runs
-  per scenario in `evidence/runs/` (table: `uv run python scripts/runs_table.py`); two experiment
+  per scenario in `evidence/runs/` (table: `uv run python scripts/runs_table.py`); four experiment
   runs in `evidence/experiments/` (`scripts/repro_refused_reference.py`). All 20 scenarios on
   `gemini-3.5-flash-lite`: 20 of 20 at `1838455` and again at `6c07c9f` (final code). Seven real false successes in total, all caught, three
   causes fixed (`251cdd4`, `933a7a9`, `7b34f8c`). Quota-halted runs with model calls are kept;
@@ -96,8 +96,8 @@ uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json
   exists. Both Gemini keys are on the free tier; daily quotas reset at 12:30 IST. The second key
   is `ZERODROP_GEMINI_KEY_2` (use it with `ZERODROP_GEMINI_KEY="$ZERODROP_GEMINI_KEY_2"`).
 - Neatlogs: every run is traced; trace ids are in the run files and the dashboard links to
-  `https://app.neatlogs.com/traces/<id>`. Captures in `evidence/screenshots/07` to `15`,
-  including a before and after pair (14, 15).
+  `https://app.neatlogs.com/traces/<id>`. Captures in `evidence/screenshots/07` to `17`
+  (index in `evidence/screenshots/README.md`), including a before and after pair (14, 15).
 - Entire: checkpoint `01M4KEGN3Q174N063453HK5XC6` exists as a git ref and is pushed to GitHub.
   Commits carry a hand-written `Entire-Checkpoint` trailer; do **not** run
   `entire session attach` again (a key was pasted into the session later). The entire.io page

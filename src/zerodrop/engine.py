@@ -809,7 +809,7 @@ class MigrationEngine:
             failing: dict[Entity, list[FailedItemSample]] = {}
             hard: set[Entity] = set(forced)
             for entity in entities:
-                report = self.tools.check_mapping(st.mappings[entity])
+                report = self._guarded_dry_run(entity)
                 self._emit(
                     "decision",
                     f"dry run {entity.value} v{report.mapping_version} on {report.api_version}: "
@@ -848,6 +848,28 @@ class MigrationEngine:
                 st.replans += 1
             self._accept_specs(specs, entities)
             forced.pop(entity, None)
+
+    def _guarded_dry_run(self, entity: Entity) -> DryRunReport:
+        """The dry run as a GUARDRAIL span: it decides whether a mapping may reach the target."""
+        spec = self._state.mappings[entity]
+        with telemetry.trace(
+            f"dry-run.{entity.value}", kind="GUARDRAIL", entity=entity.value, mapping_version=spec.version
+        ) as span:
+            report = self.tools.check_mapping(spec)
+            checked = {
+                "entity": entity.value,
+                "mapping_version": report.mapping_version,
+                "target_api_version": report.api_version,
+                "samples": report.checked,
+            }
+            valid = report.checked - len({source_id for source_id, _, _ in report.failures})
+            telemetry.set_attr(span, "neatlogs.guardrail.input", json.dumps(checked))
+            telemetry.set_attr(span, "neatlogs.guardrail.passed", not report.mapping_problem)
+            telemetry.set_attr(
+                span, "neatlogs.guardrail.score", valid / report.checked if report.checked else 1.0
+            )
+            telemetry.set_attr(span, "neatlogs.guardrail.output", json.dumps(report.as_dict(limit=5)))
+        return report
 
     def _call_repair(
         self,
@@ -1704,6 +1726,29 @@ class MigrationEngine:
             telemetry.set_attr(span, "status", report.status.value)
             telemetry.set_attr(span, "checks_failed", len(failed_checks))
             telemetry.set_attr(span, "agent_claimed_status", claim.value)
+            total = len(report.checks)
+            asked = {
+                "run_id": st.run_id,
+                "agent_claimed_status": claim.value,
+                "quarantined": len(quarantined),
+            }
+            verdict = {
+                "status": report.status.value,
+                "checks_total": total,
+                "checks_failed": len(failed_checks),
+                "failed_checks": sorted(set(failed_checks)),
+                "false_success_claim": claim == RunStatus.SUCCESS and report.status != RunStatus.SUCCESS,
+                "report_hash": report.report_hash,
+            }
+            scored = {
+                "evaluator": "independent-verifier",
+                "criteria": "re-reads source and target: counts, duplicates, money per currency, "
+                "references, every field against golden records",
+                "score": (total - len(failed_checks)) / total if total else 0.0,
+            }
+            telemetry.set_attr(span, "neatlogs.evaluator.input", json.dumps(asked))
+            telemetry.set_attr(span, "neatlogs.evaluator.output", json.dumps(verdict))
+            telemetry.set_attr(span, "neatlogs.metadata", json.dumps(scored))
         self._emit(
             "verify",
             f"independent verifier: {report.status.value} "

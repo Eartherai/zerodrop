@@ -14,3 +14,5 @@
 | `12-real-model-false-success-caught.png` | Dashboard for a real model's false success (`run_5d0171f3cddf`) | Oct 11 |
 | `13-neatlogs-trace-state-changes.png` | State changes as spans | Oct 11 |
 | `14-before-trace-s02-false-success.png`, `15-after-trace-s02-verified.png` | The before and after pair in `EVIDENCE.md` section 1 | Oct 11 |
+| `16-neatlogs-guardrail-blocks-refused-values.png` | Whole trace of `run_937b40adc42e`: dry runs as guardrails, one of them blocking a mapping whose values the target refused, the repair, the verifier as evaluator | Oct 12 |
+| `17-neatlogs-model-dry-run-told-refused-values.png` | Trace of `run_173c027fcabe` with the model's four dry-run calls open: input and result of each | Oct 12 |

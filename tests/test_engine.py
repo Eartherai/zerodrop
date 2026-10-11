@@ -1723,6 +1723,39 @@ def test_telemetry_spans_cover_workflow_tools_recovery_and_verifier(monkeypatch:
     assert "RECOVERING" not in states or states.index("RECOVERING") > states.index("EXECUTING")
 
 
+def test_the_dry_run_is_a_guardrail_span_and_the_verifier_is_a_scored_evaluator(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = FakeNeatlogs()
+    monkeypatch.setitem(sys.modules, "neatlogs", fake)
+    monkeypatch.setattr(telemetry, "_enabled", True)
+    planner = ScriptedPlanner(plan=wrong_reference_plan(), repair=lambda ctx: [subscriptions_mapping("v1")])
+    h = Harness(planner=planner)
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS, run_error(h, result.run_id)
+    guards = [t for t in fake.traces if t.kind == "GUARDRAIL"]
+    assert guards and all(t.name == f"dry-run.{t.attrs['entity']}" for t in guards)
+    for t in guards:
+        checked = json.loads(t.attrs["neatlogs.guardrail.input"])
+        assert {"entity", "mapping_version", "target_api_version", "samples"} <= set(checked)
+        assert 0.0 <= t.attrs["neatlogs.guardrail.score"] <= 1.0
+    # The first dry run lets the wrong mapping through (valid shape); after the target refuses its
+    # values the same mapping is blocked, and the trace says why.
+    subs = [t for t in guards if t.attrs["entity"] == "subscriptions"]
+    assert [t.attrs["neatlogs.guardrail.passed"] for t in subs] == [True, False, True]
+    blocked = json.loads(subs[1].attrs["neatlogs.guardrail.output"])
+    assert subs[1].attrs["neatlogs.guardrail.score"] == 0.0
+    assert blocked["dominant_code"] == "refused_reference" and blocked["failed"] == blocked["checked"]
+    verifier = next(t for t in fake.traces if t.name == "independent-verifier")
+    asked = json.loads(verifier.attrs["neatlogs.evaluator.input"])
+    assert asked["agent_claimed_status"] == "SUCCESS" and asked["run_id"] == result.run_id
+    verdict = json.loads(verifier.attrs["neatlogs.evaluator.output"])
+    assert verdict["status"] == "SUCCESS" and verdict["checks_failed"] == 0
+    assert verdict["false_success_claim"] is False and verdict["report_hash"] == result.report.report_hash
+    meta = json.loads(verifier.attrs["neatlogs.metadata"])
+    assert meta["evaluator"] == "independent-verifier" and meta["score"] == 1.0 and meta["criteria"]
+
+
 @dataclass
 class _TraceRecord:
     name: str
