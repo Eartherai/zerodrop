@@ -104,7 +104,8 @@ was then reproduced as a failing test before the fix.
 | Redaction | Secret and personal-data redaction configured in `.entire/settings.json` |
 | entire-graph installed | Plugin v0.4.0; index of 145 files, 3,217 symbols, 12,502 relations; agent guide in `.entire/graph-agent.md`, loaded by `CLAUDE.md` and `AGENTS.md` |
 | entire-graph used for a real change | Before making state changes visible in the trace: `entire graph search` located `_set_status` (`evidence/entire/search-state-changes.txt`) and `entire graph impact` listed its 17 callers (`evidence/entire/impact-set-status.txt`). The change is commit `1838455` |
-| entire-graph on a commit | Entities changed by fix 5: `evidence/entire/commit-7b34f8c-entity-changes.txt` |
+| entire-graph on commits | Entity-level change lists: fix 5 (`evidence/entire/commit-7b34f8c-entity-changes.txt`), fix 6 (`commit-6c07c9f-…`), the guardrail and evaluator spans (`commit-0ae1d2b-…`). Each lists the methods changed and how many dependents they have |
+| entire-graph on the riskiest function | `evidence/entire/impact-check-mapping.txt`: the blast radius of the dry run, where four of the six fixes live (4 callers, 15 callees, 11 co-change files). Run after fix 6, to document its reach |
 
 Weak point, stated plainly: the checkpoint covers the first part of the build session, not
 all of it, and its entire.io page only works once the Entire-hosted mirror is pushed and made

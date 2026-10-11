@@ -1,0 +1,32 @@
+$ entire graph commit --repo . 0ae1d2b   (code files only; evidence and docs entries removed for length)
+Semantic changes a16cfa936a411fe6285b619d9380a56a1be017f3..0ae1d2b
+
+src/zerodrop/agent/llm.py (Python)
+  + function _trace_tool_io added
+  ~ function _run_tool body changed (1 dependent)
+  + function _run_tool_traced added
+  ~ function _try_submit body changed (1 dependent)
+
+src/zerodrop/engine.py (Python)
+  ~ class MigrationEngine body changed (11 dependents)
+  ~ method MigrationEngine._repair_until_valid body changed (4 dependents)
+  + method MigrationEngine._guarded_dry_run added
+  ~ method MigrationEngine._verify body changed (2 dependents)
+
+tests/test_agent_llm.py (Python)
+  + class _SpanRecord added
+  + method _SpanRecord.__init__ added
+  + method _SpanRecord.set_attribute added
+  + function test_tool_spans_record_what_the_tool_was_given_and_what_it_returned added
+  + function trace added
+
+tests/test_engine.py (Python)
+  + function test_the_dry_run_is_a_guardrail_span_and_the_verifier_is_a_scored_evaluator added
+
+Warnings
+  ! W_UNSUPPORTED_FILE evidence/screenshots/16-neatlogs-guardrail-blocks-refused-values.png
+    file skipped; no parser for this file type, so its changes are not analyzed
+    head version has no supported parser
+  ! W_UNSUPPORTED_FILE evidence/screenshots/17-neatlogs-model-dry-run-told-refused-values.png
+    file skipped; no parser for this file type, so its changes are not analyzed
+    head version has no supported parser

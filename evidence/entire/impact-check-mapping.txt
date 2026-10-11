@@ -1,0 +1,63 @@
+Index: cache-miss (2753ms) | Query: 2ms | Total: 2755ms
+Impact: PlannerTools.check_mapping (src/zerodrop/engine.py:365) def=365 span=365-442 [method in PlannerTools]
+Blast radius: 4 callers (4 direct, 0 transitive), 15 callees, 4 type consumers, 4 data flows, 11 co-change files, 20 siblings.
+Callers (4 direct, 0 transitive; who breaks if behavior changes):
+- PlannerTools (src/zerodrop/engine.py:306, def :244) [+1 more call site]
+- PlannerTools.dry_run (src/zerodrop/engine.py:306, def :300)
+- test_the_dry_run_fails_a_mapping_whose_values_the_target_already_refused (tests/test_engine.py:1472, def :1468) [+2 more call sites]
+- test_refused_values_on_a_few_records_do_not_fail_the_dry_run (tests/test_engine.py:1489, def :1483)
+Callees (15; what it depends on):
+- contract_signal (src/zerodrop/classify.py:89)
+- apply_mapping (src/zerodrop/dsl.py:72)
+- matches_exclusion (src/zerodrop/dsl.py:107)
+- error_code (src/zerodrop/dsl.py:122)
+- DryRunReport (src/zerodrop/engine.py:157) [CONSTRUCTS]
+- _MappingContext (src/zerodrop/engine.py:214) [CONSTRUCTS]
+- PlannerTools.records (src/zerodrop/engine.py:323)
+- PlannerTools.schema (src/zerodrop/engine.py:328)
+- spread (src/zerodrop/engine.py:464)
+- source_id_of (src/zerodrop/engine.py:477)
+- _systematic_codes (src/zerodrop/engine.py:1944)
+- _primary_code (src/zerodrop/engine.py:1950)
+- _hashable (src/zerodrop/engine.py:1964)
+- validate_payload (src/zerodrop/validation.py:32)
+- entity_schema (src/zerodrop/validation.py:49)
+Type consumers (0 in, 4 out; USES_TYPE/PARAM_TYPE/RETURNS_TYPE):
+- -> DryRunReport (src/zerodrop/engine.py:157) [RETURNS_TYPE]
+- -> DryRunReport (src/zerodrop/engine.py:157) [USES_TYPE]
+- -> MappingSpec (src/zerodrop/models.py:126) [PARAM_TYPE]
+- -> MappingSpec (src/zerodrop/models.py:126) [USES_TYPE]
+Data flows (1 in, 3 out):
+- -> apply_mapping (src/zerodrop/dsl.py:72)
+- -> matches_exclusion (src/zerodrop/dsl.py:107)
+- <- DryRunReport (src/zerodrop/engine.py:157)
+- -> source_id_of (src/zerodrop/engine.py:477)
+Co-change coupling (11; files that historically change with src/zerodrop/engine.py):
+- SUBMISSION_CHECKLIST.md [files changed together in 2 recent commits]
+- docs/CONTEXT.md [files changed together in 2 recent commits]
+- hackathon.md [files changed together in 3 recent commits]
+- src/zerodrop/agent/llm.py [files changed together in 2 recent commits]
+- src/zerodrop/api.py [files changed together in 3 recent commits]
+- src/zerodrop/config.py [files changed together in 2 recent commits]
+- tests/test_agent_llm.py [files changed together in 2 recent commits]
+- tests/test_dsl.py [files changed together in 2 recent commits]
+- tests/test_engine.py [files changed together in 10 recent commits]
+- tests/test_runner_api.py [files changed together in 5 recent commits]
+- ui/src/api/types.ts [files changed together in 2 recent commits]
+Same-container siblings (20):
+- PlannerTools (src/zerodrop/engine.py:244)
+- PlannerTools.__init__ (src/zerodrop/engine.py:252)
+- PlannerTools.attach (src/zerodrop/engine.py:265)
+- PlannerTools.reset (src/zerodrop/engine.py:274)
+- PlannerTools.get_source_samples (src/zerodrop/engine.py:286)
+- PlannerTools.get_field_docs (src/zerodrop/engine.py:291)
+- PlannerTools.get_target_schema (src/zerodrop/engine.py:294)
+- PlannerTools.get_reference_table (src/zerodrop/engine.py:297)
+- PlannerTools.dry_run (src/zerodrop/engine.py:300)
+- PlannerTools.account (src/zerodrop/engine.py:310)
+- PlannerTools.field_docs (src/zerodrop/engine.py:315)
+- PlannerTools.loaded (src/zerodrop/engine.py:320)
+- PlannerTools.records (src/zerodrop/engine.py:323)
+- PlannerTools.schema (src/zerodrop/engine.py:328)
+- PlannerTools.reference_table (src/zerodrop/engine.py:333)
+- ... +5 more (use --format json for the full list)

@@ -1,0 +1,32 @@
+$ entire graph commit --repo . 6c07c9f   (code files only; evidence and docs entries removed for length)
+Semantic changes 183845582cc8f4a1110a38c7b3143c83567b6ef1..6c07c9f
+
+scripts/repro_refused_reference.py (Python)
+  + class SeededWrongReferencePlanner added
+  + method SeededWrongReferencePlanner.__init__ added
+  + method SeededWrongReferencePlanner.usage added
+  + method SeededWrongReferencePlanner.bind_tools added
+  + method SeededWrongReferencePlanner.plan added
+  + method SeededWrongReferencePlanner.repair added
+  + function main added
+  + function show added
+
+src/zerodrop/engine.py (Python)
+  ~ class PlannerTools body changed (11 dependents)
+  ~ method PlannerTools.reset body changed (20 dependents)
+  ~ method PlannerTools.refresh_target body changed (6 dependents)
+  + method PlannerTools.note_refused added
+  + method PlannerTools.refused_values added
+  ~ method PlannerTools.check_mapping body changed (6 dependents)
+  ~ class MigrationEngine body changed (11 dependents)
+  ~ method MigrationEngine._apply_results body changed (2 dependents)
+  + method MigrationEngine._note_refused_references added
+  + function _hashable added
+
+tests/test_engine.py (Python)
+  + function price_id_as_plan_code added
+  + function wrong_reference_plan added
+  + function test_a_repair_that_still_produces_values_the_target_refused_is_not_sent_again added
+  + function test_the_dry_run_fails_a_mapping_whose_values_the_target_already_refused added
+  + function test_refused_values_on_a_few_records_do_not_fail_the_dry_run added
+  + function test_refused_values_are_forgotten_when_the_target_version_changes added
