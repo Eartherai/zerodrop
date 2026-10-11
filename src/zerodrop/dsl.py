@@ -341,6 +341,14 @@ def _decimals_for(op: TransformOp, record: Mapping[str, Any]) -> int:
     if op.decimals is not None:
         if op.decimals < 0:
             raise _OpError(ERR_INVALID_PARAM, f"decimal_to_minor: decimals must be >= 0, got {op.decimals}")
+        code = record.get(op.currency_field) if op.currency_field is not None else None
+        if isinstance(code, str) and code.strip() and minor_units(code) != op.decimals:
+            # Both parameters given and they disagree for this record: never pick one silently.
+            raise _OpError(
+                ERR_INVALID_PARAM,
+                f"decimal_to_minor: decimals={op.decimals} contradicts currency {code.strip().upper()!r}, which "
+                f"has {minor_units(code)} minor-unit digits; give only 'currency_field' for mixed currencies",
+            )
         return op.decimals
     if op.currency_field is None:
         raise _OpError(ERR_MISSING_PARAM, "decimal_to_minor needs 'decimals' or 'currency_field'")

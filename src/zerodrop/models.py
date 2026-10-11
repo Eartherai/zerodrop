@@ -72,7 +72,7 @@ OpName = Literal[
     "strip",  # str -> stripped
     "split_name",  # "Given Family" -> part ("first" = first token, "last" = remaining tokens joined by space)
     "parse_datetime",  # str -> ISO-8601 UTC "YYYY-MM-DDTHH:MM:SSZ"; tries `formats` in order; naive values use `assume_tz`
-    "decimal_to_minor",  # "129.00" -> 12900; uses `decimals`, or ISO-4217 minor units of the record field `currency_field`
+    "decimal_to_minor",  # "129.00" -> 12900; `decimals`, or the ISO-4217 minor units of `currency_field` (both: must agree)
     "to_int",  # "3" -> 3
     "enum_map",  # value -> mapped value via `mapping`; unmapped values use `default` or fail the record
     "ref",  # source id -> target id of an already-migrated record of `entity` (engine id-map)

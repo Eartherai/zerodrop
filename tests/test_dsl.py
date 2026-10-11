@@ -242,9 +242,20 @@ def test_decimal_to_minor_lowercase_currency_uses_table() -> None:
     ]
 
 
-def test_decimal_to_minor_explicit_decimals_win() -> None:
-    assert value_of(money(decimals=0, currency_field="currency"), {"amount": "7", "currency": "USD"}) == 7
+def test_decimal_to_minor_fixed_decimals_alone_are_used() -> None:
     assert value_of(money(decimals=3), {"amount": "1.5"}) == 1500
+
+
+def test_decimal_to_minor_with_both_params_must_agree_with_the_currency() -> None:
+    # The mapping a real model wrote (gemini-3.1-flash-lite, run_14ded6031abe): both parameters at once.
+    both = money(decimals=2, currency_field="currency")
+    assert value_of(both, {"amount": "129.00", "currency": "USD"}) == 12900  # they agree: fine
+    # They disagree for yen (0 minor-unit digits). Letting `decimals` win silently made every JPY
+    # amount 100x too large; it is now a mapping error the dry run reports.
+    assert codes_of(both, {"amount": "43500", "currency": "JPY"}) == ["invalid_param"]
+    assert codes_of(money(decimals=0, currency_field="currency"), {"amount": "7", "currency": "USD"}) == [
+        "invalid_param"
+    ]
 
 
 def test_decimal_to_minor_non_integral_message_names_value() -> None:
