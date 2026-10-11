@@ -12,6 +12,8 @@ report from an independent verifier that the agent cannot influence.
 Built during neatHack 2026 by team Tokenmaxing. The dated build log, including what failed, is
 in [`hackathon.md`](hackathon.md).
 
+![Replay of a real run: records move from LegacyBill to NovaBill through rate limits, a timeout and an API change, then the checker's verdict](evidence/video/dashboard-replay.gif)
+
 ![ZeroDrop dashboard during the chaos demo: rate-limit failures and recovery steps streaming](evidence/screenshots/01-s16-running.png)
 
 **Demo video (2:35):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)

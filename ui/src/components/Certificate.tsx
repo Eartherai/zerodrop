@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { CheckResult, ReconciliationReport, RunStatus } from "../api/types";
-import { compactValue, formatInt, formatMinor, minorUnitDigits } from "../lib/format";
+import { compactValue, formatMinor, minorUnitDigits } from "../lib/format";
 import { isTerminal, type RunModel } from "../lib/runModel";
 import { TONES } from "../lib/tones";
-import { EmptyNote, Panel, Pill, StatusBadge } from "./ui";
+import { EmptyNote, Panel, Pill } from "./ui";
 
 function ClaimComparison({ verdict, claim }: { verdict: RunStatus; claim: RunStatus | null }) {
   if (!claim) return <p className="text-sm text-muted">The agent did not record a claim.</p>;
@@ -55,54 +55,102 @@ function CopyHash({ hash }: { hash: string }) {
   );
 }
 
-function sortChecks(checks: readonly CheckResult[]): CheckResult[] {
-  return [...checks].sort((a, b) => Number(a.passed) - Number(b.passed));
+/** Plain names for the checks the verifier runs; unknown ones fall back to their own name. */
+const CHECK_LABELS: Record<string, string> = {
+  count: "Record count matches",
+  no_duplicate_external_ids: "No duplicate ids",
+  missing_records_quarantined: "Nothing missing without a reason",
+  no_unexpected_records: "No records that were not in the source",
+  unique_emails: "E-mails are unique",
+  source_fidelity: "Every field matches the source",
+  referential_integrity: "References point to real records",
+  money_by_currency: "Money totals match, per currency",
+  golden_records: "Matches the expected records",
+  quarantine_accounting: "Set-aside records are accounted for",
+  golden_quarantine: "The right records were set aside",
+  quarantine_reasons: "Each set-aside record has a valid reason",
+};
+
+function checkLabel(name: string): string {
+  return CHECK_LABELS[name] ?? name.replaceAll("_", " ");
 }
 
-function ChecksTable({ checks }: { checks: readonly CheckResult[] }) {
+/** One row per kind of check, one column per entity: 24 checks read as a small grid, not a long list. */
+function CheckMatrix({ checks }: { checks: readonly CheckResult[] }) {
+  const names = [...new Set(checks.map((c) => c.name))];
+  const columns = [...new Set(checks.map((c) => c.entity ?? "all"))];
+  const cell = (name: string, column: string) => checks.find((c) => c.name === name && (c.entity ?? "all") === column);
   return (
-    <div className="max-h-[30rem] overflow-auto">
+    <div className="overflow-x-auto">
       <table className="w-full border-collapse text-left text-sm">
-        <thead className="sticky top-0 bg-surface">
+        <thead>
           <tr>
-            {["Result", "Check", "Entity", "Expected", "Actual", "Detail"].map((h) => (
-              <th key={h} scope="col" className="px-5 py-2 text-xs font-normal text-muted">
-                {h}
+            <th scope="col" className="px-5 py-2 text-xs font-normal text-muted">
+              Check
+            </th>
+            {columns.map((column) => (
+              <th key={column} scope="col" className="px-3 py-2 text-center text-xs font-normal text-muted">
+                {column === "all" ? "whole run" : column}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {sortChecks(checks).map((c, i) => (
-            <tr
-              key={`${c.name}:${c.entity ?? ""}:${i}`}
-              className={`border-t border-line ${c.passed ? "" : TONES.danger.soft}`}
-            >
-              <td className="px-5 py-2">
-                <Pill tone={c.passed ? "success" : "danger"}>{c.passed ? "✓ pass" : "✗ fail"}</Pill>
-              </td>
-              <td className="px-5 py-2 font-mono text-[0.8rem] text-fg">{c.name}</td>
-              <td className="px-5 py-2 text-muted">{c.entity ?? "all"}</td>
-              <td
-                className="max-w-[12rem] truncate px-5 py-2 font-mono text-[0.8rem] tabular text-fg"
-                title={compactValue(c.expected)}
-              >
-                {compactValue(c.expected)}
-              </td>
-              <td
-                className={`max-w-[12rem] truncate px-5 py-2 font-mono text-[0.8rem] tabular ${c.passed ? "text-fg" : `font-bold ${TONES.danger.text}`}`}
-                title={compactValue(c.actual)}
-              >
-                {compactValue(c.actual)}
-              </td>
-              <td className="max-w-[18rem] truncate px-5 py-2 text-xs text-muted" title={c.detail}>
-                {c.detail || "—"}
-              </td>
+          {names.map((name) => (
+            <tr key={name} className="border-t border-line">
+              <th scope="row" className="px-5 py-2 text-left font-normal text-fg" title={name}>
+                {checkLabel(name)}
+              </th>
+              {columns.map((column) => {
+                const c = cell(name, column);
+                if (!c) {
+                  return (
+                    <td key={column} className="px-3 py-2 text-center text-muted" aria-label="not applicable">
+                      ·
+                    </td>
+                  );
+                }
+                return (
+                  <td
+                    key={column}
+                    className={`px-3 py-2 text-center text-base leading-none ${c.passed ? TONES.success.text : `font-semibold ${TONES.danger.soft} ${TONES.danger.text}`}`}
+                    title={`expected ${compactValue(c.expected)}, found ${compactValue(c.actual)}`}
+                  >
+                    {c.passed ? "✓" : "✗"}
+                    <span className="sr-only">{c.passed ? " passed" : " failed"}</span>
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  );
+}
+
+/** What exactly failed, in full: the detail is the useful part and must not be cut off. */
+function FailedChecks({ checks }: { checks: readonly CheckResult[] }) {
+  const failed = checks.filter((c) => !c.passed);
+  if (!failed.length) return null;
+  return (
+    <ul className="divide-y divide-line border-t border-line">
+      {failed.map((c, i) => (
+        <li key={`${c.name}:${c.entity ?? ""}:${i}`} className="px-5 py-3 text-sm">
+          <p className="font-medium text-fg">
+            <span className={TONES.danger.text}>✗</span> {checkLabel(c.name)}
+            <span className="text-muted">, {c.entity ?? "whole run"}</span>
+          </p>
+          <p className="mt-1 font-mono text-xs text-muted">
+            expected <span className="text-fg">{compactValue(c.expected)}</span>, found{" "}
+            <span className={`font-semibold ${TONES.danger.text}`}>{compactValue(c.actual)}</span>
+          </p>
+          {c.detail ? (
+            <p className="mt-1 max-w-[90ch] text-xs leading-relaxed break-words text-muted">{c.detail}</p>
+          ) : null}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -173,43 +221,6 @@ function MoneyTable({ report }: { report: ReconciliationReport }) {
   );
 }
 
-function CountsTable({ report }: { report: ReconciliationReport }) {
-  const entities = Object.keys(report.source_counts);
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm">
-        <thead>
-          <tr>
-            {["Entity", "Source", "Target", "Quarantined"].map((h) => (
-              <th
-                key={h}
-                scope="col"
-                className={`px-5 py-2 text-xs font-normal text-muted ${h === "Entity" ? "" : "text-right"}`}
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {entities.map((e) => (
-            <tr key={e} className="border-t border-line">
-              <th scope="row" className="px-5 py-2 text-left font-semibold text-fg">
-                {e}
-              </th>
-              <td className="px-5 py-2 text-right font-mono tabular">{formatInt(report.source_counts[e] ?? 0)}</td>
-              <td className="px-5 py-2 text-right font-mono tabular">{formatInt(report.target_counts[e] ?? 0)}</td>
-              <td className="px-5 py-2 text-right font-mono tabular">
-                {formatInt(report.quarantined.filter((q) => q.entity === e).length)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 function reasonCode(reason: string): [string, string] {
   const i = reason.indexOf(":");
   return i > 0 ? [reason.slice(0, i), reason.slice(i + 1).trim()] : [reason, ""];
@@ -243,6 +254,8 @@ export function Certificate({ report, model }: { report: ReconciliationReport | 
   }
   const claim = model.verify?.agentClaim ?? model.agentClaim;
   const passed = report.checks.filter((c) => c.passed).length;
+  const allPassed = passed === report.checks.length;
+  const disagree = claim !== null && claim !== report.status;
   return (
     <Panel
       id="certificate"
@@ -250,56 +263,37 @@ export function Certificate({ report, model }: { report: ReconciliationReport | 
       subtitle="What the independent checker found when it re-read both systems. The agent cannot edit this."
       className="zd-enter"
     >
-      <div className="grid gap-5 border-b border-line px-5 py-5 lg:grid-cols-[auto_auto_1fr] lg:items-center">
-        <div>
-          <div className="text-xs text-muted">Verifier verdict</div>
-          <div className="mt-1">
-            <StatusBadge status={report.status} size="lg" />
-          </div>
-        </div>
-        <div>
-          <div className="text-xs text-muted">Agent's own claim</div>
-          <div className="mt-1">
-            <StatusBadge status={claim} />
-          </div>
-        </div>
-        <div className="flex min-w-0 flex-col gap-2">
+      {disagree ? (
+        <div className="border-b border-line px-5 py-4">
           <ClaimComparison verdict={report.status} claim={claim} />
-          <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
-            <div>
-              <div className="text-xs text-muted">Checks</div>
-              <div
-                className={`text-lg font-bold tabular ${passed === report.checks.length ? TONES.success.text : TONES.danger.text}`}
-              >
-                {passed}/{report.checks.length} passed
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-muted">Quarantined</div>
-              <div className="text-lg font-bold tabular text-fg">{report.quarantined.length}</div>
-            </div>
-            <CopyHash hash={report.report_hash} />
-          </div>
         </div>
-      </div>
+      ) : null}
       <div className="grid gap-0 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <div className="min-w-0 border-line xl:border-r">
-          <SubHeading>Checks</SubHeading>
-          <ChecksTable checks={report.checks} />
+          <h3 className="flex flex-wrap items-baseline gap-x-3 px-5 pt-5 pb-2 text-base font-semibold text-fg">
+            <span className={allPassed ? TONES.success.text : TONES.danger.text}>
+              {passed} of {report.checks.length} checks passed
+            </span>
+            <span className="text-sm font-normal text-muted">
+              {allPassed
+                ? "every cell below was compared against the source"
+                : "the failures are listed under the grid"}
+            </span>
+          </h3>
+          <CheckMatrix checks={report.checks} />
+          <FailedChecks checks={report.checks} />
         </div>
         <div className="min-w-0">
           <SubHeading>Money, per currency</SubHeading>
           <MoneyTable report={report} />
-          <SubHeading>Record counts</SubHeading>
-          <CountsTable report={report} />
           <SubHeading>{`Set aside (${report.quarantined.length})`}</SubHeading>
           {report.quarantined.length ? (
-            <ul className="max-h-48 divide-y divide-line overflow-y-auto">
+            <ul className="max-h-56 divide-y divide-line overflow-y-auto">
               {report.quarantined.map((q) => {
                 const [code, rest] = reasonCode(q.reason);
                 return (
                   <li key={`${q.entity}:${q.source_id}`} className="px-5 py-2 text-sm">
-                    <span className="font-mono font-semibold text-fg">{q.source_id}</span>
+                    <span className="font-mono font-medium text-fg">{q.source_id}</span>
                     <span className="ml-1.5 text-muted">{q.entity}</span>
                     <Pill tone="warning" className="ml-2">
                       {code}
@@ -312,6 +306,9 @@ export function Certificate({ report, model }: { report: ReconciliationReport | 
           ) : (
             <EmptyNote>Nothing was set aside. Every source record is accounted for in NovaBill.</EmptyNote>
           )}
+          <div className="border-t border-line px-5 py-4">
+            <CopyHash hash={report.report_hash} />
+          </div>
         </div>
       </div>
     </Panel>

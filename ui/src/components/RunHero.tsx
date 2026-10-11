@@ -392,6 +392,16 @@ export function RunHero(props: HeroProps) {
         {model.status !== null ? (
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-3 text-sm text-muted">
             <span>{facts.join(" · ")}</span>
+            {detail?.trace_url ? (
+              <a
+                href={detail.trace_url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="font-medium text-accent underline underline-offset-2 hover:opacity-80"
+              >
+                Open the trace in Neatlogs
+              </a>
+            ) : null}
             {model.runId && running ? (
               <span
                 className={`flex items-center gap-1.5 ${TONES[connection === "open" ? "success" : connection === "reconnecting" ? "warning" : "neutral"].text}`}
