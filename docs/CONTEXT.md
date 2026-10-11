@@ -30,7 +30,7 @@ ZeroDrop is an autonomous SaaS data-migration agent that proves nothing was lost
 - The **verifier never imports** the engine, DSL, ledger or agent. It re-reads both systems and
   checks the preservation contract. Run statuses: SUCCESS, PARTIAL_SUCCESS, FAILED,
   WAITING_FOR_APPROVAL. A **false_success_claim** is when the engine said SUCCESS and the
-  verifier disagreed (the naive planner demonstrates one: JPY amounts off by 100x).
+  verifier disagreed (the naive planner demonstrates one: dates read in the wrong time zone).
 - Dashboard: Vite + React + TypeScript + Tailwind, served by FastAPI; live events over SSE;
   `?run=<id>` deep link; public mode with access code, hourly run cap and spend cap.
 
@@ -82,29 +82,39 @@ uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json
 ```
 
 ## 7. Evidence so far (all reproducible from `evidence/`)
+`EVIDENCE.md` is the index: it maps every item the rules ask for to a file, run id or trace.
 - Scripted (oracle) evaluation: baseline `c4766e2` 19/20 (S03 failed); fix 1 `8c0a017` and fix 2
-  `574aa2b` 20/20. Tables in `EVALUATION.md`.
-- **Real model (Gemini planner, added Oct 11):** single runs per scenario in `evidence/runs/`,
-  table built by `uv run python scripts/runs_table.py`. See `EVALUATION.md` for the current count.
-  Quota-halted runs are kept and named `*-quota-halt.json`. The Anthropic key has no credit, so
-  no Claude run exists. The Gemini key is on the free tier: 5 requests per minute and 20 per day
-  per model, which is why runs are spread over several Flash-class models
-  (`GEMINI_MODEL=<id> uv run zerodrop run <scenario> --planner gemini`).
-- Neatlogs: every run is traced; trace ids are in the run files and the dashboard footer links
-  to `https://app.neatlogs.com/traces/<id>`. Captures in `evidence/screenshots/07` to `11`.
-- Entire: checkpoint `01M4KEGN3Q174N063453HK5XC6` exists as a git ref and is pushed to GitHub. The
-  entire.io page is a 404 because the site only knows the Entire-hosted repo
-  `/et/hackathone/hackathon`; the owner must run
-  `git remote add entire entire://aws-ap-south-1.entire.io/et/hackathone/hackathon` and
-  `git push entire main 'refs/entire/*:refs/entire/*'` (blocked for the agent).
+  `574aa2b` 20/20; 18/18 after each of fixes 3 to 6. Tables in `EVALUATION.md`.
+- **Real model (Gemini planner):** full passes in `evidence/eval/` (run with
+  `GEMINI_MODEL=<id> uv run zerodrop eval --planner gemini --label <label>` after loading `.env`
+  into the shell with `set -a && . ./.env && set +a`, which also turns tracing on); single runs
+  per scenario in `evidence/runs/` (table: `uv run python scripts/runs_table.py`); two experiment
+  runs in `evidence/experiments/` (`scripts/repro_refused_reference.py`). All 20 scenarios on
+  `gemini-3.5-flash-lite`: 20 of 20 at `1838455` and again at `6c07c9f` (final code). Seven real false successes in total, all caught, three
+  causes fixed (`251cdd4`, `933a7a9`, `7b34f8c`). Quota-halted runs with model calls are kept;
+  runs that made no model call are deleted. The Anthropic key has no credit, so no Claude run
+  exists. Both Gemini keys are on the free tier; daily quotas reset at 12:30 IST. The second key
+  is `ZERODROP_GEMINI_KEY_2` (use it with `ZERODROP_GEMINI_KEY="$ZERODROP_GEMINI_KEY_2"`).
+- Neatlogs: every run is traced; trace ids are in the run files and the dashboard links to
+  `https://app.neatlogs.com/traces/<id>`. Captures in `evidence/screenshots/07` to `15`,
+  including a before and after pair (14, 15).
+- Entire: checkpoint `01M4KEGN3Q174N063453HK5XC6` exists as a git ref and is pushed to GitHub.
+  Commits carry a hand-written `Entire-Checkpoint` trailer; do **not** run
+  `entire session attach` again (a key was pasted into the session later). The entire.io page
+  is a 404 because the site only knows the Entire-hosted repo `/et/hackathone/hackathon`; the
+  owner must run `git remote add entire entire://aws-ap-south-1.entire.io/et/hackathone/hackathon`
+  and `git push entire main 'refs/entire/*:refs/entire/*'` (blocked for the agent).
+  entire-graph v0.4.0 is installed and indexed; output in `evidence/entire/`.
 - cfo.ai: plan built in the owner's workspace; results and criticism are in `BUSINESS.md`.
-- Demo video: `evidence/video/zerodrop-demo.mp4` (source project outside the repo at
-  `~/Desktop/anti/videos/zerodrop-demo`, rendered with HyperFrames, local Kokoro voice).
+- Demo video: `evidence/video/zerodrop-demo.mp4` and `zerodrop-demo-x.mp4` (source project
+  outside the repo at `~/Desktop/anti/videos/zerodrop-demo`, rendered with HyperFrames, local
+  Kokoro voice).
 
 ## 8. Remaining work (in order)
-1. Owner: review the video, upload it, give the link. Owner: the Entire push above.
-2. Owner: enable billing on the Gemini key (or Anthropic credit) for repeat runs and any
-   scenario still missing in `EVALUATION.md`.
+1. Owner actions, listed in order in `SUBMISSION_CHECKLIST.md` ("What only the owner can do").
+2. After 12:30 IST on Oct 12 (quota reset): run the fix 6 check on the model that failed,
+   `GEMINI_MODEL=gemini-3.1-flash-lite uv run python scripts/repro_refused_reference.py --guard off|on ...`,
+   and record the result in `EVALUATION.md` whatever it is.
 3. Before the repo goes public: the Entire checkpoint was audited on Oct 11 (see `hackathon.md`).
    It holds only the first 13 turns of the Mac session: no keys, no images, no personal details,
    but it does show local folder paths. Later turns (which do contain personal details) are NOT

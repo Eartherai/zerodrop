@@ -88,16 +88,49 @@
 | Building in public | 15% | 2 | Seven post drafts, nothing posted | Owner approval to post |
 | Usefulness, originality | 10% | 8 | The verifier catching a real model's false success is the product thesis shown on real data | - |
 
+- **Correction to the time stamps above.** The Oct 11 entries marked 16:25 to 19:10 IST are 20 to 30 minutes later than the commits that contain them, which cannot be right. Git is the authority: third video cut 16:04, dashboard redesign 16:20, planner identity 18:11, checkpoint audit 18:26, single-model evaluation 18:38 to 18:48.
+- 23:13 IST: **Second pass on the same model found a new false success.** `gemini-3.1-flash-lite` at `e65cc45`: 17 of 18, 117 calls, $0.2472. S16 (`run_14ded6031abe`, trace `874c2d43e3b1995e85980d50264aed3f`): engine SUCCESS, verifier FAILED, JPY total 100 times too large on 157 invoices. So the 18 of 18 from pass 1 was one good pass, not proof. Root cause: the model gave `decimal_to_minor` both `decimals: 2` and `currency_field`, and the mapping language silently used the fixed value.
+- 23:22 IST: A second model, `gemini-3.5-flash-lite`, same commit: 18 of 18, 0 false successes, 119 calls, $0.4186.
+- 23:32 IST: **Fix 4** (`933a7a9`, test first): contradictory amount parameters are a mapping error. Scripted regression 18 of 18. Also committed: the proof section of the dashboard as a check grid (`50158c7`).
+- About 23:35 IST: **Read the official rules page again, line by line.** Three things I had under-weighted. (1) Entire means checkpoints **and entire-graph**; we had only checkpoints. (2) The page lists what judges look for: a before and after run with compared numbers as two Neatlogs traces, a failure-recovery run, trace links or screenshots, Entire output, the cfo.ai plan, posts, dated commits. Our evidence existed but was spread over five files. (3) Traces should show state changes; ours showed them only as events in our own ledger. Also noted: the sponsors engage with the first 50 quote posts, so posting at 19:00 sharp matters.
+- 23:42 IST: **Third pass, after fix 4: worse, and useful.** `933a7a9`: 15 of 18, 108 calls, $0.2278. S16 now passed. S03 (`run_acc170ca8785`) was a new false success: yen 100 times too large again, this time with only `decimals: 2`, which fix 4 cannot see. S12 (`run_ab090e6c2fc6`) failed honestly: the model sent a price id as the plan code and three repairs kept it. S20 (`run_3b200b33aa3e`) halted because the model provider answered 503.
+- 23:43 IST: **entire-graph installed and used** (`8d42e18`). Plugin v0.4.0, repo indexed (145 files, 3,217 symbols, 12,502 relations), agent guide in `.entire/graph-agent.md` and loaded from `CLAUDE.md` and `AGENTS.md`. Used it for the next change: `entire graph search` to find where state changes are set, `entire graph impact` for its callers. Output saved in `evidence/entire/`.
+- 23:44 IST: Provider 503 is retried up to five times with growing waits (`6c096ad`, tested with a fake client).
+- 23:47 IST: **Fix 5** (`7b34f8c`, test first): fixed decimals must fit the currency the record itself carries. Scripted regression 18 of 18. Ruling: this fix made the scripted naive planner's flaw (two decimals for every currency) impossible to execute, so its flaw is now a wrong time zone, which only the verifier can see. Four tests updated.
+- 23:48 IST: **Fourth pass, after fix 5, cut short.** `7b34f8c`: the first ten scenarios ran and all ten matched (S03 included, `run_30e7764a777f`). Then the free tier's daily quota ended; the other eight halted, claimed FAILED, and the verifier agreed. A retry of those eight on the other key made no model call at all and was deleted.
+- 23:53 IST: **State changes are spans** (`1838455`): each run status change is a `state.<STATUS>` span with `from_state` and `to_state`. A first attempt as log lines did not show in the Neatlogs tree. Captured the before and after traces of S02 (`evidence/screenshots/14`, `15`).
+- Evening, failed attempt: tried to start a second, hook-tracked coding session from the command line to get a fresh Entire checkpoint. It stopped at "OAuth session expired". Nothing changed. Every commit still points at the one checkpoint that exists.
+
+### 2026-10-12 (Day 3, submission day)
+- 00:08 IST: **Final code, real model, every scenario: 20 of 20.** `gemini-3.5-flash-lite` at `1838455` (fixes 1 to 5), including the two large scenarios: 0 false success claims, 17 SUCCESS, 2 PARTIAL_SUCCESS, 1 WAITING_FOR_APPROVAL as expected, 3 crash-and-resume runs, 138 model calls, $0.457 at list price. S19 moved 12,458 records. `evidence/eval/20261011T182932Z-gemini-gemini-3.5-flash-lite-final-code.md`. A first start of this pass ran without tracing because the key was not in the shell; I stopped it and started again.
+- 00:12 IST: **Fix 6** (`6c07c9f`, test first): never send again what the target already refused. From the S12 run in pass 3. The engine remembers reference values the target refused; a repair that still produces them fails the dry run, where the model also sees it. Honest limit: on `gemini-3.5-flash-lite` the model repaired at the first attempt with the guard off and on (`evidence/experiments/`), so the guard is shown harmless, not yet shown rescuing a real run. The model that failed is out of quota until the daily reset. 764 tests pass; scripted regression 18 of 18.
+- 00:20 IST: **`EVIDENCE.md`**: one page for judges that maps each item the rules list to a file, run id or trace, including the weak points. `EVALUATION.md` and `README.md` now carry every pass, the bad ones too. Video closing line changed from "5 false successes caught" to "every false success caught" and both cuts re-rendered.
+- 00:22 IST: **Same pass again on the newest commit: 20 of 20.** `gemini-3.5-flash-lite` at `6c07c9f` (after fix 6), second key: 0 false success claims, 141 model calls, $0.465 at list price, median 18.5 s. `evidence/eval/*after-fix6.md`. Two passes in a row on all 20 scenarios; still not a failure rate.
+- Checked whether Neatlogs can share a trace publicly so judges could open the links: the trace menu offers Markdown and CSV export only, so screenshots stay the evidence for people outside the project.
+- Real-model spend so far: $3.09 at list price across all saved runs, $0 charged (free tier), against the $25 cap.
+
+#### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
+| Criterion | Weight | Score | Why | Next action |
+|---|---|---|---|---|
+| Agent that works | 30% | 9 | 20 of 20 on a real model twice in a row, the second time on the final code; seven real false successes all caught, three causes fixed test first; bad passes published | Fix 6 check on the model that failed, after the quota reset; a Claude run if credit appears |
+| Sponsor tools | 25% | 7 | Neatlogs: state, retries, failures, cost in every trace, before and after pair. entire-graph installed and used. cfo.ai plan with its criticism. Entire checkpoint page still a 404 and covers only the first part of the build | **Weakest:** owner pushes to the Entire remote and makes it public |
+| Video | 20% | 7 | Narrated cut with real footage, 2:35, plus a 2:18 cut for X; synthetic voice; not reviewed by the owner | Owner review and upload |
+| Building in public | 15% | 2 | Drafts only | Owner posts; first post as early as possible on Oct 12 |
+| Usefulness, originality | 10% | 8 | Independent verification of an agent's own claim, shown on real failures | - |
+
 ## Demo
 - Video: `evidence/video/zerodrop-demo.mp4` (2:35) and `evidence/video/zerodrop-demo-x.mp4` (2:18, for X).
 - Local: `docker compose up --build`, or `uv sync && (cd ui && npm ci && npm run build) && uv run zerodrop serve`, then open http://127.0.0.1:8700 and start "Demo - everything goes wrong". Add `--planner gemini` and a `ZERODROP_GEMINI_KEY` to run it with a real model.
 
 ## Known limitations and next steps
-- Real-model evidence is one run per scenario, on five Flash-class Gemini models picked by free-tier quota. No repeated evaluation on a single model, and no Claude run.
+- Real-model evidence is one pass per commit, on Gemini Flash-class models chosen by free-tier quota. It shows what happened, not a failure rate. No Claude run: the Anthropic account had no credit.
+- The smallest model made three different mapping mistakes that the engine did not catch before fixes 3, 4 and 5. There is no reason to think there is no fourth. The independent verifier is what makes them visible, and it caught all seven runs.
+- Fix 6 (refused values) is tested with a scripted planner and shown harmless with a real model, but has not yet been seen rescuing a real run.
 - LegacyBill and NovaBill are sandboxes written for this project. No real billing system has been migrated.
-- The smallest model made a mapping mistake the engine did not catch before fix 3; other mistakes of that kind may exist. The independent verifier is what makes them visible.
-- The Entire checkpoint covers the setup part of the Mac coding session, not the whole build (see the Oct 11 audit entry).
+- The Entire checkpoint covers the setup part of the Mac coding session, not the whole build (see the Oct 11 audit entry), and its web page needs the owner's push to the Entire-hosted remote.
+- Next: a third system pair with a public sandbox API; repeated passes on one billed model to get a real failure rate; a dry run that checks references against the target where the target offers a validate-only call.
 
 ## Submission
 - Requirements (from neatlogs.com/hackathon, read 2026-10-10): a public X quote post of the official neatlogs post with team, name, project, public repository and demo link (Mon Oct 12, 7:00 to 11:55 PM IST); a demo video of 3 minutes or less covering Neatlogs, Entire and cfo.ai; a public repository with commits dated during the hackathon; an accessible Entire checkpoint link plus its ID; a cfo.ai business plan.
+- Read again on 2026-10-11: Entire use means checkpoints and entire-graph; judges look for a before and after run with compared numbers (two Neatlogs traces), a failure-recovery run, trace links or screenshots, Entire output, the cfo.ai plan, #neatHack posts and hackathon-dated commits. All of these are mapped to files in `EVIDENCE.md`.
 - Status of each: `SUBMISSION_CHECKLIST.md`.

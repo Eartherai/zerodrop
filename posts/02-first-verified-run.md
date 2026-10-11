@@ -2,6 +2,8 @@
 
 Source for the facts: `hackathon.md` (Oct 10, 17:50 to 18:05 IST) and
 `tests/test_runner_api.py::test_naive_planner_is_caught_by_the_verifier`.
+Note for accuracy: this describes Oct 10. On Oct 11 the engine learned to reject that exact
+mapping before any write (fix 5 in `EVALUATION.md`), so the test now uses a wrong time zone.
 
 1/ First end-to-end run: customers, subscriptions and invoices moved between two billing systems, then re-read and checked by the independent verifier. SUCCESS.
 

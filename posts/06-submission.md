@@ -10,13 +10,13 @@ somewhere linkable (for example unlisted on YouTube) for the "demo link" the rul
 
 ## Text (fits a standard post)
 
-About 278 characters on X with two links and a 16-character name; the limit is 280, so
+About 276 characters on X with two links and a 16-character name; the limit is 280, so
 a longer name needs a word trimmed elsewhere.
 
 Team Tokenmaxing · [your name]
 ZeroDrop: the migration agent that proves nothing was lost.
 
-20/20 failure scenarios verified with a real model. An independent checker caught 5 false successes.
+20/20 failure scenarios pass on a real model. An independent checker caught all 7 false successes.
 
 Repo: [public repo link]
 Demo: [video link]
@@ -24,4 +24,4 @@ Demo: [video link]
 
 ## Optional reply underneath (the sponsor tools)
 
-Every run is one @neatlogs trace, down to each model call's tokens and cost. Every commit carries its Entire checkpoint. The business model was built and stress-tested in cfo.ai: break-even March 2027 in its base case.
+Every run is one @neatlogs trace: model calls with tokens and cost, retries, state changes, the verdict. Commits carry their Entire checkpoint, and entire-graph guided the code changes. The business model was built and stress-tested in cfo.ai: break-even March 2027 in its base case.

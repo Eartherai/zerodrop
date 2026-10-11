@@ -1,6 +1,6 @@
 # Demo video script (hard limit 3:00)
 
-> **Current cut:** `evidence/video/zerodrop-demo.mp4` (2:35, rendered Oct 11, fourth cut, redesigned dashboard). It follows the
+> **Current cut:** `evidence/video/zerodrop-demo.mp4` (2:35, re-rendered Oct 12 with the closing caption "every false success caught by the verifier"; fourth cut, redesigned dashboard). It follows the
 > structure below with these differences: the live run is a replay of the real Gemini S16 run
 > (`run_aa73127580bb`), narration is a synthetic voice (script in the table under "As rendered"),
 > the Entire section shows CLI output, and the model in the run is Gemini, not Claude. The table

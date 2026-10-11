@@ -10,7 +10,8 @@ report from an independent verifier that the agent cannot influence.
 > **The LLM decides, code executes, and an independent checker judges.**
 
 Built during neatHack 2026 by team Tokenmaxing. The dated build log, including what failed, is
-in [`hackathon.md`](hackathon.md).
+in [`hackathon.md`](hackathon.md). **Judging? Start with [`EVIDENCE.md`](EVIDENCE.md):** one
+page that maps each thing the rules ask for to a file, a run id or a trace.
 
 ![Replay of a real run: records move from LegacyBill to NovaBill through rate limits, a timeout and an API change, then the checker's verdict](evidence/video/dashboard-replay.gif)
 
@@ -45,26 +46,35 @@ Twenty seeded failure scenarios (`scenarios/scenarios.yaml`), each ending with t
 | After fix 2: wait exactly `Retry-After` (`574aa2b`) | 20 of 20 | 0 |
 
 These three runs use the **oracle planner**, a deterministic stand-in that always proposes the
-correct mapping. They measure the engine, recovery and verifier, not the model. With a
-deliberately flawed planner the engine claims SUCCESS and the verifier reports FAILED (yen
-totals 100 times too large).
+correct mapping. They measure the engine, recovery and verifier, not the model.
 
 **With a real model (Gemini planner):** all twenty scenarios have been run with a real model and
-matched their expected verified outcome (one run each, five Flash-class models): clean and
-large-volume runs, rate limits, timeouts, breaking API changes, crashes, orphans, duplicates,
-credential rotation and revocation, and prompt injection in the data.
+matched their expected verified outcome: clean and large-volume runs, rate limits, timeouts,
+breaking API changes, crashes, orphans, duplicates, credential rotation and revocation, and
+prompt injection in the data.
 
-The most useful result was a failure. With the smallest model, five runs ended with the engine
-believing SUCCESS while the verifier reported FAILED: the model had given every record the same
-id, so the target kept one record per entity. The independent verifier caught all five. We then
-taught the dry run to reject that mapping before any write, and the same five scenarios passed
-on the same model. A full pass of the standard suite on that one model then matched 18 of 18
-with no false success. Per-run table, root cause, limits and files:
-[`EVALUATION.md`](EVALUATION.md), `evidence/runs/`.
+| Real-model pass | Commit | Matched | False success claims |
+|---|---|---|---|
+| `gemini-3.1-flash-lite`, pass 1 | `f858712` | 18 of 18 | 0 |
+| `gemini-3.1-flash-lite`, pass 2 | `e65cc45` | 17 of 18 | 1, caught, fixed in `933a7a9` |
+| `gemini-3.5-flash-lite` | `e65cc45` | 18 of 18 | 0 |
+| `gemini-3.1-flash-lite`, pass 3 | `933a7a9` | 15 of 18 | 1, caught, fixed in `7b34f8c` |
+| `gemini-3.1-flash-lite`, pass 4 | `7b34f8c` | 10 of the 10 that ran before the daily quota ended | 0 |
+| **`gemini-3.5-flash-lite`, all 20 scenarios** | `1838455` | **20 of 20** | **0** |
+| **`gemini-3.5-flash-lite`, all 20 scenarios, final code** | `6c07c9f` | **20 of 20** | **0** |
 
-When the agent's claim and the verifier disagree, the certificate says so:
+The most useful results were the failures. Seven real-model runs ended with the engine
+believing SUCCESS while the verifier reported FAILED: five where the model gave every record
+the same id, two where it wrote yen amounts 100 times too large. **The independent verifier
+caught all seven.** Each of the three causes was then reproduced as a failing test and closed
+in the engine, so that mapping is now rejected before any write. One pass per commit: this
+shows what happened, not a failure rate. Per-run tables, root causes, the run the agent never
+repaired, and limits: [`EVALUATION.md`](EVALUATION.md).
 
-![Verification certificate: false-success claim caught, JPY totals 100x too large](evidence/screenshots/06-naive-false-success-certificate.png)
+When the agent's claim and the verifier disagree, the certificate says so. This is a real
+model's run (`run_5d0171f3cddf`):
+
+![Dashboard for a real-model run: "The agent said it succeeded. The checker disagrees." One record per entity reached the target; 14 of 24 checks passed](evidence/screenshots/12-real-model-false-success-caught.png)
 
 ## Quick start
 Docker:
@@ -89,14 +99,19 @@ and use `--planner gemini`. Each run is capped in code: 30 model calls, $1.50, 1
 ## Sponsor tools
 **Neatlogs: the runtime record.** Each run is one trace. The root WORKFLOW span carries the
 verdict (verifier status, the agent's own claim, false-success flag, checks, report hash).
-Under it: AGENT spans for the planner and diagnoser, LLM spans from the wrapped Anthropic
-client, TOOL spans per batch write and lookup, CHAIN spans per recovery decision, and an
-EVALUATOR span for the verifier. Every run stores its trace id, and the dashboard shows it.
-Code: `src/zerodrop/telemetry.py`.
+Under it: AGENT spans for the planner and diagnoser, LLM spans from the wrapped model client
+(tokens, cost, latency), TOOL spans per batch write and lookup, a `recovery.<class>` span per
+failure handled, a `state.<STATUS>` span per state change, and an EVALUATOR span for the
+verifier. Every run stores its trace id, and the dashboard links to it. A before and after pair
+of traces with compared numbers is in [`EVIDENCE.md`](EVIDENCE.md). Code:
+`src/zerodrop/telemetry.py`.
 
 **Entire: the build record.** Coding sessions are captured as checkpoints stored in git
 (`refs/entire/checkpoints/*`) with secret and personal-data redaction configured in
-`.entire/settings.json`. A commit leads to the session that produced it.
+`.entire/settings.json`. A commit leads to the session that produced it. The **entire-graph**
+code graph is installed for coding agents (`.entire/graph-agent.md`) and was used to locate
+code and check the blast radius of a change before making it; saved output is in
+`evidence/entire/`.
 
 **cfo.ai: the business model.** Pricing per verified migration, costs, break-even and runway,
 built from [`BUSINESS.md`](BUSINESS.md).
@@ -114,7 +129,7 @@ and versioned schemas. Failures come from a seeded fault plan the agent never se
 is synthetic.
 
 ## Docs
-[`ARCHITECTURE.md`](ARCHITECTURE.md) · [`EVALUATION.md`](EVALUATION.md) ·
+[`EVIDENCE.md`](EVIDENCE.md) · [`ARCHITECTURE.md`](ARCHITECTURE.md) · [`EVALUATION.md`](EVALUATION.md) ·
 [`DEMO.md`](DEMO.md) · [`BUSINESS.md`](BUSINESS.md) ·
 [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md) · [`hackathon.md`](hackathon.md) ·
 [`docs/PLAN.md`](docs/PLAN.md) · [`docs/CONTRACTS.md`](docs/CONTRACTS.md)

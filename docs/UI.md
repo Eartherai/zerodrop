@@ -148,7 +148,7 @@ verbatim; only scenario titles were shortened afterwards.
 |---|---|---|---|
 | `demo-v2-flip` | seed 7, `demo` (300 customers) | 429 ×2 on customers; schema flip to v2 + 429 ×3 at the 4th subscriptions write; timeout-after-write on invoices; partial accept (30 of 50); one 503; process crash after 20 write batches, then `resume()` | SUCCESS, claim SUCCESS, 24/24 checks, 50 idempotent replays |
 | `messy-data` | seed 11, `small`, 2 orphan invoices, 2 duplicate e-mails | 429 ×2 on invoices | PARTIAL_SUCCESS, 4 quarantined with reasons |
-| `naive-planner` | seed 5, `small` | none; `FakePlanner("naive")` (JPY treated as 2 decimals) | FAILED, claim SUCCESS: false-success claim caught (`money_by_currency`, `source_fidelity`, `golden_records`) |
+| `naive-planner` | seed 5, `small` | none; `FakePlanner("naive")` as recorded on Oct 10 (JPY treated as 2 decimals; since Oct 11 the engine rejects that mapping and the naive planner's flaw is a wrong time zone) | FAILED, claim SUCCESS: false-success claim caught (`money_by_currency`, `source_fidelity`, `golden_records`) |
 
 Behavior: the recorded runs appear in the run history as finished runs (opened as
 "Replay of recorded run"); **Start migration** replays the chosen recording as a new

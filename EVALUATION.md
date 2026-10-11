@@ -8,9 +8,13 @@
 - Reproduce: `uv run zerodrop eval --planner oracle --label <name>` writes JSON + Markdown to `evidence/eval/`; compare with `uv run python scripts/compare_evals.py <a.json> <b.json> ...`.
 
 ## What these runs measure (and what they do not)
-The runs below use the **oracle planner**: a deterministic, scripted stand-in for Claude that always proposes the correct mapping. They measure the reliability of everything around the model: engine, recovery policies, crash/resume, the sandbox and the verifier. They cost nothing and are exactly repeatable. **They do not measure Claude's mapping quality.** The first real-model runs are in the section above; a full real-model evaluation is still pending.
+Two kinds of runs are reported here, and they answer different questions.
+- **Real-model runs** (Gemini planner, next section): a real model reads both schemas and writes the mapping. These measure the whole agent. One pass per commit, so they show what happened, not a failure rate.
+- **Oracle-planner runs** (last section): a deterministic, scripted stand-in that always proposes the correct mapping. They measure everything around the model: engine, recovery policies, crash/resume, the sandbox and the verifier. They cost nothing and are exactly repeatable. They do not measure a model's mapping quality.
 
-The **naive planner** (a plausible but flawed agent: two decimals for every currency) shows what the verifier is for. On S01 the engine believed SUCCESS, and the verifier reported FAILED: JPY invoice totals were 100x too large (`tests/test_runner_api.py::test_naive_planner_is_caught_by_the_verifier`).
+No run used Claude: the Anthropic account had no credit during the hackathon. The planner sits behind one interface (`LLMBackend`), so the model is a setting.
+
+The **naive planner** (a scripted, plausible but flawed agent) shows what the verifier is for. It reads source dates in the wrong time zone. On S01 the engine believes SUCCESS and the verifier reports FAILED: every customer's `created_at` is off by five and a half hours (`tests/test_runner_api.py::test_naive_planner_is_caught_by_the_verifier`). Until Oct 11 its flaw was two decimals for every currency (yen 100x too large); fix 5 below made the engine reject that mapping before any write, so the scripted flaw had to change to one the engine cannot know about.
 
 ## Real-model runs (Gemini planner)
 Every one of the twenty scenarios has now been run with a real Gemini model and matched its
@@ -104,11 +108,123 @@ Before the fix this model produced a false success in five of eight runs. After 
 eighteen in a single pass. It is one pass, so it shows the suite passes on this model, not a
 failure rate.
 
+### More passes, and two more false successes (Oct 11, evening)
+The same suite, run again. Each row is one pass of 18 scenarios.
+
+| Pass | Model | Commit | Matched | False success claims | Model calls | Cost (list) | File in `evidence/eval/` |
+|---|---|---|---|---|---|---|---|
+| 1 | `gemini-3.1-flash-lite` | `f858712` | 18 of 18 | 0 | 111 | $0.2233 | `20261011T130853Z-…-single-model` |
+| 2 | `gemini-3.1-flash-lite` | `e65cc45` | 17 of 18 | 1 (S16) | 117 | $0.2472 | `20261011T174312Z-…-pass2` |
+| second model | `gemini-3.5-flash-lite` | `e65cc45` | 18 of 18 | 0 | 119 | $0.4186 | `20261011T175241Z-…-single-model` |
+| 3 | `gemini-3.1-flash-lite` | `933a7a9` | 15 of 18 | 1 (S03) | 108 | $0.2278 | `20261011T180252Z-…-pass3-after-fix4` |
+| 4 | `gemini-3.1-flash-lite` | `7b34f8c` | 10 of the 10 that ran | 0 | 57 | $0.1203 | `20261011T181825Z-…-pass4-after-fix5` |
+| all 20, after fix 5 | `gemini-3.5-flash-lite` | `1838455` | **20 of 20** | 0 | 138 | $0.4570 | `20261011T182932Z-…-final-code` |
+| all 20, after fix 6 | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | 0 | 141 | $0.4650 | `20261011T184330Z-…-after-fix6` |
+
+Pass 4 stopped early: the free tier's daily quota ran out after ten scenarios. The remaining
+eight halted (most before their first model call), claimed FAILED themselves, and the verifier
+agreed. They are listed in the file as not matched and are counted here as not run.
+
+A first pass of 18 of 18 did not mean the model would never get it wrong. Passes 2 and 3 each
+found a new way.
+
+### Improvement 4: contradictory amount parameters (commit 933a7a9)
+- **Observed (pass 2, S16, `run_14ded6031abe`, trace `874c2d43e3b1995e85980d50264aed3f`):** the
+  engine believed SUCCESS; the verifier reported FAILED on three checks. JPY total on the target
+  1,205,966,500, expected 12,059,665: exactly 100 times too large, on 157 invoices.
+- **Root cause:** after the API change the model rewrote the invoice mapping and gave
+  `decimal_to_minor` both `decimals: 2` and `currency_field`. The mapping language silently used
+  the fixed value. Yen has no minor unit, so every yen amount was multiplied by 100. Every
+  payload was valid, so the dry run passed.
+- **Fix (test first):** when both parameters are given and they disagree for the record's
+  currency, the operation is a mapping error. The dry run returns it to the model to repair.
+- **Result:** scripted regression 18 of 18 (`*after-fix4-currency-params.md`). In pass 3, S16
+  on the same model was verified SUCCESS (`run_e5294505e55c`).
+
+### Improvement 5: fixed decimals against the record's own currency (commit 7b34f8c)
+- **Observed (pass 3, S03, `run_acc170ca8785`, trace `81e79b05a4b1b6f2c15dbd833823ef1f`):** the
+  same symptom by a different route. JPY total 328,713,000, expected 3,287,130, on 24 invoices.
+  This time the model gave only `decimals: 2`, so fix 4 had nothing to compare.
+- **Root cause:** a fixed number of decimals is only right when every record has a currency
+  with that many. The record itself says which currency it is.
+- **Fix (test first):** if a record carries a known currency code whose minor units differ
+  from the fixed `decimals`, the operation is a mapping error that names `currency_field` as
+  the repair.
+- **Result:** scripted regression 18 of 18 (`*after-fix5-currency-guard.md`). In pass 4, S03 on
+  the same model was verified SUCCESS (`run_30e7764a777f`), as were the other nine scenarios
+  that ran.
+- **Side effect:** the scripted naive planner used this exact flaw to demonstrate a false
+  success. The engine now rejects it, so the naive planner's flaw was changed to a wrong time
+  zone, which only the verifier's field comparison can see.
+
+### Two failures in pass 3 that were not false successes
+- **S12 (`run_ab090e6c2fc6`), addressed by improvement 6 below.** On API v1 the target wants the plan's code as it
+  is. The model instead looked the code up in the price table and sent the price id. The
+  payloads had the right shape, so the dry run passed 38 of 38 samples; the target then
+  rejected all 38 subscriptions (`invalid_reference`, `plan_code`). Three repair rounds each
+  kept the lookup, passed the dry run again and were rejected again. The run halted with 28
+  customers written, claimed FAILED, and the verifier agreed. 19 model calls, $0.042. The
+  agent failed safely, but it failed, and it sent the same refused values three times.
+- **S20 (`run_3b200b33aa3e`), fixed in `6c096ad`.** The model provider answered 503 on the
+  first planning call and the run halted. The Gemini backend now retries a temporary 5xx up to
+  five times with growing waits. Tested with a fake client; not yet seen again in a real run.
+
+### Improvement 6: never send again what the target already refused (Oct 12)
+- **Observed:** the S12 run above. Not a false success, but the engine sent the same refused
+  plan values three times, because each repair passed the dry run.
+- **Root cause:** the dry run checks a payload's shape against the schema. It cannot know that
+  a reference points at nothing. After the target says so, the engine knows, but it forgot.
+- **Fix (test first):** when the target refuses reference values across a batch, the engine
+  remembers them for that entity and field until the target's version changes. A dry run then
+  fails a mapping that still produces those values on most samples (`refused_reference`). The
+  model's own dry-run tool and the submission check use the same dry run, so the model is told
+  inside the repair conversation, before anything is written. Refused values on only a few
+  records are left alone: those are record problems and are quarantined as before.
+- **Tests:** `tests/test_engine.py`, four tests, starting from the exact mapping the model
+  wrote. A repair that keeps the refused values no longer reaches the target a second time.
+- **Checked with a real model, and what that check does not show:**
+  `scripts/repro_refused_reference.py` seeds the model's wrong mapping and lets a real model do
+  the repairs. On `gemini-3.5-flash-lite`, with the guard off (`run_f5f2c8dc4a2c`) and on
+  (`run_29dc26ee4a25`), the model repaired at the first attempt and both runs were verified
+  SUCCESS. So the guard does no harm there, and this model did not need it. The model that
+  did fail, `gemini-3.1-flash-lite`, was out of daily quota, so the guard has **not** been seen
+  rescuing a real run. Files: `evidence/experiments/`. Both runs used the working tree that
+  became this commit; the files record its parent, `1838455`.
+
+### The final code on a real model (Oct 12, 00:00 IST)
+All 20 scenarios, including the two large ones, on `gemini-3.5-flash-lite` at commit `1838455`
+(fixes 1 to 5): **20 of 20 matched, 0 false success claims**, 17 verified SUCCESS, 2
+PARTIAL_SUCCESS and 1 WAITING_FOR_APPROVAL as expected, 3 crash-and-resume runs, 138 model
+calls, $0.457 at list price ($0.027 per verified success), median 24.9 s. S19 moved 12,458
+records. Every run has a trace id in the file:
+`evidence/eval/20261011T182932Z-gemini-gemini-3.5-flash-lite-final-code.{json,md}`.
+
+Then the same again after fix 6, at commit `6c07c9f`, on the other key: **20 of 20 matched, 0
+false success claims**, 141 model calls, $0.465 at list price, median 18.5 s
+(`evidence/eval/*after-fix6.{json,md}`). Scripted regression at the same commit: 18 of 18
+(`*oracle-after-fix6-refused-reference.md`). Two passes in a row is still two passes, not a
+failure rate.
+
+### All real-model false successes
+| Cause | Seen in | Runs | Caught by verifier | Fix |
+|---|---|---|---|---|
+| Same id for every record | per-scenario runs, `78d92da` | 5 | 5 | 3, `251cdd4` |
+| Both `decimals` and `currency_field`, yen x100 | pass 2, S16 | 1 | 1 | 4, `933a7a9` |
+| Fixed `decimals` with a yen record, yen x100 | pass 3, S03 | 1 | 1 | 5, `7b34f8c` |
+
+Seven in total, seven caught. No later run repeated a cause after its fix.
+
 ### Limits
-One run per scenario and model, on sandbox data. Five different Flash-class models, chosen by
-which had free-tier quota left, so results are not comparable between models.
+One run per scenario, model and commit, on sandbox data. Only Gemini Flash-class models, chosen
+by which had free-tier quota left, so results are not comparable between models. The fixes
+close three specific mistakes; they do not show the model has no fourth. That is the reason
+the verifier is independent.
 
 ## Results: baseline, fix 1, fix 2 (oracle planner)
+Later scripted regressions, 18 scenarios each, all 18 of 18 with no false success: after fix 3
+(`251cdd4`), fix 4 (`933a7a9`), fix 5 (`7b34f8c`) and fix 6 (`6c07c9f`); files
+`evidence/eval/*oracle-after-fix{3,4,5,6}*`.
+
 
 | Metric | harness-check (`c4766e230fa8`) | after-fix1-rate-limit-budget (`8c0a0176466c`) | after-fix2-retry-after (`574aa2bc9388`) |
 |---|---|---|---|
