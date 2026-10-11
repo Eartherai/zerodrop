@@ -14,7 +14,9 @@
       "anthropic_key": "sk-ant-[A-Za-z0-9_-]{20,}",
       "aws_access_key_id": "(AKIA|ASIA)[0-9A-Z]{16}",
       "neatlogs_project_key": "nlpk_[A-Za-z0-9_-]{16,}",
-      "neatlogs_secret": "nlsa_[A-Za-z0-9_-]{16,}"
+      "neatlogs_secret": "nlsa_[A-Za-z0-9_-]{16,}",
+      "google_api_key": "AIza[0-9A-Za-z_-]{35}",
+      "google_ai_studio_key": "AQ\\.[A-Za-z0-9_-]{20,}"
     }
   },
   "checkpoints": {
