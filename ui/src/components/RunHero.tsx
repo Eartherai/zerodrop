@@ -286,8 +286,15 @@ export function RunHero(props: HeroProps) {
   const claim = model.verify?.agentClaim ?? model.agentClaim;
   const facts: string[] = [];
   if (elapsed !== null) facts.push(formatDuration(elapsed));
-  if (model.status !== null)
+  const planner = detail?.planner ?? null;
+  if (planner) {
+    facts.push(
+      planner.kind === "model" ? `planned by ${planner.name}` : `scripted planner (${planner.name}), not a model`,
+    );
+  }
+  if (model.status !== null && planner?.kind !== "scripted") {
     facts.push(llm.calls ? `${plural(llm.calls, "model call")}, ${formatUsd(llm.costUsd)}` : "no model calls");
+  }
   if (model.apiVersionHistory.length > 1) facts.push(`target API changed ${model.apiVersionHistory.join(" to ")}`);
   if (model.resumes) facts.push(`resumed ${model.resumes === 1 ? "once" : `${model.resumes} times`} after a crash`);
   const showLedger = model.status !== null;

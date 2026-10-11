@@ -27,8 +27,8 @@ Status key: DONE (verified, evidence linked) / PARTIAL / TODO / OWNER (needs the
 ## Engineering gates
 | Gate | Status | Evidence |
 |---|---|---|
-| Tests, lint, format | DONE | `uv run pytest -q` 755 passed; `ruff check` and `ruff format --check` clean (Oct 11, 16:10 IST) |
-| Docker kit | DONE | `docker compose up` then S16 through `POST /api/runs`: verified SUCCESS, 24/24 checks (Oct 10, 23:20 IST) |
+| Tests, lint, format | DONE | `uv run pytest -q` 756 passed; `ruff check` and `ruff format --check` clean; 61 UI tests (Oct 11, 18:30 IST) |
+| Docker kit | DONE | Rebuilt Oct 11, 18:20 IST with the redesigned UI: `docker compose up`, both services healthy, S07 through `POST /api/runs` verified SUCCESS |
 | Secret scan, full history | DONE | `gitleaks git --log-opts=--all --redact`: no leaks, 24 commits (Oct 10, 23:18 IST). Re-run before going public |
 | `/security-review` | DONE | Oct 10, 23:55 IST: reviewed the API (run start, public-mode access code and budget checks, static file serving), the sandbox bind-host option, the trace-id link and the Docker kit. No high-confidence findings. Static serving resolves paths and requires them inside `ui/dist`; the access code is compared in constant time; the container runs as a non-root user and ports publish to 127.0.0.1 only. Re-run before going public |
 | Real-model evaluation with saved evidence | DONE (single runs) | 20 of 20 scenarios matched, 28 runs in `evidence/runs/`, table by `scripts/runs_table.py`. Repeat runs on one model need a billed key |

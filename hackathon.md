@@ -73,6 +73,8 @@
 
 - 16:50 IST: **Dashboard redesigned** after the owner called the first version bad, which was fair: equal-weight boxes, a seven-color pipeline strip, all-caps labels, and the verdict at the bottom of the page. The new page leads with the verdict as one sentence and a source-against-target ledger, uses three bundled typefaces, and keeps color for failures and the verdict. Checked in light and dark, idle, running, verified, false success, and at phone, tablet and desktop widths with no horizontal scroll. 61 UI tests and 755 Python tests pass. Screenshots in `evidence/screenshots/` and the README were retaken; the demo video (fourth cut) uses footage of the new page. Design notes: `docs/UI.md`.
 
+- 18:30 IST: **Each run now says who planned it.** The engine records the planner at the start of a run (a model id, or the scripted stand-in's name); `GET /api/runs/{id}` returns it and the dashboard prints "planned by gemini-3.8-flash" or "scripted planner (oracle), not a model", so a scripted run cannot be mistaken for a model's work on screen. Test first; 756 tests pass. Docker image rebuilt with the redesigned UI and the Gemini dependency: `docker compose up`, both services healthy, an S07 run through the API verified SUCCESS. The demo video's narration was transcribed back with Whisper to check that every sentence is present and in order (it is; I cannot judge pronunciation).
+
 #### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | Next action |
 |---|---|---|---|---|

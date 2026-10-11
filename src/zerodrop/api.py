@@ -60,6 +60,12 @@ def _trace_id(ledger: Ledger, run_id: str) -> str | None:
     return ids[-1] if ids else None
 
 
+def _planner(ledger: Ledger, run_id: str) -> dict[str, str] | None:
+    """Who planned the run's latest invocation: a model (its id) or a scripted stand-in."""
+    seen = [e.data for e in ledger.events_since(run_id) if "planner_kind" in e.data]
+    return {"kind": seen[-1]["planner_kind"], "name": seen[-1]["planner_name"]} if seen else None
+
+
 def _spend_used_usd(ledger: Ledger) -> float:
     """Cumulative LLM cost over every run in the ledger (runs.cost_usd).
 
@@ -215,6 +221,7 @@ def create_app(
             "mapping_versions": mapping_versions,
             "llm": {"calls": record.llm_calls, "cost_usd": record.cost_usd},
             "error": record.error or shown_error(runs.errors.get(run_id)),
+            "planner": _planner(ledger, run_id),
             "trace_id": trace_id,
             "trace_url": f"{NEATLOGS_APP_URL}/traces/{trace_id}" if trace_id else None,
             "commit": git_commit() or None,

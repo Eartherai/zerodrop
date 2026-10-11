@@ -2042,3 +2042,22 @@ def test_constant_identity_mapping_is_repaired_before_any_write_not_collapsed_in
     assert result.status == RunStatus.SUCCESS and result.metrics["dry_run_repairs"] == 1
     assert result.metrics["already_present"] == 0  # nothing was folded onto an existing record
     assert_no_duplicates(h.target)
+
+
+def test_run_records_who_planned_it_a_model_or_the_scripted_stand_in() -> None:
+    class ModelBacked(ScriptedPlanner):
+        class llm:  # noqa: N801 - mimics ClaudePlanner.llm
+            model = "gemini-3.8-flash"
+
+    def planner_events(h: Harness, run_id: str) -> list[dict[str, Any]]:
+        return [e.data for e in h.ledger.events_since(run_id) if "planner_kind" in e.data]
+
+    h = Harness(planner=ModelBacked())
+    result = h.run()
+    assert planner_events(h, result.run_id) == [{"planner_kind": "model", "planner_name": "gemini-3.8-flash"}]
+
+    from zerodrop.agent.fake import FakePlanner
+
+    h = Harness(planner=FakePlanner("oracle"))
+    result = h.run()
+    assert planner_events(h, result.run_id) == [{"planner_kind": "scripted", "planner_name": "oracle"}]

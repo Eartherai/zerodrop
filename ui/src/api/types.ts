@@ -178,5 +178,7 @@ export interface RunDetail {
   llm: { calls: number; cost_usd: number };
   trace_url?: string | null;
   trace_id?: string | null;
+  /** Who planned the run: a model (its id) or a scripted stand-in. Absent on runs recorded before this existed. */
+  planner?: { kind: "model" | "scripted"; name: string } | null;
   commit?: string | null;
 }

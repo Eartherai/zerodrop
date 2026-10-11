@@ -602,12 +602,23 @@ class MigrationEngine:
             "zerodrop.migration", kind="WORKFLOW", run_id=st.run_id, resumed=st.resumed
         ) as root:
             self._root_span = root
+            kind, name = self._planner_identity()
+            # Shown in the dashboard, so a scripted run is never mistaken for a model's work.
+            self._emit("info", f"planner: {name} ({kind})", planner_kind=kind, planner_name=name)
+            telemetry.set_attr(root, "planner", f"{kind}:{name}")
             telemetry.set_attr(root, "input.value", json.dumps({"goal": st.goal, "resumed": st.resumed}))
             self._trace_id = telemetry.current_trace_id()
             if self._trace_id is not None:
                 # Ties the run to its trace: shown in the dashboard and stored with the outcome.
                 self._emit("info", f"neatlogs trace {self._trace_id}", neatlogs_trace_id=self._trace_id)
             return self._run_workflow(plan)
+
+    def _planner_identity(self) -> tuple[str, str]:
+        """("model", model id) for a model-backed planner, ("scripted", name) for a stand-in."""
+        model = getattr(getattr(self.planner, "llm", None), "model", None)
+        if isinstance(model, str) and model:
+            return "model", model
+        return "scripted", str(getattr(self.planner, "mode", None) or type(self.planner).__name__)
 
     def _run_workflow(self, plan: MigrationPlan | None) -> RunResult:
         try:
