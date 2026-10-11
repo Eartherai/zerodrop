@@ -10,10 +10,13 @@ somewhere linkable (for example unlisted on YouTube) for the "demo link" the rul
 
 ## Text (fits a standard post)
 
+About 278 characters on X with two links and a 16-character name; the limit is 280, so
+a longer name needs a word trimmed elsewhere.
+
 Team Tokenmaxing · [your name]
 ZeroDrop: the migration agent that proves nothing was lost.
 
-20 of 20 failure scenarios verified with a real model. 5 false successes caught by an independent checker.
+20/20 failure scenarios verified with a real model. An independent checker caught 5 false successes.
 
 Repo: [public repo link]
 Demo: [video link]
