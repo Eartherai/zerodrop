@@ -45,6 +45,9 @@ REFUSAL_FINISH_REASONS = frozenset(
 )
 
 RETRY_HINT = re.compile(r"retry in ([0-9]+(?:\.[0-9]+)?)s")
+SERVER_ERROR_CODES = frozenset({500, 502, 503, 504})
+MAX_SERVER_ERROR_RETRIES = 5  # waits of 2, 4, 8, 16 and 30 s: one minute in total
+MAX_SERVER_ERROR_WAIT_S = 30.0
 CHARS_PER_TOKEN_ESTIMATE = 3
 DEFAULT_RATE_LIMIT_WAIT_S = 20.0
 MAX_RATE_LIMIT_WAIT_S = 65.0
@@ -96,6 +99,7 @@ class GeminiBackend:
         client: Any = None,
         sleep: Callable[[float], None] = time.sleep,
         max_rate_limit_waits: int = 12,
+        max_server_error_retries: int = MAX_SERVER_ERROR_RETRIES,
     ) -> None:
         if client is None:  # tests inject a fake or an offline SDK client
             from google import genai  # lazy: telemetry must initialise before the SDK is imported
@@ -112,13 +116,14 @@ class GeminiBackend:
         self._ids = itertools.count(1)
         self._sleep = sleep
         self._max_rate_limit_waits = max_rate_limit_waits
+        self._max_server_error_retries = max_server_error_retries
 
     def create(self, request: dict[str, Any]) -> GeminiMessage:
         undecided = set(request) - TRANSLATED_REQUEST_KEYS - DROPPED_REQUEST_KEYS
         if undecided:
             raise ValueError(f"request keys with no Gemini translation: {', '.join(sorted(undecided))}")
         contents, config = _contents(request["messages"]), _config(request)
-        waits = 0
+        waits = busy = 0
         while True:
             try:
                 response = self._client.models.generate_content(
@@ -130,6 +135,13 @@ class GeminiBackend:
                         f"the Gemini request failed ({type(exc).__name__}); the error text contained "
                         "the API key and was withheld"
                     ) from None
+                if getattr(exc, "code", None) in SERVER_ERROR_CODES:
+                    # The provider is overloaded or briefly down: wait longer each time, then give up.
+                    if busy >= self._max_server_error_retries:
+                        raise
+                    busy += 1
+                    self._sleep(min(2.0**busy, MAX_SERVER_ERROR_WAIT_S))
+                    continue
                 delay = _rate_limit_delay(exc)
                 if delay is None or waits >= self._max_rate_limit_waits:
                     raise

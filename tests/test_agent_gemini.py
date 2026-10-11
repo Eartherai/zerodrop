@@ -809,3 +809,34 @@ def test_price_fallback_only_follows_version_suffixes() -> None:
     # A differently named variant may bill differently: never price it at the cheaper base rate.
     assert price_for("gemini-3.8-flash-lite") == UNKNOWN_MODEL_PRICING
     assert price_for("gemini-3.8-flash-image-preview") == UNKNOWN_MODEL_PRICING
+
+
+# ---------------------------------------------------------------------------
+# Provider overload: a temporary 5xx is retried with growing waits (found in run_3b200b33aa3e)
+# ---------------------------------------------------------------------------
+
+
+class FakeServerError(Exception):
+    """Shaped like google.genai.errors.ServerError."""
+
+    def __init__(self, code: int = 503) -> None:
+        super().__init__(f"{code} UNAVAILABLE. This model is currently experiencing high demand.")
+        self.code = code
+
+
+def test_provider_overload_is_retried_with_growing_capped_waits() -> None:
+    waits: list[float] = []
+    llm, models = waiting_client(
+        [FakeServerError(), FakeServerError(500), FakeServerError(), text_reply("ok")], waits
+    )
+    response = llm.complete(system="s", tools=[], messages=[{"role": "user", "content": "hi"}])
+    assert response.text == "ok" and len(models.calls) == 4
+    assert waits == [2.0, 4.0, 8.0] and llm.calls == 1
+
+
+def test_provider_overload_gives_up_with_the_original_error_after_its_budget() -> None:
+    waits: list[float] = []
+    llm, models = waiting_client([FakeServerError()] * 9, waits, max_server_error_retries=5)
+    with pytest.raises(FakeServerError):
+        llm.complete(system="s", tools=[], messages=[{"role": "user", "content": "hi"}])
+    assert len(models.calls) == 6 and waits == [2.0, 4.0, 8.0, 16.0, 30.0]  # capped at 30 s
