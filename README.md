@@ -14,6 +14,8 @@ in [`hackathon.md`](hackathon.md).
 
 ![ZeroDrop dashboard during the chaos demo: rate-limit failures and recovery steps streaming](evidence/screenshots/01-s16-running.png)
 
+**Demo video (2:35):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)
+
 ## Why
 Every SaaS switch is a data migration, and migrations fail quietly: a batch dropped by a rate
 limit, a duplicate after a timeout that hid a successful write, an API that changes version

@@ -15,7 +15,7 @@
         read-only tools |         | batches | read-only
         +---------------v--+   +--v---------v--+   +------------------------------+
         | Planner (agent)  |   | Target API     |   | Independent verifier         |
-        | Claude Opus 5.5  |   | (NovaBill)     |   | own canonicalization of the  |
+        | Gemini or Claude |   | (NovaBill)     |   | own canonicalization of the  |
         | tool loop:       |   | idempotency    |   | source semantics; never      |
         | samples, docs,   |   | keys, 409s,    |   | imports engine/DSL/agent;    |
         | schema, dry_run  |   | v1 -> v2 drift |   | decides SUCCESS / PARTIAL /  |
@@ -44,7 +44,7 @@
 |---|---|---|
 | TRANSIENT | 429, 5xx, per-item 503, connection resets | 429: wait exactly the server's `Retry-After` (own budget of 40 waits, the wall-clock cap still applies); others: capped exponential backoff with seeded jitter, at most 6 attempts |
 | AMBIGUOUS_WRITE | Timeout after the request was sent | Look up each item by `external_id` before re-sending; never blind re-POST |
-| CONTRACT | The same 422 code on >= 50% of a batch, or a new `NovaBill-Version` | Pause, refetch the schema, Claude patches the failing mapping **and every pending mapping** affected, dry-run, resume |
+| CONTRACT | The same 422 code on >= 50% of a batch, or a new `NovaBill-Version` | Pause, refetch the schema, the model patches the failing mapping **and every pending mapping** affected, dry-run, resume |
 | DATA | An isolated record-level 422 or an unresolvable reference | Quarantine with a reason; the run ends PARTIAL_SUCCESS |
 | AUTH | 401 | Re-read the configured token file once; otherwise WAITING_FOR_APPROVAL |
 | BUDGET | LLM call, cost or wall-clock cap | Stop safely and report honestly |

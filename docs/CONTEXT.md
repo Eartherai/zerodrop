@@ -105,10 +105,10 @@ uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json
 1. Owner: review the video, upload it, give the link. Owner: the Entire push above.
 2. Owner: enable billing on the Gemini key (or Anthropic credit) for repeat runs and any
    scenario still missing in `EVALUATION.md`.
-3. Before the repo goes public: the Mac session's transcript is the Entire checkpoint and
-   contains personal details (owner's college and public profiles surfaced by cfo.ai, a Google
-   Cloud project number, a Neatlogs org id, local folder names). Review it with the owner, or
-   replace it with a checkpoint from a clean session, before approving publication.
+3. Before the repo goes public: the Entire checkpoint was audited on Oct 11 (see `hackathon.md`).
+   It holds only the first 13 turns of the Mac session: no keys, no images, no personal details,
+   but it does show local folder paths. Later turns (which do contain personal details) are NOT
+   in it; do not re-attach the full session without reviewing it first.
 4. Re-run `/security-review` and `gitleaks git --log-opts=--all --redact` right before going public.
 5. Owner approval for: repo visibility, posts in `posts/`, the submission quote post.
 

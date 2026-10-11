@@ -11,18 +11,18 @@ Status key: DONE (verified, evidence linked) / PARTIAL / TODO / OWNER (needs the
 |---|---|---|---|
 | 1 | Demo video, 3 minutes or less, covering Neatlogs, Entire and cfo.ai (architecture, implementation, runtime, reasoning, result) | PARTIAL | Rendered: `evidence/video/zerodrop-demo.mp4`, 2:35, 1920x1080, narrated (synthetic voice). Nine scenes: problem, the rule, replay of the real Gemini S16 run, verification certificate, a real model's false success caught and fixed, Neatlogs trace, Entire checkpoint, cfo.ai plan, close. Still to do: owner review, upload, link. Known gaps: the Entire scene shows CLI output because the entire.io page is not reachable yet; the 19/20 to 20/20 figure is from the scripted evaluation and is labelled so |
 | 2 | Public repository with commits dated during the hackathon | OWNER | Repo `github.com/Eartherai/zerodrop` is private until the security gate passes and the owner approves. First commit after the window opened (Oct 10, 12:30 IST); history never rewritten |
-| 3 | Accessible Entire checkpoint link plus its ID | PARTIAL | ID `01M4KEGN3Q174N063453HK5XC6`. Link: https://entire.io/gh/Eartherai/zerodrop/commit/dda3a4ea468bd53ff5a64618fe179ed57a36f820 . Ref pushed: `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`. Not reachable by outsiders while the repo is private: re-check logged out after it goes public |
+| 3 | Accessible Entire checkpoint link plus its ID | OWNER | ID `01M4KEGN3Q174N063453HK5XC6`, stored at `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6` and pushed to GitHub; every commit since carries the `Entire-Checkpoint` trailer. **The entire.io page is a 404**: the site only knows the Entire-hosted repo `/et/hackathone/hackathon`. The owner needs to run `git remote add entire entire://aws-ap-south-1.entire.io/et/hackathone/hackathon` and `git push entire main 'refs/entire/*:refs/entire/*'`, then make that repo public. Audited Oct 11: no keys, no images, no personal details; it does show local folder paths |
 | 4 | cfo.ai business plan (pricing, costs, revenue, runway) | PARTIAL | Built in cfo.ai on Oct 11 from `BUSINESS.md`: 24-month model with assumptions, monthly forecast, scenarios and a written plan. Base case as cfo.ai computed it: break-even month Mar 2027, lowest cash $35,861, cash never runs out. Capture: `evidence/screenshots/08-cfo-ai-monthly-forecast.png`. Still to do: share link or export, and fold cfo.ai's own critique (20% monthly growth is aggressive; fixed costs never rise; failed runs are not costed) into `BUSINESS.md` |
 | 5 | X quote post with team, name, project, repo, demo link | OWNER | Draft: `posts/06-submission.md`. Posting is the owner's action |
 
 ## Judging criteria
 | Weight | Criterion | Status | Evidence or what is missing |
 |---|---|---|---|
-| 30% | Agent that works | PARTIAL | Engine, recovery, crash/resume and verifier: 20/20 scenarios with the deterministic oracle planner (`EVALUATION.md`). Real model (Gemini planner): all 20 scenarios run and matched (one run each; `evidence/runs/`, table in `EVALUATION.md`). A real false success claim from the smallest model was caught by the verifier in 5 runs, root-caused, fixed test first (`251cdd4`) and re-verified. Not done: repeat runs, a single-model evaluation, any Claude run |
-| 25% | Sponsor tools | PARTIAL | Neatlogs: traced runs with trace id linked to each run; trace-tree screenshots TODO. Entire: checkpoint created and pushed. cfo.ai: plan input ready |
-| 20% | Video | PARTIAL | First full cut rendered (`evidence/video/zerodrop-demo.mp4`, 2:35); needs owner review and upload |
-| 15% | Building in public | TODO | Drafts in `posts/`; posting is the owner's action |
-| 10% | Usefulness and originality | PARTIAL | `README.md`, `BUSINESS.md` |
+| 30% | Agent that works | DONE (single runs) | All 20 scenarios verified with a real Gemini model, one run each (`evidence/runs/`, `EVALUATION.md`). A real false success from the smallest model was caught by the verifier in 5 runs, root-caused, fixed test first (`251cdd4`) and re-verified. Scripted evaluation 18/18 at the fix commit. Not done: repeat runs on one model, any Claude run |
+| 25% | Sponsor tools | PARTIAL | Neatlogs: every run traced, trace linked from the dashboard, captures of real-model traces in `evidence/screenshots/07` to `11`. cfo.ai: plan built, six scenarios and its criticism in `BUSINESS.md`. Entire: checkpoint exists and is referenced by every commit, but its web page is not reachable yet (row 3) |
+| 20% | Video | PARTIAL | `evidence/video/zerodrop-demo.mp4` (2:35) and `zerodrop-demo-x.mp4` (2:18 for X); synthetic narration; needs the owner's review and an upload link |
+| 15% | Building in public | OWNER | Seven drafts in `posts/`, none posted |
+| 10% | Usefulness and originality | DONE | `README.md`, `BUSINESS.md`; the verifier catching a real model's false success is the thesis shown on real data |
 
 ## Engineering gates
 | Gate | Status | Evidence |

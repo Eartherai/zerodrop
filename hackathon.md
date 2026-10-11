@@ -9,11 +9,11 @@
 - Team Tokenmaxing
 
 ## Stack
-- Python 3.12+, FastAPI, Pydantic v2, SQLite, httpx
-- Anthropic API (Claude Opus 5.5) for mapping inference and failure diagnosis
-- neatlogs: runtime tracing of every agent run (instrumented in code; key not yet configured, so no traces sent yet)
-- Entire: checkpoints for coding-agent sessions (planned)
-- cfo.ai: business plan (pending)
+- Python 3.13, FastAPI, Pydantic v2, SQLite, httpx; dashboard in React, TypeScript and Tailwind
+- Planner model: pluggable. Gemini (Flash-class models, Google `google-genai` SDK) produced every real-model run so far; Claude Opus 5.5 through the Anthropic SDK is implemented and remains the default, but has not been run because the Anthropic account had no credit
+- Neatlogs: runtime tracing of every agent run, with the trace id stored on the run and linked from the dashboard
+- Entire: coding-session checkpoint stored in git and referenced from every commit
+- cfo.ai: business model built and stress-tested there, results in `BUSINESS.md`
 - Sandbox services built during the hackathon: LegacyBill (source) and NovaBill (target), with a seeded fault injector
 
 ## Build log
@@ -75,6 +75,8 @@
 
 - 18:30 IST: **Each run now says who planned it.** The engine records the planner at the start of a run (a model id, or the scripted stand-in's name); `GET /api/runs/{id}` returns it and the dashboard prints "planned by gemini-3.8-flash" or "scripted planner (oracle), not a model", so a scripted run cannot be mistaken for a model's work on screen. Test first; 756 tests pass. Docker image rebuilt with the redesigned UI and the Gemini dependency: `docker compose up`, both services healthy, an S07 run through the API verified SUCCESS. The demo video's narration was transcribed back with Whisper to check that every sentence is present and in order (it is; I cannot judge pronunciation).
 
+- 18:50 IST: **Pre-publication audit of the Entire checkpoint** (`refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`). What it contains: the first 13 turns of the Mac session (setup), captured on Oct 10 at 23:12 IST. Later `entire session attach` calls only added the checkpoint trailer to new commits; they did not add later turns. Counted by search, values never printed: 0 occurrences of any of the three keys in `.env` across all refs and all history; 0 images; 0 hits for the owner's name, e-mail, college, the Google Cloud project number or the Neatlogs org id (all of which appeared later in the session, after the snapshot). Present and worth knowing before going public: the home directory path, two unrelated local project folder names from a process listing, an expired Entire login code, and the Neatlogs project id. gitleaks over all refs: no leaks. An earlier note of mine said the checkpoint held personal details surfaced by cfo.ai; that was wrong, and this entry corrects it.
+
 #### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | Next action |
 |---|---|---|---|---|
@@ -85,16 +87,15 @@
 | Usefulness, originality | 10% | 8 | The verifier catching a real model's false success is the product thesis shown on real data | - |
 
 ## Demo
-- Local: `uv sync && (cd ui && npm ci && npm run build) && uv run zerodrop serve --planner oracle`, then open http://127.0.0.1:8700 and start "Demo - everything goes wrong".
+- Video: `evidence/video/zerodrop-demo.mp4` (2:35) and `evidence/video/zerodrop-demo-x.mp4` (2:18, for X).
+- Local: `docker compose up --build`, or `uv sync && (cd ui && npm ci && npm run build) && uv run zerodrop serve`, then open http://127.0.0.1:8700 and start "Demo - everything goes wrong". Add `--planner gemini` and a `ZERODROP_GEMINI_KEY` to run it with a real model.
 
 ## Known limitations and next steps
-- Real model runs and Neatlogs traces need `ZERODROP_ANTHROPIC_KEY` (or `ZERODROP_GEMINI_KEY` for `--planner gemini`) and `NEATLOGS_API_KEY` in the environment.
+- Real-model evidence is one run per scenario, on five Flash-class Gemini models picked by free-tier quota. No repeated evaluation on a single model, and no Claude run.
+- LegacyBill and NovaBill are sandboxes written for this project. No real billing system has been migrated.
+- The smallest model made a mapping mistake the engine did not catch before fix 3; other mistakes of that kind may exist. The independent verifier is what makes them visible.
+- The Entire checkpoint covers the setup part of the Mac coding session, not the whole build (see the Oct 11 audit entry).
 
 ## Submission
-- Confirmed requirements (from neatlogs.com/hackathon, read 2026-10-10):
-  - Public quote post of the official neatlogs submission post on X: team, name, project, public repository, demo link. Window: Mon Oct 12, 7:00–11:55 PM IST.
-  - Demo video of 3 minutes or less covering neatlogs, Entire and cfo.ai: architecture, implementation, runtime, reasoning and result.
-  - Public repository with commits dated during the hackathon. All code written between Oct 10 12:30 PM IST and the deadline.
-  - An accessible Entire checkpoint link plus its checkpoint ID.
-  - A cfo.ai business plan covering pricing, costs, revenue and runway.
-- Outstanding: everything above.
+- Requirements (from neatlogs.com/hackathon, read 2026-10-10): a public X quote post of the official neatlogs post with team, name, project, public repository and demo link (Mon Oct 12, 7:00 to 11:55 PM IST); a demo video of 3 minutes or less covering Neatlogs, Entire and cfo.ai; a public repository with commits dated during the hackathon; an accessible Entire checkpoint link plus its ID; a cfo.ai business plan.
+- Status of each: `SUBMISSION_CHECKLIST.md`.
