@@ -1639,8 +1639,13 @@ def test_telemetry_spans_cover_workflow_tools_recovery_and_verifier(monkeypatch:
     assert shown["status"] == "SUCCESS" and shown["checks_failed"] == 0 and shown["run_id"] == result.run_id
     customers = next(t for t in fake.traces if t.name == "migrate.customers")
     assert customers.attrs["entity"] == "customers" and customers.attrs["written"] > 0
-    # Every state change of the run is in the trace, in order, ending with the verdict.
-    states = [data["to_state"] for message, data in fake.logs if message.startswith("state ")]
+    # Every state change of the run is in the trace as its own span, in order, ending with the verdict.
+    states = [t.attrs["to_state"] for t in fake.traces if t.name.startswith("state.")]
+    assert all(
+        t.kind == "CHAIN" and t.name == f"state.{t.attrs['to_state']}"
+        for t in fake.traces
+        if "to_state" in t.attrs
+    )
     assert states[:3] == ["DISCOVERING", "PLANNING", "DRY_RUN"] and states[-2:] == ["VERIFYING", "SUCCESS"]
     assert "RECOVERING" not in states or states.index("RECOVERING") > states.index("EXECUTING")
 

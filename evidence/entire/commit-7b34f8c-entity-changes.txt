@@ -1,0 +1,30 @@
+Semantic changes 6c096ad4e976e9e014076f9ff36d551cef40d766..7b34f8c
+
+src/zerodrop/agent/fake.py (Python)
+  ~ function naive_spec body changed (2 dependents)
+
+src/zerodrop/dsl.py (Python)
+  ~ function _decimals_for body changed (1 dependent)
+
+src/zerodrop/engine.py (Python)
+  ~ class MigrationEngine body changed (11 dependents)
+  ~ method MigrationEngine._set_status body changed (9 dependents)
+
+tests/test_agent_fake.py (Python)
+  ~ function test_naive_plan_is_plausible_but_wrong body changed (0 dependents)
+  + function instant added
+  ~ function test_naive_planner_is_caught_by_the_verifier_end_to_end body changed (0 dependents)
+  ~ function test_naive_flaws_are_exactly_the_documented_ones body changed (0 dependents)
+
+tests/test_dsl.py (Python)
+  + function test_fixed_decimals_must_fit_the_currency_the_record_carries added
+
+tests/test_engine.py (Python)
+  ~ function test_telemetry_spans_cover_workflow_tools_recovery_and_verifier body changed (0 dependents)
+  ~ class FakeNeatlogs body changed (1 dependent)
+  ~ method FakeNeatlogs.__init__ body changed (63 dependents)
+  ~ method FakeNeatlogs.log signature changed (13 dependents)
+  ~ function test_end_to_end_with_the_agent_fake_planner body changed (0 dependents)
+
+tests/test_runner_api.py (Python)
+  ~ function test_naive_planner_is_caught_by_the_verifier body changed (0 dependents)
