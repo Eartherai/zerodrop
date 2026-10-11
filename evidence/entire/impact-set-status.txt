@@ -1,0 +1,37 @@
+Index: cache-miss (2617ms) | Query: 2ms | Total: 2620ms
+Impact: MigrationEngine._set_status (src/zerodrop/engine.py:1717) def=1717 span=1717-1723 [method in MigrationEngine]
+Blast radius: 17 callers (9 direct, 8 transitive), 1 callee, 2 type consumers, 1 data flow, 6 co-change files, 56 siblings.
+Callers (9 direct, 8 transitive; who breaks if behavior changes):
+- MigrationEngine (src/zerodrop/engine.py:646, def :493) [+9 more call sites]
+- MigrationEngine._discover (src/zerodrop/engine.py:646, def :644)
+- MigrationEngine._plan (src/zerodrop/engine.py:673, def :671)
+- MigrationEngine._restore_plan (src/zerodrop/engine.py:720, def :711)
+- MigrationEngine._dry_run_phase (src/zerodrop/engine.py:728, def :726)
+- MigrationEngine._execute (src/zerodrop/engine.py:927, def :924)
+- MigrationEngine._recover (src/zerodrop/engine.py:1295, def :1283) [+1 more call site]
+- MigrationEngine._finish_verified (src/zerodrop/engine.py:1581, def :1577)
+- ... +9 more (use --format json for the full list)
+Callees (1; what it depends on):
+- MigrationEngine._emit (src/zerodrop/engine.py:1725)
+Type consumers (0 in, 2 out; USES_TYPE/PARAM_TYPE/RETURNS_TYPE):
+- -> RunStatus (src/zerodrop/models.py:28) [PARAM_TYPE]
+- -> RunStatus (src/zerodrop/models.py:28) [USES_TYPE]
+Data flows (1 in, 0 out):
+- <- MigrationEngine._finish (src/zerodrop/engine.py:1610)
+Co-change coupling (6; files that historically change with src/zerodrop/engine.py):
+- hackathon.md [files changed together in 2 recent commits]
+- src/zerodrop/api.py [files changed together in 3 recent commits]
+- src/zerodrop/config.py [files changed together in 2 recent commits]
+- tests/test_engine.py [files changed together in 6 recent commits]
+- tests/test_runner_api.py [files changed together in 4 recent commits]
+- ui/src/api/types.ts [files changed together in 2 recent commits]
+Same-container siblings (56):
+- MigrationEngine (src/zerodrop/engine.py:493)
+- MigrationEngine.__init__ (src/zerodrop/engine.py:496)
+- MigrationEngine.run (src/zerodrop/engine.py:531)
+- MigrationEngine.resume (src/zerodrop/engine.py:544)
+- MigrationEngine._start (src/zerodrop/engine.py:564)
+- MigrationEngine._state (src/zerodrop/engine.py:594)
+- MigrationEngine._workflow (src/zerodrop/engine.py:599)
+- MigrationEngine._planner_identity (src/zerodrop/engine.py:616)
+- ... +48 more (use --format json for the full list)
