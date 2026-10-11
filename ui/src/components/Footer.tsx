@@ -11,7 +11,7 @@ function LinkOrText({ value, label }: { value: string; label: string }) {
         href={value}
         target="_blank"
         rel="noreferrer noopener"
-        className="font-semibold text-accent underline underline-offset-2 hover:opacity-80"
+        className="font-medium text-accent underline underline-offset-2 hover:opacity-80"
       >
         {label}
       </a>
@@ -24,27 +24,23 @@ export function Footer({ detail, mock }: { detail: RunDetail | null; mock: boole
   const trace = detail?.trace_url ?? detail?.trace_id ?? null;
   const commit = detail?.commit ?? null;
   return (
-    <footer className="mt-6 border-t border-line bg-surface">
-      <div className="mx-auto flex max-w-[1880px] flex-wrap items-center gap-x-8 gap-y-2 px-4 py-4 text-sm lg:px-6">
-        <div className="flex items-center gap-2">
-          <span className="text-muted">Neatlogs trace:</span>
-          {trace ? (
-            <LinkOrText value={trace} label="Open trace ↗" />
-          ) : (
-            <span className="text-muted">not available for this run</span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-muted">Entire checkpoint:</span>
-          {commit ? (
-            <LinkOrText value={commit} label={commit} />
-          ) : (
-            <span className="text-muted">not available for this run</span>
-          )}
-        </div>
-        <p className="text-xs text-muted lg:ml-auto">
-          LegacyBill and NovaBill are sandbox services; their failures are injected by a seeded fault plan.
-          {mock ? " Mock mode: recorded runs bundled with the UI." : ""}
+    <footer className="mt-10 border-t border-line">
+      <div className="mx-auto flex max-w-[1480px] flex-wrap items-baseline gap-x-8 gap-y-2 px-5 py-5 text-sm text-muted lg:px-10">
+        {detail ? (
+          <>
+            <span>
+              Run <code className="font-mono text-fg">{detail.run_id}</code>
+            </span>
+            <span>
+              Trace in Neatlogs:{" "}
+              {trace ? <LinkOrText value={trace} label="open the trace" /> : "this run was not traced"}
+            </span>
+            <span>Agent version: {commit ? <LinkOrText value={commit} label={commit} /> : "unknown"}</span>
+          </>
+        ) : null}
+        <p className="max-w-[70ch] lg:ml-auto">
+          LegacyBill and NovaBill are sandbox services built for this project. Their failures are injected from a seeded
+          plan the agent never sees.{mock ? " Mock mode: recorded runs bundled with the page." : ""}
         </p>
       </div>
     </footer>

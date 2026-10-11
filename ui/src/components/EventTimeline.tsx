@@ -8,68 +8,82 @@ import { EmptyNote, Panel } from "./ui";
 
 const MAX_ROWS = 400;
 
-function KindTag({ kind }: { kind: EventKind }) {
-  const t = TONES[KIND_TONE[kind]];
+/** Plain words for the event kinds: what a person watching would call them. */
+const KIND_LABEL: Record<EventKind, string> = {
+  state: "step",
+  plan: "plan",
+  batch: "batch",
+  failure: "failure",
+  recovery: "recovery",
+  decision: "decision",
+  verify: "verdict",
+  llm: "model",
+  info: "note",
+};
+
+/** Only the kinds that change the outcome get color; the rest stay ink on paper. */
+const LOUD: ReadonlySet<EventKind> = new Set(["failure", "recovery", "verify"]);
+
+/** A filled row is reserved for the two things a reader must not miss: something broke, and the verdict. */
+const FILLED: ReadonlySet<EventKind> = new Set(["failure", "verify"]);
+
+function Kind({ kind }: { kind: EventKind }) {
+  const loud = LOUD.has(kind);
   return (
     <span
-      className={`inline-block w-[5.5rem] shrink-0 rounded-md px-1.5 py-0.5 text-center text-[0.7rem] font-bold tracking-wider uppercase ${t.soft} ${t.text}`}
+      className={`w-16 shrink-0 pt-px text-xs ${loud ? `font-semibold ${TONES[KIND_TONE[kind]].text}` : "text-muted"}`}
     >
-      {kind}
+      {KIND_LABEL[kind]}
     </span>
   );
 }
 
 function EventRow({ event, t0, fresh }: { event: RunEvent; t0: number; fresh: boolean }) {
+  const loud = LOUD.has(event.kind);
   const tone = TONES[KIND_TONE[event.kind]];
   const details = eventDetails(event);
   return (
-    <li className={`relative border-l-4 py-2 pr-3 pl-3 ${tone.border} ${fresh ? "zd-enter" : ""}`}>
-      <div className="flex items-start gap-2">
-        <KindTag kind={event.kind} />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm leading-snug break-words text-fg">
-            {event.entity ? <span className="mr-1.5 font-semibold text-muted">{event.entity}</span> : null}
-            {event.message}
+    <li
+      className={`flex items-start gap-3 px-5 py-2.5 ${FILLED.has(event.kind) ? tone.soft : ""} ${fresh ? "zd-enter" : ""}`}
+    >
+      <time
+        className="w-12 shrink-0 pt-px font-mono text-xs text-muted tabular"
+        title={`#${event.seq} · ${formatDateTime(event.ts)}`}
+      >
+        {formatOffset(event.ts - t0)}
+      </time>
+      <Kind kind={event.kind} />
+      <div className="min-w-0 flex-1">
+        <p className={`text-sm leading-snug break-words ${loud ? "font-medium text-fg" : "text-fg"}`}>
+          {event.entity ? <span className="mr-1.5 text-muted">{event.entity}:</span> : null}
+          {event.message}
+        </p>
+        {details.length ? (
+          <p className="mt-1 font-mono text-xs leading-relaxed text-muted">
+            {details.map((d, i) => (
+              <span key={`${d.label}:${d.value}`}>
+                {i > 0 ? <span aria-hidden>{"  "}</span> : null}
+                <span className="whitespace-nowrap">
+                  {d.label} <span className={d.tone ? TONES[d.tone].text : "text-fg"}>{d.value}</span>
+                </span>{" "}
+              </span>
+            ))}
           </p>
-          {details.length ? (
-            <ul className="mt-1 flex flex-wrap gap-1">
-              {details.map((d) => (
-                <li
-                  key={`${d.label}:${d.value}`}
-                  className={`rounded border px-1.5 py-px font-mono text-[0.72rem] ${d.tone ? `${TONES[d.tone].border} ${TONES[d.tone].text}` : "border-line text-muted"}`}
-                >
-                  <span className="opacity-80">{d.label}</span> <span className="font-semibold">{d.value}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-        <time
-          className="shrink-0 pt-0.5 font-mono text-xs text-muted tabular"
-          title={`#${event.seq} · ${formatDateTime(event.ts)}`}
-        >
-          {formatOffset(event.ts - t0)}
-        </time>
+        ) : null}
       </div>
     </li>
   );
 }
 
 function GroupRow({ row, t0 }: { row: Extract<TimelineRow, { type: "group" }>; t0: number }) {
-  const newest = row.events[0]!;
   const oldest = row.events[row.events.length - 1]!;
   return (
-    <li className={`border-l-4 py-1.5 pr-3 pl-3 ${TONES.info.border}`}>
-      <div className="flex items-center gap-2">
-        <KindTag kind="batch" />
-        <p className="min-w-0 flex-1 text-sm text-muted">
-          <span className="mr-1.5 font-semibold">{row.entity}</span>
-          {row.events.length} clean batches · {formatInt(row.written)} written on the first attempt
-        </p>
-        <span className="shrink-0 font-mono text-xs text-muted tabular">
-          {formatOffset(oldest.ts - t0)}–{formatOffset(newest.ts - t0).slice(1)}
-        </span>
-      </div>
+    <li className="flex items-start gap-3 px-5 py-2">
+      <span className="w-12 shrink-0 pt-px font-mono text-xs text-muted tabular">{formatOffset(oldest.ts - t0)}</span>
+      <Kind kind="batch" />
+      <p className="min-w-0 flex-1 text-sm text-muted">
+        {row.entity}: {formatInt(row.written)} written in {row.events.length} clean batches
+      </p>
     </li>
   );
 }
@@ -97,7 +111,7 @@ export function EventTimeline({ events, className = "" }: { events: readonly Run
 
   const filters = (
     <>
-      <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-muted">
+      <label className="flex cursor-pointer items-center gap-1.5 text-xs text-muted">
         <input
           type="checkbox"
           className="accent-[var(--zd-accent)]"
@@ -112,14 +126,17 @@ export function EventTimeline({ events, className = "" }: { events: readonly Run
   return (
     <Panel
       id="timeline"
-      title="Event timeline"
-      subtitle={`${formatInt(events.length)} events · newest first`}
+      title="What happened"
+      subtitle={`${formatInt(events.length)} events, newest first`}
       actions={filters}
       className={className}
     >
-      <div className="flex flex-wrap gap-1 border-b border-line px-3 py-2" role="group" aria-label="Filter event kinds">
+      <div
+        className="flex flex-wrap gap-x-3 gap-y-1 border-b border-line px-5 py-2.5 text-xs"
+        role="group"
+        aria-label="Show or hide kinds of event"
+      >
         {EVENT_KINDS.filter((k) => counts[k]).map((kind) => {
-          const t = TONES[KIND_TONE[kind]];
           const on = !hidden.has(kind);
           return (
             <button
@@ -127,9 +144,9 @@ export function EventTimeline({ events, className = "" }: { events: readonly Run
               type="button"
               aria-pressed={on}
               onClick={() => toggle(kind)}
-              className={`rounded-md border px-2 py-0.5 text-xs font-semibold transition-colors ${on ? `${t.border} ${t.soft} ${t.text}` : "border-line text-muted line-through"}`}
+              className={`rounded px-1 py-0.5 transition-colors hover:bg-surface-2 ${on ? (LOUD.has(kind) ? `font-semibold ${TONES[KIND_TONE[kind]].text}` : "text-fg") : "text-muted line-through"}`}
             >
-              {kind} {counts[kind]}
+              {KIND_LABEL[kind]} <span className="tabular text-muted">{counts[kind]}</span>
             </button>
           );
         })}
@@ -137,7 +154,7 @@ export function EventTimeline({ events, className = "" }: { events: readonly Run
       {rows.length ? (
         <ol
           aria-label="Run events, newest first"
-          className="h-full max-h-[38rem] min-h-[16rem] divide-y divide-line overflow-y-auto"
+          className="h-full max-h-[44rem] min-h-[16rem] divide-y divide-line overflow-y-auto"
         >
           {rows.map((row) =>
             row.type === "event" ? (
@@ -148,7 +165,7 @@ export function EventTimeline({ events, className = "" }: { events: readonly Run
           )}
         </ol>
       ) : (
-        <EmptyNote>No events yet. Start a run to watch the agent work.</EmptyNote>
+        <EmptyNote>Nothing yet. Start a migration and each step the agent takes will appear here.</EmptyNote>
       )}
     </Panel>
   );

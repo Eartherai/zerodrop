@@ -196,14 +196,14 @@ export function MappingDiff({ mappings, model }: { mappings: readonly MappingVer
           <table className="w-full min-w-[36rem] border-collapse text-left">
             <thead>
               <tr className="bg-surface-2">
-                <th scope="col" className="px-3 py-2 text-xs font-semibold text-muted uppercase">
+                <th scope="col" className="px-5 py-2 text-xs font-normal text-muted">
                   Change
                 </th>
-                <th scope="col" className="px-3 py-2 text-xs font-semibold text-muted uppercase">
+                <th scope="col" className="px-5 py-2 text-xs font-normal text-muted">
                   v{pair[0].version}{" "}
                   <span className="font-normal normal-case">for API {pair[0].spec.target_api_version}</span>
                 </th>
-                <th scope="col" className="px-3 py-2 text-xs font-semibold text-muted uppercase">
+                <th scope="col" className="px-5 py-2 text-xs font-normal text-muted">
                   v{pair[1].version}{" "}
                   <span className="font-normal normal-case">for API {pair[1].spec.target_api_version}</span>
                 </th>

@@ -23,14 +23,14 @@ export function Panel({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={`flex min-w-0 flex-col rounded-xl border border-line bg-surface shadow-sm ${className}`}
+      className={`flex min-w-0 flex-col rounded-lg border border-line bg-surface ${className}`}
     >
-      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-line px-4 py-3">
+      <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b border-line px-5 py-4">
         <div className="min-w-0">
-          <h2 id={headingId} className="text-sm font-semibold tracking-wide text-fg uppercase">
+          <h2 id={headingId} className="font-display text-xl leading-tight font-semibold text-fg">
             {title}
           </h2>
-          {subtitle ? <p className="mt-0.5 text-sm text-muted">{subtitle}</p> : null}
+          {subtitle ? <p className="mt-1 text-sm text-muted">{subtitle}</p> : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </header>
@@ -54,7 +54,7 @@ export function Pill({
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${t.soft} ${t.text} ${className}`}
+      className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium whitespace-nowrap ${t.soft} ${t.text} ${className}`}
     >
       {children}
     </span>
@@ -83,15 +83,17 @@ export function StatusBadge({
   const t = TONES[tone];
   const sizing = size === "lg" ? "px-4 py-1.5 text-lg" : "px-2.5 py-1 text-sm";
   return (
-    <span className={`inline-flex items-center gap-2 rounded-lg font-bold tracking-wide ${sizing} ${t.soft} ${t.text}`}>
+    <span className={`inline-flex items-center gap-2 rounded-md font-semibold ${sizing} ${t.soft} ${t.text}`}>
       <Dot tone={tone} pulse={live} />
-      {status ? status.replaceAll("_", " ") : "IDLE"}
+      {statusLabel(status)}
     </span>
   );
 }
 
 export function statusLabel(status: RunStatus | null): string {
-  return status ? titleCase(status) : "Idle";
+  if (!status) return "Idle";
+  const words = titleCase(status).toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 export function Kbd({ children }: { children: ReactNode }) {
@@ -99,5 +101,5 @@ export function Kbd({ children }: { children: ReactNode }) {
 }
 
 export function EmptyNote({ children }: { children: ReactNode }) {
-  return <p className="px-4 py-6 text-center text-sm text-muted">{children}</p>;
+  return <p className="max-w-[60ch] px-5 py-6 text-sm leading-relaxed text-muted">{children}</p>;
 }

@@ -2,16 +2,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ZeroDropApi } from "./api/client";
 import type { RunListItem, Scenario } from "./api/types";
 import { Certificate } from "./components/Certificate";
-import { EntityProgress } from "./components/EntityProgress";
 import { EventTimeline } from "./components/EventTimeline";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { MappingDiff } from "./components/MappingDiff";
-import { PipelineStrip } from "./components/PipelineStrip";
-import { GoalPanel, StatusCard } from "./components/RunOverview";
+import { RunHero } from "./components/RunHero";
 import { statusLabel } from "./components/ui";
 import { useRun } from "./hooks/useRun";
 import { toDate } from "./lib/format";
+import { isTerminal } from "./lib/runModel";
 
 const RUNS_POLL_MS = 5000;
 
@@ -132,11 +131,11 @@ export function App({ api }: { api: ZeroDropApi }) {
       <p className="sr-only" aria-live="polite">
         {model.status ? `Run status: ${statusLabel(model.status)}` : ""}
       </p>
-      <main className="mx-auto flex w-full max-w-[1880px] flex-1 flex-col gap-4 px-4 py-4 lg:px-6">
+      <main className="mx-auto flex w-full max-w-[1480px] flex-1 flex-col gap-10 px-5 py-8 lg:px-10">
         {problem ? (
           <div
             role="alert"
-            className="flex items-start justify-between gap-4 rounded-lg border border-danger bg-danger-soft px-4 py-2 text-sm text-danger"
+            className="flex items-start justify-between gap-4 rounded-md border border-danger bg-danger-soft px-4 py-3 text-sm text-danger"
           >
             <span>{problem}</span>
             <button
@@ -151,37 +150,33 @@ export function App({ api }: { api: ZeroDropApi }) {
             </button>
           </div>
         ) : null}
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-          <GoalPanel
-            model={model}
-            detail={run.detail}
-            scenario={scenario}
-            recorded={run.recorded}
-            replay={run.replay}
-            onReplay={run.startReplay}
-            onStopReplay={run.stopReplay}
-            replaySpeed={replaySpeed}
-            onReplaySpeed={setReplaySpeed}
-          />
-          <StatusCard
-            model={model}
-            detail={run.detail}
-            connection={run.connection}
-            connectionDetail={run.connectionDetail}
-          />
-        </div>
-        <PipelineStrip model={model} />
-        <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <div className="flex min-w-0 flex-col gap-4">
-            <EntityProgress
-              model={model}
-              counts={run.replay.active || model.events.length ? undefined : run.detail?.counts}
-            />
-            <MappingDiff mappings={run.mappings} model={model} />
-          </div>
-          <EventTimeline events={model.events} />
-        </div>
-        <Certificate report={run.report} model={model} />
+        <RunHero
+          model={model}
+          detail={run.detail}
+          report={run.report}
+          scenario={scenario}
+          selected={scenarios.find((s) => s.id === scenarioId)}
+          counts={run.replay.active || model.events.length ? undefined : run.detail?.counts}
+          connection={run.connection}
+          connectionDetail={run.connectionDetail}
+          recorded={run.recorded}
+          replay={run.replay}
+          onReplay={run.startReplay}
+          onStopReplay={run.stopReplay}
+          replaySpeed={replaySpeed}
+          onReplaySpeed={setReplaySpeed}
+        />
+        {model.status !== null ? (
+          <>
+            {verified || isTerminal(model.status) || model.status === "VERIFYING" ? (
+              <Certificate report={run.report} model={model} />
+            ) : null}
+            <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,6fr)_minmax(0,5fr)]">
+              <MappingDiff mappings={run.mappings} model={model} />
+              <EventTimeline events={model.events} />
+            </div>
+          </>
+        ) : null}
       </main>
       <Footer detail={run.detail} mock={mock} />
     </div>

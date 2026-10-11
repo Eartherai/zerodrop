@@ -26,27 +26,36 @@ npm run format         # prettier (format:check in CI)
 URL parameters: `?run=<run_id>` opens a run directly (the page keeps it in the URL);
 `?speed=2` speeds up mock "live" runs.
 
+## Design (redesigned Oct 11)
+
+The page reads like a reconciliation statement. The verdict is the first thing on it, in plain
+words, and next to it the two columns that have to balance: records in LegacyBill and records
+found in NovaBill.
+
+- **Palette:** cool ledger paper and green-black ink, one cobalt for anything you can press, and
+  stamp colors (green, red, ochre) reserved for verdicts and failures. Light and dark themes
+  follow `prefers-color-scheme`; tokens live in `ui/src/index.css`.
+- **Type:** Bricolage Grotesque for the verdict and headings, IBM Plex Sans for text, IBM Plex
+  Mono for identifiers, mapping code and ledger figures. All three are bundled from npm
+  (`@fontsource*`); nothing loads from a CDN.
+- **Rules of thumb:** sentence case, no all-caps labels, color only where it changes the reading
+  (a failure, the verdict), numbers in tabular figures.
+
 ## Page layout (top to bottom)
 
-| Panel | What it shows | Demo moment |
+| Part | What it shows | Demo moment |
 |---|---|---|
-| Header | Product name, tagline "The migration agent that proves nothing was lost", scenario picker, **Start migration**, run history picker, a **MOCK DATA** badge in mock mode | 0:15 |
-| Goal | The natural-language goal, scenario description, run id; **Replay of recorded run** label when a finished run is opened from history; a **Replay run** control (0.5×–4×) for any finished run | 0:15 |
-| Status card | Run status (pulsing while running), stream connection, engine time, target API version history (`v1 → v2`), LLM calls and cost, number of resumes | throughout |
-| Pipeline strip | GOAL → PLAN → ACTION → OBSERVATION → FAILURE → RECOVERY → VERIFICATION. Each stage counts the events that touched it, shows the latest message, and pulses while current. FAILURE is red with failure-class counters (`TRANSIENT ×6`, `CONTRACT ×2`, `AMBIGUOUS_WRITE ×1`); RECOVERY is amber with tactic counters (`backoff`, `lookup`, `schema refetch`, `new mapping`, `quarantine`, `resume`); VERIFICATION turns green (SUCCESS), amber (PARTIAL_SUCCESS) or red (FAILED) from the verifier's verdict | 0:35–1:30 |
-| Migration progress | Customers / subscriptions / invoices: written, quarantined, pending, a stacked bar, mapping version in use, rows excluded by the mapping rule (soft-deleted customers), idempotent replays after a resume | 0:35–1:30 |
-| Mapping diff | Pick an entity; version N vs N+1 side by side. Rows are marked replaced / added / removed / changed; changed transform ops are highlighted; target API and exclusion rules are compared; the agent's rationale for the new version is shown. It follows the agent: when a mapping is repaired it switches to that entity (preferring a version bump that changed fields) | 0:55–1:20 |
-| Event timeline | Newest first, color-coded by kind, filter chips per kind, compact facts per event (attempt, HTTP status, retry-after, backoff, error code, mapping and API versions, written/size, replayed, found/re-send, schema changes). Consecutive clean batches fold into one row ("4 clean batches · 200 written on the first attempt"); toggle with **Fold clean batches** | throughout |
-| Verification certificate | Verifier verdict badge, the agent's own claim next to it with a **False-success claim caught** banner when they disagree, checks table (failures first), money totals per currency source vs target in exact minor units, record counts, quarantined items with reason codes, report hash with copy. Scrolls into view when a verdict arrives while you watch | 1:30–1:55 |
-| Footer | Neatlogs trace link (`trace_url`) and Entire checkpoint (`commit`) when present; a note that sandbox faults are injected by a seeded fault plan | 1:55 |
+| Header | Product name and tagline, scenario picker, **Start migration**, past runs, a **Mock data** badge in mock mode | 0:15 |
+| Verdict and ledger (`RunHero.tsx`) | Left: what was asked, then one sentence that changes with the run ("Moving records.", "Recovering.", "Nothing was lost.", "The agent said it succeeded. The checker disagrees."), the agent's own claim against the checker's, and four steps (Plan, Dry run, Migrate, Verify). Right: per entity, records in LegacyBill, a thin progress track, records written (or, once verified, found) in NovaBill, and notes: mapping version, set aside, skipped, missing. Under it: duration, model calls and cost, API version change, resumes, stream state, the replay controls (0.5× to 4×) and a **Replay of recorded run** label. Before any run: the three-part rule and the selected scenario | throughout |
+| The proof (`Certificate.tsx`) | Appears once the run is verifying or finished. Verdict and the agent's claim, a **False-success claim caught** banner when they disagree, checks (failures first), money per currency in exact minor units, record counts, the list of records set aside, the report fingerprint | 1:02 |
+| Mapping diff (`MappingDiff.tsx`) | Pick an entity; version N against N+1 side by side, with the agent's stated reason | 0:55 |
+| What happened (`EventTimeline.tsx`) | Newest first. Time offset, the kind in plain words (step, plan, batch, failure, recovery, decision, verdict, model, note), the message and compact facts. Only failures and the verdict get a filled row. Kinds can be hidden; clean batches fold into one line | 0:34 |
+| Footer | Run id, link to the Neatlogs trace, the agent's commit, and a note that the two services are sandboxes with injected faults | 1:31 |
 
-Themes follow `prefers-color-scheme` (light and dark). Colors are semantic tokens in
-`ui/src/index.css`; every text/background pair used meets WCAG AA (4.5:1) in both
-themes (lowest measured: 5.3:1 light, 6.4:1 dark). Status is always written out, never
-conveyed by color alone. Animations stop under `prefers-reduced-motion`. A visually
-hidden live region announces status changes (the timeline itself is not a live region,
-so screen readers are not flooded by batch events). The layout targets 1920×1080 and
-reflows down to phone width without horizontal page scroll.
+Every text and background pair meets WCAG AA in both themes. Status is always written out,
+never shown by color alone. Animations stop under `prefers-reduced-motion`. A visually hidden
+live region announces status changes. The layout is checked at 390, 820 and 1600 px wide with
+no horizontal page scroll; on a phone the ledger's notes move under the entity name.
 
 ## API the UI consumes
 

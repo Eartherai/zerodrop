@@ -71,6 +71,8 @@
 
 - 16:25 IST: **Demo video third cut** (2:35): the false-success scene now shows the real model's run (`run_5d0171f3cddf`: engine SUCCESS, verifier FAILED, 1 record instead of 292; capture `evidence/screenshots/12-real-model-false-success-caught.png`), the Neatlogs scene uses the grouped S07 trace, the cost figure is the median of the twenty matched runs ($0.02), and the close states 20 of 20.
 
+- 16:50 IST: **Dashboard redesigned** after the owner called the first version bad, which was fair: equal-weight boxes, a seven-color pipeline strip, all-caps labels, and the verdict at the bottom of the page. The new page leads with the verdict as one sentence and a source-against-target ledger, uses three bundled typefaces, and keeps color for failures and the verdict. Checked in light and dark, idle, running, verified, false success, and at phone, tablet and desktop widths with no horizontal scroll. 61 UI tests and 755 Python tests pass. Screenshots in `evidence/screenshots/` and the README were retaken; the demo video (fourth cut) uses footage of the new page. Design notes: `docs/UI.md`.
+
 #### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | Next action |
 |---|---|---|---|---|
