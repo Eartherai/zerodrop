@@ -42,7 +42,7 @@ A run that ends FAILED is not billed.
 ## Unit economics
 | Item | Value | Source |
 |---|---|---|
-| Model cost per verified migration | **$0.06 median, $0.02 to $0.11 range** (nine verified runs, Gemini Flash-class models, list price) | `evidence/runs/`, table in `EVALUATION.md`. One run per scenario on sandbox data |
+| Model cost per verified migration | **$0.02 median, $0.01 to $0.11 range** (twenty verified runs, one per scenario, Gemini Flash-class models, list price) | `evidence/runs/`, table in `EVALUATION.md`. Sandbox data; the cheapest model also made the mapping mistake described there |
 | Hard ceiling on model cost per run | $1.50 | Enforced in code (`max_cost_usd`), run stops safely at the cap |
 | Compute and storage per migration | $0.50 | Assumption: one small container for under an hour plus the ledger |
 | Support time per migration | 0.5 h at $40/h = $20 | Assumption: reviewing quarantined records with the customer |
@@ -125,7 +125,7 @@ growth decides how big the business gets but not whether it survives.
   month, which is two to three full-time people. A real plan adds a support hire roughly every
   160 hours of monthly support, so the upside numbers above are too high.
 - **Failed runs are not costed.** They are not billed, but they still use model time, compute and
-  support. The measured model cost is small (median $0.06 a run), so this mainly adds support time.
+  support. The measured model cost is small (median $0.02 a run), so this mainly adds support time.
 - **Other simplifications it named:** no overage or vendor revenue, every agency plan uses all
   five migrations, cash moves in the month it is earned or spent, no taxes, fractional sales.
 

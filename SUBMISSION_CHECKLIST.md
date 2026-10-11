@@ -18,7 +18,7 @@ Status key: DONE (verified, evidence linked) / PARTIAL / TODO / OWNER (needs the
 ## Judging criteria
 | Weight | Criterion | Status | Evidence or what is missing |
 |---|---|---|---|
-| 30% | Agent that works | PARTIAL | Engine, recovery, crash/resume and verifier: 20/20 scenarios with the deterministic oracle planner (`EVALUATION.md`). Real model (Gemini planner): 9 of 20 scenarios run once each, all 9 matched the expected verified outcome, 0 false success claims (`evidence/runs/`, table in `EVALUATION.md`). **The other 11 scenarios are not run with a real model** (free-tier quota: 20 requests per model per day) |
+| 30% | Agent that works | PARTIAL | Engine, recovery, crash/resume and verifier: 20/20 scenarios with the deterministic oracle planner (`EVALUATION.md`). Real model (Gemini planner): all 20 scenarios run and matched (one run each; `evidence/runs/`, table in `EVALUATION.md`). A real false success claim from the smallest model was caught by the verifier in 5 runs, root-caused, fixed test first (`251cdd4`) and re-verified. Not done: repeat runs, a single-model evaluation, any Claude run |
 | 25% | Sponsor tools | PARTIAL | Neatlogs: traced runs with trace id linked to each run; trace-tree screenshots TODO. Entire: checkpoint created and pushed. cfo.ai: plan input ready |
 | 20% | Video | PARTIAL | First full cut rendered (`evidence/video/zerodrop-demo.mp4`, 2:36); needs owner review and upload |
 | 15% | Building in public | TODO | Drafts in `posts/`; posting is the owner's action |
@@ -27,11 +27,11 @@ Status key: DONE (verified, evidence linked) / PARTIAL / TODO / OWNER (needs the
 ## Engineering gates
 | Gate | Status | Evidence |
 |---|---|---|
-| Tests, lint, format | DONE | `uv run pytest -q` 667 passed; `ruff check` and `ruff format --check` clean (Oct 10, 23:28 IST) |
+| Tests, lint, format | DONE | `uv run pytest -q` 755 passed; `ruff check` and `ruff format --check` clean (Oct 11, 16:10 IST) |
 | Docker kit | DONE | `docker compose up` then S16 through `POST /api/runs`: verified SUCCESS, 24/24 checks (Oct 10, 23:20 IST) |
 | Secret scan, full history | DONE | `gitleaks git --log-opts=--all --redact`: no leaks, 24 commits (Oct 10, 23:18 IST). Re-run before going public |
 | `/security-review` | DONE | Oct 10, 23:55 IST: reviewed the API (run start, public-mode access code and budget checks, static file serving), the sandbox bind-host option, the trace-id link and the Docker kit. No high-confidence findings. Static serving resolves paths and requires them inside `ui/dist`; the access code is compared in constant time; the container runs as a non-root user and ports publish to 127.0.0.1 only. Re-run before going public |
-| Real-model evaluation with saved evidence | PARTIAL | 9 of 20 scenarios, one run each, Gemini (`evidence/runs/`). Full evaluation needs a billed key |
+| Real-model evaluation with saved evidence | DONE (single runs) | 20 of 20 scenarios matched, 28 runs in `evidence/runs/`, table by `scripts/runs_table.py`. Repeat runs on one model need a billed key |
 | Neatlogs trace screenshots in `evidence/` | DONE | `evidence/screenshots/07`, `09`, `10`: real Gemini runs with WORKFLOW, AGENT, LLM, TOOL, CHAIN and EVALUATOR spans |
 
 ## Links to fill in at submission

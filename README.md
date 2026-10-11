@@ -45,12 +45,17 @@ correct mapping. They measure the engine, recovery and verifier, not the model. 
 deliberately flawed planner the engine claims SUCCESS and the verifier reports FAILED (yen
 totals 100 times too large).
 
-**With a real model (Gemini planner):** nine scenarios run once each, all nine matched their
-expected verified outcome, with zero false success claims: clean, breaking API change, crash and
-resume, orphans, duplicates, credential rotation, credential revoked, prompt injection, and the
-combined chaos demo. Two further runs halted on the free tier's daily quota and correctly
-reported FAILED. Per-run table, limits and files: [`EVALUATION.md`](EVALUATION.md),
-`evidence/runs/`. The other eleven scenarios have not been run with a real model.
+**With a real model (Gemini planner):** all twenty scenarios have been run with a real model and
+matched their expected verified outcome (one run each, five Flash-class models): clean and
+large-volume runs, rate limits, timeouts, breaking API changes, crashes, orphans, duplicates,
+credential rotation and revocation, and prompt injection in the data.
+
+The most useful result was a failure. With the smallest model, five runs ended with the engine
+believing SUCCESS while the verifier reported FAILED: the model had given every record the same
+id, so the target kept one record per entity. The independent verifier caught all five. We then
+taught the dry run to reject that mapping before any write, and the same five scenarios passed
+on the same model. Per-run table, root cause, limits and files:
+[`EVALUATION.md`](EVALUATION.md), `evidence/runs/`.
 
 When the agent's claim and the verifier disagree, the certificate says so:
 

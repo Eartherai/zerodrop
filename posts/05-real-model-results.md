@@ -13,6 +13,6 @@ It rewrote two mappings after the change, found 50 already-written records inste
 
 4/ And one more bug found by running it: a per-minute 429 from the model API killed a run on its first call. Same lesson we had already learned for the target API: a rate limit with a retry hint is a wait, not a failure. Fixed test-first.
 
-5/ Since then: nine of our twenty failure scenarios run with a real model, all nine ending where they should, including the ones that must NOT end in success: orphans quarantined, a revoked credential stopping to ask. Zero false success claims.
+5/ Since then: all twenty of our failure scenarios have passed with a real model, including the ones that must NOT end in success: orphans quarantined, a revoked credential stopping to ask. (And one model made a real false success claim that the verifier caught: see the next post.)
 
 6/ In the @neatlogs trace you can see it: every Gemini call with tokens and cost, the one that errored on the rate limit, the retry, and the verifier at the end. #neatHack
