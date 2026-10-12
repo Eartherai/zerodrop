@@ -110,7 +110,11 @@ Links
 
 ## 4. Before you post
 - Open the Demo link once and press Start migration.
-- Entire page: on entire.io go to Repositories, Add repository, and install the Entire GitHub
-  App for `Eartherai/zerodrop`. Then `https://entire.io/gh/Eartherai/zerodrop` works and can be
-  added to the links above.
+- Entire page, either way works. (a) On entire.io go to Repositories, Add repository, and
+  install the Entire GitHub App for `Eartherai/zerodrop`; then
+  `https://entire.io/gh/Eartherai/zerodrop` works. (b) Push to the Entire-hosted repo (the
+  remote `entire` is already set up locally, GitHub stays `origin`):
+  `git push entire main 'refs/entire/*:refs/entire/*'`; then
+  `https://entire.io/et/hackathone/hackathon` shows the commits and the checkpoint. Check the
+  page in a private window before pasting it into the form.
 - Post at least one build-in-public post from `posts/` first (09, 07 or 08), tagged #neatHack.
