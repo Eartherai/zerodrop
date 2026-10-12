@@ -135,6 +135,7 @@
 - 15:12 IST: The organisers' final notice: the quote post must tag @neatlogs, @EntireHQ and @arithecfo, and a submission form is mandatory as well. `SUBMISSION.md` rewritten: quote post with all three tags (275 characters), a reply, ready answers for the form, and a Discord post.
 - 16:14 IST: Last review of the video, frame by frame: nothing to change in the picture. The narration was quiet (mean -24 dB), so both cuts were raised to -16 LUFS; the picture stream was copied, not re-encoded. `SUBMISSION.md` now gives both ways to get the Entire page (GitHub App, or a push to the Entire-hosted repo through a second remote; `origin` stays GitHub).
 - 18:56 IST: A last audit by 17 agents (8 competitors, the rules, video, live site, repo read cold, every number checked, a clean clone, three judges). No headline number was wrong. Fixed what it found: the reply said one code change from the incidents where the evidence says two; "three passes in a row" now says three full passes and names the quota-cut one; the video scene that said "Root cause" beside a Neatlogs panel saying the cause was not established is retitled, the Entire caption says the checkpoint covers the start of the session, and the closing card stays two seconds longer (seventh cut, 2:39; the X cut is 2:19). Dashboard: links to the video, evidence, repo and plan; replay at 2x by default; no error on refresh. README: a one-click proof table and two keyless commands that show the checker overruling the agent. Form answers rewritten to the form's prompts. The judges' honest estimate was mid-field, weakest on Entire (one checkpoint) and on posts not yet public.
+- 19:25 IST: Evidence page now opens with a table per judging criterion, each with what it does not show. Stale counts in the checklist and video lengths corrected.
 
 #### Self-assessment at submission (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | What would raise it |
@@ -155,7 +156,7 @@
 | Usefulness, originality | 10% | 8 | Independent verification of an agent's own claim, shown on real failures | - |
 
 ## Demo
-- Video: `evidence/video/zerodrop-demo.mp4` (2:35) and `evidence/video/zerodrop-demo-x.mp4` (2:18, for X).
+- Video: `evidence/video/zerodrop-demo.mp4` (2:39) and `evidence/video/zerodrop-demo-x.mp4` (2:19, for X).
 - Local: `docker compose up --build`, or `uv sync && (cd ui && npm ci && npm run build) && uv run zerodrop serve`, then open http://127.0.0.1:8700 and start "Demo - everything goes wrong". Add `--planner gemini` and a `ZERODROP_GEMINI_KEY` to run it with a real model.
 
 ## Known limitations and next steps

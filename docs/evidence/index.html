@@ -49,6 +49,41 @@ footer { max-width: 1040px; margin: 48px auto 40px; padding: 0 16px; color: var(
 <p>One page that maps what the neatHack rules ask for to a file, a run id or a trace in this
 repository. Every number here is copied from a saved result file; nothing is estimated.
 Where something is missing or weak, it says so.</p>
+<p><strong>For judges, in 60 seconds:</strong></p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>What to look at</th>
+<th>What it does not show</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent (30%)</td>
+<td>20 of 20 scenarios on a real model in each of three full passes; 18 of 18 on the model that made the mistakes; 7 real false successes, all caught (<a href="#7-does-the-agent-work-every-evaluation-including-the-bad-ones">section 7</a>). Try it: <code>EARLY_CHECK=false uv run zerodrop run S01-clean --planner naive</code></td>
+<td>Sandbox systems, one pass per commit, no Claude run</td>
+</tr>
+<tr>
+<td>Sponsor tools (25%)</td>
+<td>neatlogs: 3 incidents raised on our traces, all resolved, 2 code changes (<a href="#1-neatlogs-incidents-identified-and-resolved">section 1</a>). Entire: checkpoint <code>01M4KEGN3Q174N063453HK5XC6</code>, <code>git ls-remote https://github.com/Eartherai/zerodrop &#39;refs/entire/*&#39;</code>, graph output in <a href="https://github.com/Eartherai/zerodrop/blob/main/evidence/entire"><code>evidence/entire/</code></a>. cfo.ai: <a href="https://cfo.ai/s/VyrSUZBAxHyXEJfC">https://cfo.ai/s/VyrSUZBAxHyXEJfC</a></td>
+<td>One Entire checkpoint, covering the start of the build</td>
+</tr>
+<tr>
+<td>Video (20%)</td>
+<td><a href="https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4">https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4</a> (2:39)</td>
+<td>Synthetic voice; the run shown is a recording of a real run</td>
+</tr>
+<tr>
+<td>Building in public (15%)</td>
+<td><a href="https://github.com/Eartherai/zerodrop/blob/main/hackathon.md"><code>hackathon.md</code></a>, dated, including what failed; commits from Oct 10, 15:38 IST: <code>git log --reverse --format=&#39;%ci %h %s&#39;</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Usefulness (10%)</td>
+<td>The verdict comes from a checker that shares no code with the agent</td>
+<td>No real billing system migrated</td>
+</tr>
+</tbody></table></div>
 <p>Trace links have the form <code>https://app.neatlogs.com/traces/&lt;trace id&gt;</code>. They open for members
 of the Neatlogs project, so each one also has a screenshot in <code>evidence/screenshots/</code>
 (index: <a href="https://github.com/Eartherai/zerodrop/blob/main/evidence/screenshots/README.md"><code>evidence/screenshots/README.md</code></a>).</p>
