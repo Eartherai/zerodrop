@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable
+from functools import partial
 from pathlib import Path
 from typing import Any, Literal
 
@@ -24,7 +25,7 @@ from zerodrop.ledger import Ledger
 from zerodrop.models import PreservationContract, RunEvent, RunStatus
 from zerodrop.sandbox import fixtures, servers
 from zerodrop.scenarios import Scenario
-from zerodrop.verifier.verify import verify
+from zerodrop.verifier.verify import spot_check, verify
 
 PlannerMode = Literal["oracle", "naive", "claude", "gemini"]
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -146,6 +147,7 @@ def run_scenario(
                     on_event=record,
                     sleep=sleep,
                     rng_seed=scenario.dataset.seed,
+                    early_check=partial(spot_check, sleep=sleep) if settings.early_check else None,
                 )
 
             crashed = False

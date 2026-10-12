@@ -527,6 +527,7 @@ class _RunState:
     batches_returned: int = 0
     backoff_seconds: float = 0.0
     metrics: Counter[str] = field(default_factory=Counter)
+    early_checked: dict[Entity, int] = field(default_factory=dict)  # entity -> mapping version checked
 
 
 class MigrationEngine:
@@ -545,7 +546,10 @@ class MigrationEngine:
         rng_seed: int = 0,
         *,
         clock: Callable[[], float] = time.monotonic,
+        early_check: Callable[..., Any] | None = None,
     ) -> None:
+        # The independent verifier's spot check, asked after the first batch of each mapping (None: off).
+        self._early_check = early_check
         self.settings = settings
         self.source = source
         self.target = target
@@ -1035,6 +1039,7 @@ class MigrationEngine:
 
     def _migrate_entity(self, entity: Entity) -> None:
         st = self._state
+        self._write_first_batch(entity)
         states = self.ledger.record_states(st.run_id, entity.value)
         seen: set[str] = set()
         chunk: list[tuple[str, dict[str, Any]]] = []
@@ -1053,9 +1058,108 @@ class MigrationEngine:
             chunk.append((source_id, record))
             if len(chunk) >= size:
                 self._process_chunk(entity, chunk)
+                self._check_early(entity, chunk)
                 chunk = []
         if chunk:
             self._process_chunk(entity, chunk)
+            self._check_early(entity, chunk)
+
+    def _write_first_batch(self, entity: Entity) -> None:
+        """With an early check: write one batch spread over the whole entity, then ask the verifier.
+
+        Source order would put only the oldest records in the first batch; a spread sample is far
+        more likely to hold every currency, status and date shape the mapping has to get right.
+        """
+        st = self._state
+        if self._early_check is None or st.early_checked.get(entity) == st.mappings[entity].version:
+            return
+        spec = st.mappings[entity]
+        states = self.ledger.record_states(st.run_id, entity.value)
+        seen: set[str] = set()
+        pending: list[tuple[str, dict[str, Any]]] = []
+        for index, record in enumerate(self.tools.records(entity.value)):
+            if matches_exclusion(spec, record):
+                continue
+            source_id = source_id_of(spec, record) or f"row-{index}"
+            if source_id in seen:
+                continue
+            seen.add(source_id)
+            if states.get(source_id) not in (RecordState.WRITTEN, RecordState.QUARANTINED):
+                pending.append((source_id, record))
+        if not pending:
+            return
+        chunk = spread(pending, _clamp(self.settings.batch_size, 1, MAX_BATCH_ITEMS))
+        self._process_chunk(entity, chunk)
+        self._check_early(entity, chunk)
+
+    def _check_early(self, entity: Entity, chunk: list[tuple[str, dict[str, Any]]]) -> None:
+        """Ask the independent verifier about the batch just written, once per mapping version.
+
+        A mismatch stops the run: the mapping is wrong and every further batch would be wrong too.
+        The verifier's findings go into the halt message, never to the planner.
+        """
+        st = self._state
+        version = st.mappings[entity].version
+        if self._early_check is None or st.early_checked.get(entity) == version:
+            return
+        states = self.ledger.record_states(st.run_id, entity.value)
+        written = [sid for sid, _ in chunk if states.get(sid) == RecordState.WRITTEN]
+        if not written:
+            return  # nothing of this batch reached the target (all quarantined): ask after the next one
+        st.early_checked[entity] = version
+        st.metrics["early_checks"] += 1
+        with telemetry.trace(
+            f"early-check.{entity.value}", kind="GUARDRAIL", entity=entity.value, mapping_version=version
+        ) as span:
+            result = self._early_check(self.source, self.target, st.contract, entity, written)
+            asked = {"entity": entity.value, "mapping_version": version, "records": len(written)}
+            found = {
+                "checked": result.checked,
+                "matching": result.matching,
+                "problems": list(result.problems[:5]),
+                "read_error": result.read_error,
+            }
+            telemetry.set_attr(span, "neatlogs.guardrail.input", json.dumps(asked))
+            telemetry.set_attr(span, "neatlogs.guardrail.passed", bool(result.passed or result.read_error))
+            telemetry.set_attr(
+                span, "neatlogs.guardrail.score", result.matching / result.checked if result.checked else 1.0
+            )
+            telemetry.set_attr(span, "neatlogs.guardrail.output", json.dumps(found))
+        if result.read_error:
+            self._emit(
+                "decision",
+                f"early check on {entity.value} could not be made ({result.read_error}); continuing, "
+                "the final verification still applies",
+                entity=entity,
+            )
+            return
+        if result.passed:
+            self._emit(
+                "decision",
+                f"early check: the verifier re-read the first {result.checked} {entity.value} written with "
+                f"mapping v{version}; all {result.matching} match the source",
+                entity=entity,
+                checked=result.checked,
+                matching=result.matching,
+            )
+            return
+        st.metrics["early_check_failures"] += 1
+        shown = "; ".join(result.problems[:3]) + (" ..." if len(result.problems) > 3 else "")
+        message = (
+            f"early check failed on {entity.value}: only {result.matching} of {result.checked} records of the "
+            f"first batch match the source ({shown}); stopped before writing the rest"
+        )
+        self._emit(
+            "failure",
+            f"early check: the verifier re-read the first {result.checked} {entity.value} and "
+            f"{result.checked - result.matching} do not match the source",
+            entity=entity,
+            failure_class=FailureClass.CONTRACT.value,
+            checked=result.checked,
+            matching=result.matching,
+            problems=list(result.problems[:10]),
+        )
+        raise _Halt(FailureClass.CONTRACT, message)
 
     def _process_chunk(self, entity: Entity, chunk: list[tuple[str, dict[str, Any]]]) -> None:
         st = self._state
@@ -1787,6 +1891,8 @@ class MigrationEngine:
             "skipped_already_resolved": st.metrics["skipped_already_resolved"],
             "replans": st.replans,
             "dry_run_repairs": st.dry_run_rounds,
+            "early_checks": st.metrics["early_checks"],
+            "early_check_failures": st.metrics["early_check_failures"],
             "version_changes": st.metrics["version_changes"],
             "token_refreshes": st.metrics["token_refreshes"],
             "mapping_versions": {e.value: m.version for e, m in st.mappings.items()},

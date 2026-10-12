@@ -44,6 +44,9 @@ class Settings(BaseSettings):
 
     # Engine.
     batch_size: int = 50
+    # After the first batch of each mapping, the independent verifier re-reads those records and the
+    # run stops if they do not match the source (EARLY_CHECK=false turns it off).
+    early_check: bool = True
     http_timeout_s: float = 2.0
     db_path: str = "zerodrop.db"
 

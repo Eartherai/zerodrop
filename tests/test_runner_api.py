@@ -9,6 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from zerodrop.api import create_app
+from zerodrop.config import Settings
 from zerodrop.models import RunStatus
 from zerodrop.runner import run_scenario
 from zerodrop.scenarios import get_scenario, load_scenarios
@@ -30,12 +31,32 @@ def test_oracle_planner_reaches_verified_success() -> None:
 
 
 @pytest.mark.slow
-def test_naive_planner_is_caught_by_the_verifier() -> None:
-    outcome = run_scenario(get_scenario("S01-clean"), "naive", sleep=lambda _: None)
+def test_without_the_early_check_a_flawed_planner_ends_in_a_false_success_the_verifier_catches() -> None:
+    off = Settings.model_construct(early_check=False)
+    outcome = run_scenario(get_scenario("S01-clean"), "naive", sleep=lambda _: None, base_settings=off)
     assert outcome.agent_claimed_status == RunStatus.SUCCESS
     assert outcome.status == RunStatus.FAILED
     assert outcome.false_success_claim
     assert any(c.startswith("source_fidelity") for c in outcome.failed_checks)
+    assert outcome.metrics["records_written"] == 182 and outcome.metrics["early_checks"] == 0
+
+
+@pytest.mark.slow
+def test_the_early_check_stops_a_flawed_planner_after_one_batch_and_the_agent_says_failed() -> None:
+    outcome = run_scenario(get_scenario("S01-clean"), "naive", sleep=lambda _: None)
+    assert outcome.status == RunStatus.FAILED
+    assert outcome.agent_claimed_status == RunStatus.FAILED and not outcome.false_success_claim
+    counts = outcome.metrics["counts"]
+    assert 0 < counts["customers"]["written"] <= 50
+    assert counts["subscriptions"]["written"] == 0 and counts["invoices"]["written"] == 0
+    assert outcome.metrics["early_check_failures"] == 1
+
+
+@pytest.mark.slow
+def test_the_early_check_passes_a_correct_planner_once_per_entity() -> None:
+    outcome = run_scenario(get_scenario("S01-clean"), "oracle", sleep=lambda _: None)
+    assert outcome.status == RunStatus.SUCCESS and outcome.matched_expectation
+    assert outcome.metrics["early_checks"] == 3 and outcome.metrics["early_check_failures"] == 0
 
 
 @pytest.mark.slow

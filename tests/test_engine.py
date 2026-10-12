@@ -609,7 +609,9 @@ class Harness:
         ledger: Ledger | None = None,
         source: FakeSource | None = None,
         clock: Callable[[], float] | None = None,
+        early_check: Callable[..., Any] | None = None,
     ) -> None:
+        self.early_check = early_check
         self.data = data or make_data()
         self.source = source or FakeSource(self.data)
         self.target = FakeTarget(rules)
@@ -626,6 +628,8 @@ class Harness:
         self, planner: ScriptedPlanner | None = None, settings: Settings | None = None
     ) -> MigrationEngine:
         kwargs: dict[str, Any] = {"clock": self.clock} if self.clock else {}
+        if self.early_check is not None:
+            kwargs["early_check"] = self.early_check
         return MigrationEngine(
             settings or self.settings,
             self.source,
@@ -1425,6 +1429,105 @@ def test_record_level_target_rejections_in_a_small_batch_are_quarantined_after_o
     )
     assert all(h.target.history[f"subscriptions:{sid}"] == [422] for sid in bad_ids)  # never re-sent
     assert_no_duplicates(h.target)
+
+
+@dataclass
+class _Spot:
+    entity: E
+    checked: int
+    matching: int
+    problems: list[str]
+    read_error: str = ""
+
+    @property
+    def passed(self) -> bool:
+        return not self.problems and not self.read_error
+
+
+class FakeEarlyCheck:
+    """Stands in for the verifier's spot check. `wrong` names entities whose records it finds wrong."""
+
+    def __init__(self, wrong: tuple[str, ...] = (), read_error: str = "") -> None:
+        self.wrong, self.read_error = wrong, read_error
+        self.calls: list[tuple[str, list[str], int]] = []  # entity, ids asked, records on the target then
+
+    def __call__(self, source: Any, target: Any, contract: Any, entity: E, source_ids: list[str]) -> _Spot:
+        ids = list(source_ids)
+        self.calls.append((entity.value, ids, len(target.external_ids(entity.value))))
+        if self.read_error:
+            return _Spot(entity, len(ids), 0, [], self.read_error)
+        if entity.value in self.wrong:
+            problems = [
+                f"{sid}.created_at: expected '2021-01-15T00:00:00Z', got '2021-01-15T05:30:00Z'"
+                for sid in ids
+            ]
+            return _Spot(entity, len(ids), 0, problems)
+        return _Spot(entity, len(ids), len(ids), [])
+
+
+def test_the_first_batch_of_each_entity_is_checked_by_the_verifier_before_the_rest_is_written() -> None:
+    check = FakeEarlyCheck()
+    h = Harness(early_check=check)
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS, run_error(h, result.run_id)
+    assert [entity for entity, _, _ in check.calls] == ["customers", "subscriptions", "invoices"]
+    size = h.settings.batch_size
+    for entity, ids, on_target in check.calls:
+        live = [r[ID_FIELDS[entity]] for r in h.data[entity] if not r.get("deleted")]
+        assert 0 < len(ids) <= size and on_target <= size  # asked after one batch, not after the entity
+        # The first batch is spread over the whole entity, so it holds first and last, not just the top rows.
+        assert ids[0] == live[0] and ids[-1] == live[-1]
+    assert result.metrics["early_checks"] == 3 and result.metrics["early_check_failures"] == 0
+    assert_no_duplicates(h.target)
+    assert_ledger_matches_target(h.ledger, result.run_id, h.target)
+
+
+def test_a_failed_early_check_stops_the_run_after_one_batch_and_the_agent_says_failed() -> None:
+    check = FakeEarlyCheck(wrong=("customers",))
+    h = Harness(early_check=check)
+    result = h.run()
+    assert result.status == RunStatus.FAILED
+    assert result.agent_claimed_status == RunStatus.FAILED  # no false success claim: the agent stopped itself
+    assert result.metrics["false_success_claim"] is False
+    assert len(h.target.external_ids("customers")) <= h.settings.batch_size
+    assert h.target.external_ids("subscriptions") == [] and h.target.external_ids("invoices") == []
+    halted = halt_event(h)
+    assert "early check" in halted.message and "customers" in halted.message
+    assert "created_at: expected" in halted.message  # says what was wrong, from the verifier
+    assert result.metrics["early_check_failures"] == 1 and len(check.calls) == 1
+    assert h.planner.repair_contexts == []  # the verifier's answer is never handed to the planner
+
+
+def test_an_early_check_that_cannot_read_both_systems_does_not_stop_the_run() -> None:
+    check = FakeEarlyCheck(read_error="could not read both systems: FakeHTTPError: 503")
+    h = Harness(early_check=check)
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS, run_error(h, result.run_id)
+    assert any(
+        e.kind == "decision" and "early check" in e.message and "could not" in e.message for e in h.events
+    )
+    assert result.metrics["early_check_failures"] == 0
+
+
+def test_a_mapping_changed_mid_run_is_checked_again_on_its_first_batch() -> None:
+    check = FakeEarlyCheck()
+    h = Harness([Rule("schema_flip", "subscriptions", after=1)], early_check=check)
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS, run_error(h, result.run_id)
+    assert result.metrics["replans"] == 1
+    asked = [entity for entity, _, _ in check.calls]
+    assert asked.count("subscriptions") == 2  # once under mapping v1, once under the repaired v2
+    assert asked.count("customers") == 1
+
+
+def test_without_an_early_check_the_engine_writes_in_source_order_as_before() -> None:
+    h = Harness()
+    result = h.run()
+    assert result.status == RunStatus.SUCCESS
+    assert result.metrics["early_checks"] == 0
+    first_batch = [k for k in h.target.history if k.startswith("customers:")][: h.settings.batch_size]
+    live = [r["cust_id"] for r in h.data["customers"] if not r.get("deleted")]
+    assert [k.split(":", 1)[1] for k in first_batch] == live[: h.settings.batch_size]
 
 
 def price_id_as_plan_code(extra_ops: tuple[str, ...] = ()) -> MappingSpec:

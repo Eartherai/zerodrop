@@ -916,3 +916,75 @@ def test_quarantined_record_that_was_also_written_fails(tmp_path: Path) -> None:
     report = run(sc, [item], golden=False)
     assert report.status is RunStatus.FAILED
     assert "(quarantined)" in check(report, "no_unexpected_records", "invoices").detail
+
+
+# ---------------------------------------------------------------------------
+# Spot check: the same independent comparison, for the records of one batch
+# ---------------------------------------------------------------------------
+
+
+def _spot(sc: Scenario, entity: str, ids: list[str]) -> Any:
+    return verify_module.spot_check(
+        sc.source, sc.target, PreservationContract(), Entity(entity), ids, sleep=lambda _s: None
+    )
+
+
+def _ids(sc: Scenario, entity: str, n: int = 10) -> list[str]:
+    return [r["external_id"] for r in sc.records[entity][:n]]
+
+
+def test_spot_check_passes_for_records_written_correctly(tmp_path: Path) -> None:
+    sc = make_scenario(tmp_path)
+    for entity in ("customers", "subscriptions", "invoices"):
+        result = _spot(sc, entity, _ids(sc, entity))
+        assert result.passed and result.problems == []
+        assert (result.checked, result.matching) == (10, 10)
+
+
+def test_spot_check_only_looks_at_the_records_it_was_asked_about(tmp_path: Path) -> None:
+    sc = make_scenario(tmp_path)
+    ids = _ids(sc, "invoices", 5)
+    sc.records["invoices"][20]["amount_minor"] *= 100  # wrong, but not one of the five
+    del sc.records["invoices"][30:]  # most of the entity is not written yet: that is expected mid-run
+    assert _spot(sc, "invoices", ids).passed
+
+
+def test_spot_check_reports_a_record_missing_from_the_target(tmp_path: Path) -> None:
+    sc = make_scenario(tmp_path)
+    ids = _ids(sc, "customers", 5)
+    sc.records["customers"] = [r for r in sc.records["customers"] if r["external_id"] != ids[2]]
+    result = _spot(sc, "customers", ids)
+    assert not result.passed and (result.checked, result.matching) == (5, 4)
+    assert result.problems == [f"{ids[2]}: missing from target"]
+
+
+def test_spot_check_reports_field_mismatches_with_expected_and_actual(tmp_path: Path) -> None:
+    sc = make_scenario(tmp_path)
+    jpy = [r for r in sc.records["invoices"] if r["currency"] == "jpy"][:3]
+    for inv in jpy:
+        inv["amount_minor"] *= 100
+    result = _spot(sc, "invoices", [r["external_id"] for r in jpy])
+    assert not result.passed and result.matching == 0
+    assert all(".amount_minor: expected " in p for p in result.problems)
+    assert f"got {jpy[0]['amount_minor']}" in result.problems[0]
+
+
+def test_spot_check_sees_one_identity_given_to_many_records(tmp_path: Path) -> None:
+    # The real-model mistake of fix 3: every record got the same id, so the target kept one.
+    sc = make_scenario(tmp_path)
+    ids = _ids(sc, "customers", 8)
+    sc.records["customers"] = sc.records["customers"][:1]
+    result = _spot(sc, "customers", ids)
+    assert not result.passed and result.matching == 1
+    assert len(result.problems) == 7 and all(p.endswith("missing from target") for p in result.problems)
+
+
+def test_spot_check_retries_transient_reads_and_reports_a_read_failure(tmp_path: Path) -> None:
+    sc = make_scenario(tmp_path)
+    ids = _ids(sc, "customers", 3)
+    sc.target.failures = [FakeHTTPError(503)]
+    assert _spot(sc, "customers", ids).passed
+    sc.target.failures = [FakeHTTPError(503)] * 10
+    result = _spot(sc, "customers", ids)
+    assert not result.passed and result.problems == []
+    assert result.read_error.startswith("could not read both systems")

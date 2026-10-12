@@ -930,6 +930,67 @@ def _read_failure_report(
     )
 
 
+@dataclass(frozen=True)
+class SpotCheck:
+    """The verifier's answer about the records of one batch (see `spot_check`)."""
+
+    entity: Entity
+    checked: int  # source ids asked about
+    matching: int  # on the target and equal, field for field, to the verifier's own canonical record
+    problems: list[str]
+    read_error: str = ""  # set when both systems could not be read: the check says nothing either way
+
+    @property
+    def passed(self) -> bool:
+        return not self.problems and not self.read_error
+
+
+def spot_check(
+    source: SourceLike,
+    target: TargetLike,
+    contract: PreservationContract,
+    entity: Entity,
+    source_ids: Collection[str],
+    *,
+    attempts: int = DEFAULT_ATTEMPTS,
+    sleep: Callable[[float], None] = time.sleep,
+) -> SpotCheck:
+    """Re-read both systems and check only `source_ids`: each must be on the target and equal the
+    verifier's own canonicalization of its source record.
+
+    It is the same comparison `verify` makes, on a few records, so a caller can stop a run early.
+    It says nothing about the rest of the migration and never replaces `verify`.
+    """
+    ids = list(dict.fromkeys(str(i) for i in source_ids))
+    with telemetry.trace("verifier.spot_check", kind="EVALUATOR") as span_obj:
+        try:
+            snapshot = _fetch(source, target, [entity], max(1, attempts), sleep)
+        except Exception as exc:
+            reason = f"could not read both systems: {type(exc).__name__}: {_short(str(exc))}"
+            return SpotCheck(entity, len(ids), 0, [], reason)
+        ctx = _source_context(snapshot.account, snapshot.prices)
+        d = _entity_data(entity, snapshot, ctx, contract, set(), _build_views(snapshot)[entity])
+        problems: list[str] = []
+        matching = 0
+        for source_id in ids:
+            if source_id not in d.views:
+                problems.append(f"{source_id}: missing from target")
+            elif source_id in d.canon_errors:
+                problems.append(
+                    f"{source_id}: source record not canonicalizable ({d.canon_errors[source_id]})"
+                )
+            elif source_id not in d.canonical:
+                problems.append(f"{source_id}: not an eligible source record")
+            else:
+                mismatches = _field_mismatches(d.canonical[source_id], d.views[source_id])
+                problems.extend(mismatches)
+                matching += not mismatches
+        telemetry.set_attr(span_obj, "zerodrop.spot_check.entity", entity.value)
+        telemetry.set_attr(span_obj, "zerodrop.spot_check.checked", len(ids))
+        telemetry.set_attr(span_obj, "zerodrop.spot_check.matching", matching)
+    return SpotCheck(entity, len(ids), matching, problems)
+
+
 def verify(
     run_id: str,
     source: SourceLike,
