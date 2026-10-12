@@ -1,5 +1,7 @@
 # ZeroDrop
 
+[![ci](https://github.com/Eartherai/zerodrop/actions/workflows/ci.yml/badge.svg)](https://github.com/Eartherai/zerodrop/actions/workflows/ci.yml)
+
 **The migration agent that proves nothing was lost.**
 
 Tell ZeroDrop "move all customers, subscriptions and invoices from LegacyBill to NovaBill".
@@ -27,6 +29,11 @@ page that maps each thing the rules ask for to a file, a run id or a trace.
 | cfo.ai | $499 per verified migration, $36.77 to deliver, break-even March 2027: https://cfo.ai/s/VyrSUZBAxHyXEJfC |
 | Video (2:39) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
 | Built in public | [`hackathon.md`](hackathon.md): dated log, including what failed; drafts and posts in [`posts/`](posts) |
+
+Every result row on this page is recomputed from the saved result files on every push, by GitHub
+and not by us: [`scripts/verify_numbers.py`](scripts/verify_numbers.py) in
+[the ci workflow](https://github.com/Eartherai/zerodrop/actions/workflows/ci.yml), which also runs
+the tests and three keyless runs of the agent (scripted planners, no model).
 
 ![Replay of a real run: records move from LegacyBill to NovaBill through rate limits, a timeout and an API change, then the checker's verdict](evidence/video/dashboard-replay.gif)
 

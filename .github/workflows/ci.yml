@@ -1,0 +1,38 @@
+# Runs on GitHub's machines on every push: lint, the test suite, a recomputation of every published
+# number from the saved result files, and three runs of the agent with scripted planners.
+# No model, no keys, no secrets.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: uv sync --locked
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Published numbers, recomputed from the saved result files
+        run: uv run python scripts/verify_numbers.py --markdown | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Tests
+        run: uv run pytest -q
+      - name: Three runs with scripted planners (no model, no keys)
+        run: uv run python scripts/ci_keyless_runs.py --markdown | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dashboard tests
+        run: cd ui && npm ci && npx vitest run

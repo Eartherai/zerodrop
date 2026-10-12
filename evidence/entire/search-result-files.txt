@@ -1,0 +1,73 @@
+2026-10-13 00:24 IST. Before writing scripts/verify_numbers.py (a reader for the saved result files): where are those files written, and what would depend on the writer?
+
+$ entire graph search --repo . --profile full --query "write evaluation outcomes and summary to evidence/eval json with git_commit and false_success_claim"   (top results: rank, score, file:line, kind, symbol)
+ 1    84.5  src/zerodrop/runner.py:53  function  git_commit
+ 2    83.1  evidence/eval/20261010T122907Z-oracle-harness-check.json:25  section  false_success_claim
+ 3    83.1  evidence/eval/20261010T123834Z-oracle-after-fix1-rate-limit-budget.json:25  section  false_success_claim
+ 4    81.9  evidence/eval/20261010T124030Z-oracle-after-fix2-retry-after.json:5  section  git_commit
+ 5    83.1  evidence/eval/20261011T102652Z-oracle-after-fix3-identity-guard.json:27  section  false_success_claim
+ 6    74.2  src/zerodrop/cli.py:74  function  evaluate
+ 7    81.9  evidence/eval/20261011T130853Z-gemini-gemini-3.1-flash-lite-single-model.json:6  section  git_commit
+ 8    83.1  evidence/eval/20261011T174312Z-gemini-gemini-3.1-flash-lite-pass2.json:27  section  false_success_claim
+ 9     0.0  src/zerodrop/runner.py:86  function  planner_model
+10     0.0  src/zerodrop/runner.py:91  function  run_scenario
+
+$ entire graph impact --repo . --symbol evaluate
+Index: cache-miss (3534ms) | Query: 1ms | Total: 3535ms
+Completeness: ok for this query (3 this query files failed to parse; 4 total diagnostics in this snapshot)
+- partial E_MINIFIED: docs/assets/index-BBBw7TcE.css
+- partial E_MINIFIED: docs/assets/index-BQ4apwZf.js
+- partial E_MINIFIED: docs/assets/mockApi-DcW50LCm.js
+"evaluate" matches 2 definitions; all are listed, the first 2 with source.
+- evaluate (src/zerodrop/cli.py:74) [function]  --symbol evaluate --file src/zerodrop/cli.py --line 74
+- FaultInjector.evaluate (src/zerodrop/sandbox/chaos.py:154) [method]  --symbol FaultInjector.evaluate --file src/zerodrop/sandbox/chaos.py --line 154
+
+src/zerodrop/cli.py:74-114 evaluate [function]
+   74→ def evaluate(
+   75→     planner: PlannerOpt = "oracle",
+   76→     scenarios: Annotated[str, typer.Option(help="comma-separated ids, or 'all'")] = "all",
+   77→     exclude_tags: Annotated[str, typer.Option(help="comma-separated tags to skip, e.g. scale")] = "",
+   78→     out_dir: Annotated[Path, typer.Option(help="where to write results")] = Path("evidence/eval"),
+   79→     label: Annotated[str, typer.Option(help="label for this evaluation, e.g. baseline or improved")] = "",
+   80→ ) -> None:
+   81→     """Run many scenarios and write a JSON + Markdown summary with honest metrics."""
+   82→     _init(planner)
+   83→     from zerodrop.runner import git_commit, run_scenario
+   84→     from zerodrop.scenarios import load_scenarios
+   85→ 
+   86→     chosen = load_scenarios()
+   87→     if scenarios != "all":
+   88→         wanted = {s.strip() for s in scenarios.split(",") if s.strip()}
+   89→         chosen = [s for s in chosen if s.id in wanted]
+   90→     skip = {t.strip() for t in exclude_tags.split(",") if t.strip()}
+   91→     chosen = [s for s in chosen if not skip.intersection(s.tags)]
+   92→     stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+   93→     name = f"{stamp}-{planner}{'-' + label if label else ''}"
+
+$ entire graph impact --repo . --symbol git_commit
+Index: cache-hit (99ms) | Query: 0ms | Total: 100ms
+Completeness: ok for this query (3 this query files failed to parse; 4 total diagnostics in this snapshot)
+- partial E_MINIFIED: docs/assets/index-BBBw7TcE.css
+- partial E_MINIFIED: docs/assets/index-BQ4apwZf.js
+- partial E_MINIFIED: docs/assets/mockApi-DcW50LCm.js
+"git_commit" matches 27 definitions; all are listed, the first 2 with source.
+- git_commit (evidence/eval/20261010T122907Z-oracle-harness-check.json:5) [section]  --symbol git_commit --file evidence/eval/20261010T122907Z-oracle-harness-check.json --line 5
+- git_commit (evidence/eval/20261010T123834Z-oracle-after-fix1-rate-limit-budget.json:5) [section]  --symbol git_commit --file evidence/eval/20261010T123834Z-oracle-after-fix1-rate-limit-budget.json --line 5
+- git_commit (evidence/eval/20261010T124030Z-oracle-after-fix2-retry-after.json:5) [section]  --symbol git_commit --file evidence/eval/20261010T124030Z-oracle-after-fix2-retry-after.json --line 5
+- git_commit (evidence/eval/20261011T102652Z-oracle-after-fix3-identity-guard.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T102652Z-oracle-after-fix3-identity-guard.json --line 6
+- git_commit (evidence/eval/20261011T130853Z-gemini-gemini-3.1-flash-lite-single-model.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T130853Z-gemini-gemini-3.1-flash-lite-single-model.json --line 6
+- git_commit (evidence/eval/20261011T174312Z-gemini-gemini-3.1-flash-lite-pass2.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T174312Z-gemini-gemini-3.1-flash-lite-pass2.json --line 6
+- git_commit (evidence/eval/20261011T175241Z-gemini-gemini-3.5-flash-lite-single-model.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T175241Z-gemini-gemini-3.5-flash-lite-single-model.json --line 6
+- git_commit (evidence/eval/20261011T180228Z-oracle-after-fix4-currency-params.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T180228Z-oracle-after-fix4-currency-params.json --line 6
+- git_commit (evidence/eval/20261011T180252Z-gemini-gemini-3.1-flash-lite-pass3-after-fix4.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T180252Z-gemini-gemini-3.1-flash-lite-pass3-after-fix4.json --line 6
+- git_commit (evidence/eval/20261011T181742Z-oracle-after-fix5-currency-guard.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T181742Z-oracle-after-fix5-currency-guard.json --line 6
+- git_commit (evidence/eval/20261011T181825Z-gemini-gemini-3.1-flash-lite-pass4-after-fix5.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T181825Z-gemini-gemini-3.1-flash-lite-pass4-after-fix5.json --line 6
+- git_commit (evidence/eval/20261011T182932Z-gemini-gemini-3.5-flash-lite-final-code.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T182932Z-gemini-gemini-3.5-flash-lite-final-code.json --line 6
+- git_commit (evidence/eval/20261011T184306Z-oracle-after-fix6-refused-reference.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T184306Z-oracle-after-fix6-refused-reference.json --line 6
+- git_commit (evidence/eval/20261011T184330Z-gemini-gemini-3.5-flash-lite-after-fix6.json:6) [section]  --symbol git_commit --file evidence/eval/20261011T184330Z-gemini-gemini-3.5-flash-lite-after-fix6.json --line 6
+- git_commit (evidence/eval/20261012T032923Z-gemini-gemini-3.5-flash-lite-after-fix7-early-check.json:6) [section]  --symbol git_commit --file evidence/eval/20261012T032923Z-gemini-gemini-3.5-flash-lite-after-fix7-early-check.json --line 6
+- ... 12 more definitions; raise --limit to list them
+
+evidence/eval/20261010T122907Z-oracle-harness-check.json:5-5 git_commit [section]
+
+What this told us: results are written by cli.evaluate and by run_scenario, and every outcome carries git_commit from runner.git_commit. The reader therefore keys on the outcome's own git_commit, not on the file name, and does not touch either function.

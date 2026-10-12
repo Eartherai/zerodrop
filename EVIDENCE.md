@@ -4,6 +4,13 @@ One page that maps what the neatHack rules ask for to a file, a run id or a trac
 repository. Every number here is copied from a saved result file; nothing is estimated.
 Where something is missing or weak, it says so.
 
+The result rows in section 7 and the totals (seven false successes, 182 and 28 records, $4.06)
+are recomputed from those files on every push by
+[the ci workflow](https://github.com/Eartherai/zerodrop/actions/workflows/ci.yml)
+([`scripts/verify_numbers.py`](scripts/verify_numbers.py)); it fails if a number here stops
+matching a file. The same workflow runs the tests and three runs of the agent with scripted
+planners (no model, no keys).
+
 **For judges, in 60 seconds:**
 
 | Criterion | What to look at | What it does not show |

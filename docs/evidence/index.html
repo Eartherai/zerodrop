@@ -49,6 +49,12 @@ footer { max-width: 1040px; margin: 48px auto 40px; padding: 0 16px; color: var(
 <p>One page that maps what the neatHack rules ask for to a file, a run id or a trace in this
 repository. Every number here is copied from a saved result file; nothing is estimated.
 Where something is missing or weak, it says so.</p>
+<p>The result rows in section 7 and the totals (seven false successes, 182 and 28 records, $4.06)
+are recomputed from those files on every push by
+<a href="https://github.com/Eartherai/zerodrop/actions/workflows/ci.yml">the ci workflow</a>
+(<a href="https://github.com/Eartherai/zerodrop/blob/main/scripts/verify_numbers.py"><code>scripts/verify_numbers.py</code></a>); it fails if a number here stops
+matching a file. The same workflow runs the tests and three runs of the agent with scripted
+planners (no model, no keys).</p>
 <p><strong>For judges, in 60 seconds:</strong></p>
 <div class="scroll"><table>
 <thead>
