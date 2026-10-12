@@ -11,42 +11,44 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 ## Required by the rules
 | # | Requirement | Status | Evidence or what is missing |
 |---|---|---|---|
-| 1 | Demo video, 3 minutes or less, covering Neatlogs, Entire and cfo.ai (architecture, implementation, runtime, reasoning, result) | OWNER | Rendered Oct 12: `evidence/video/zerodrop-demo.mp4`, 2:35, 1920x1080, narrated (synthetic voice); `zerodrop-demo-x.mp4`, 2:18, for attaching to the X post. Nine scenes: problem, the rule, replay of the real Gemini S16 run, verification certificate, a real model's false success caught and fixed, Neatlogs trace, Entire checkpoint and entire-graph, cfo.ai plan, close. Owner: watch it, upload the 2:35 file somewhere linkable, put the link below. Known gaps: the Entire scene shows CLI output because the entire.io page is not reachable yet; the false-success scene tells the first cause (five runs), not all seven |
-| 2 | Public repository with commits dated during the hackathon | OWNER | Repo `github.com/Eartherai/zerodrop` is private until the owner approves. First commit Oct 10, 15:38 IST, after the window opened (12:30 IST); more than 50 commits; history never rewritten. Secret scan of the full history is clean (see gates) |
-| 3 | Accessible Entire checkpoint link plus its ID | OWNER | ID `01M4KEGN3Q174N063453HK5XC6`, stored at `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6` and pushed to GitHub; every commit since carries the `Entire-Checkpoint` trailer. **The entire.io page is a 404**: the site only knows the Entire-hosted repo `/et/hackathone/hackathon`. The owner needs to run `git remote add entire entire://aws-ap-south-1.entire.io/et/hackathone/hackathon` and `git push entire main 'refs/entire/*:refs/entire/*'`, then make that repo public. Audited Oct 11: no keys, no images, no personal details; it does show local folder paths |
-| 4 | cfo.ai business plan (pricing, costs, revenue, runway) | PARTIAL | Built in cfo.ai on Oct 11 from `BUSINESS.md`: 24-month model with assumptions, monthly forecast, six scenarios and a written plan. Base case: break-even March 2027, lowest cash $35,861, $1.88M at month 24; with growth halved, still March 2027 and $587K. Its criticism is kept in `BUSINESS.md`. Capture: `evidence/screenshots/08-cfo-ai-monthly-forecast.png`. Owner: a share link or export from cfo.ai, if it offers one |
-| 5 | X quote post with team, name, project, repo, demo link | OWNER | Draft: `posts/06-submission.md`. Posting is the owner's action |
+| 1 | One demo video, 3 minutes or less: the problem, how Entire and cfo.ai were part of it, how Neatlogs identified and resolved the incidents (organisers' instruction of Oct 12) | DONE | `evidence/video/zerodrop-demo.mp4`, 2:37, sixth cut, linkable at https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4. `zerodrop-demo-x.mp4` (2:19) is the cut to attach on X. Ten scenes, four on the Neatlogs incidents. Synthetic voice. Owner: watch it once |
+| 2 | Public repository with commits dated during the hackathon | DONE | https://github.com/Eartherai/zerodrop, public since Oct 12, 14:04 IST with the owner's approval. First commit Oct 10, 15:38 IST; history never rewritten; full-history secret scan clean |
+| 3 | Accessible Entire checkpoint link plus its ID | OWNER | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, in the public repo (`git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`). entire.io only shows repositories that have the Entire GitHub App installed: on entire.io open Repositories, Add repository, and install it for `Eartherai/zerodrop`; then `https://entire.io/gh/Eartherai/zerodrop` works |
+| 4 | cfo.ai business plan (pricing, costs, revenue, runway) | DONE | Public view-only link: https://cfo.ai/s/VyrSUZBAxHyXEJfC (monthly forecast, assumptions, six scenarios, written plan). Summary and cfo.ai's criticism in `BUSINESS.md`; capture `evidence/screenshots/08` |
+| 5 | X quote post with team, name, project, repo, demo link | OWNER | Text ready in `SUBMISSION.md` (279 characters), with a reply and a long form. Posting is the owner's action, 19:00 IST |
 
 ## Judging criteria
 | Weight | Criterion | Status | Evidence or what is missing |
 |---|---|---|---|
-| 30% | Agent that works | DONE | **Real model, all 20 scenarios: 20 of 20 with 0 false successes, twice in a row** (`gemini-3.5-flash-lite`; `1838455`, `evidence/eval/*final-code.md`; final code `6c07c9f`, `evidence/eval/*after-fix6.md`). Earlier passes on `gemini-3.1-flash-lite`: 18/18, 17/18, 15/18, then 10 of 10 before the quota ended. Seven real false successes in total, all caught by the verifier; three causes fixed test first (`251cdd4`, `933a7a9`, `7b34f8c`) with scripted regression 18/18 after each. A fourth fix (`6c07c9f`) for a run the model never repaired, shown harmless but not yet shown rescuing a real run. Not done: repeated passes for a failure rate, any Claude run |
-| 25% | Sponsor tools | PARTIAL | Neatlogs: every run traced (model calls with tokens and cost, tool calls with input and result, dry runs as GUARDRAIL spans, retries and failures as `recovery.*` spans, state changes as `state.*` spans, the verifier as a scored EVALUATOR, verdict on the root), linked from the dashboard; before and after trace pair with compared numbers in `EVIDENCE.md`; captures `evidence/screenshots/07` to `17`. Entire: checkpoint referenced by every commit; entire-graph installed, repo indexed and used for a change (`evidence/entire/`); the checkpoint web page is not reachable yet (row 3). cfo.ai: plan built, six scenarios and its criticism in `BUSINESS.md` |
-| 20% | Video | PARTIAL | `evidence/video/zerodrop-demo.mp4` (2:35) and `zerodrop-demo-x.mp4` (2:18 for X); synthetic narration; needs the owner's review and an upload link |
-| 15% | Building in public | OWNER | Eight drafts in `posts/`, none posted |
+| 30% | Agent that works | DONE | Real model, all 20 scenarios: 20 of 20 with 0 false successes, three passes in a row, the last on the final code `d92588d` (`evidence/eval/*final-code-early-check.md`). Seven real false successes in total, all caught by the verifier; three causes fixed test first; since Oct 12 the verifier also re-reads the first batch so a wrong mapping stops early (`286c728`). Bad passes are published (`EVIDENCE.md` section 7). Not done: repeated passes for a failure rate, any Claude run |
+| 25% | Sponsor tools | DONE except the Entire page | Neatlogs: every run traced; three incidents raised on our traces, investigated and resolved, two code changes came from them; suggested detections switched on (`EVIDENCE.md` section 1, screenshots 18 to 29). Entire: one checkpoint in git, entire-graph installed and used (`evidence/entire/`); entire.io page needs the GitHub App (row 3). cfo.ai: plan with a public link |
+| 20% | Video | DONE | Sixth cut, built around the organisers' three asks; every claim mapped to a file in `DEMO.md` |
+| 15% | Building in public | OWNER | Repo, site and evidence are public. Eight drafts in `posts/`, none posted yet |
 | 10% | Usefulness and originality | DONE | `README.md`, `BUSINESS.md`; the verifier catching a real model's false success is the thesis shown on real data |
 
 ## Engineering gates
 | Gate | Status | Evidence |
 |---|---|---|
-| Tests, lint, format | DONE | `uv run pytest -q`: 766 tests pass; `ruff check` and `ruff format --check` clean (Oct 12, 00:35 IST); 61 UI tests (Oct 11) |
+| Tests, lint, format | DONE | `uv run pytest -q`: 780 tests pass; `ruff check` and `ruff format --check` clean; 81 UI tests (Oct 12, 14:06 IST) |
 | Docker kit | DONE | Rebuilt Oct 12, 00:38 IST from the final code: `docker compose up --build`, both services healthy, the chaos demo (S16) through `POST /api/runs` verified SUCCESS, 24 of 24 checks, dashboard served |
-| Secret scan, full history | DONE | `gitleaks git --log-opts=--all --redact`: no leaks, 57 commits (Oct 12, 00:39 IST). The only findings in a scan of the folder are in the git-ignored `.env`. Re-run right before going public |
+| Secret scan, full history | DONE | `gitleaks git --log-opts=--all --redact`: no leaks, 61 commits, run at 14:00 IST right before the repo went public. Author addresses in the history are GitHub no-reply addresses |
 | `/security-review` | DONE | Oct 10, 23:55 IST: reviewed the API (run start, public-mode access code and budget checks, static file serving), the sandbox bind-host option, the trace-id link and the Docker kit. No high-confidence findings. Static serving resolves paths and requires them inside `ui/dist`; the access code is compared in constant time; the container runs as a non-root user and ports publish to 127.0.0.1 only. Oct 12, 00:39 IST: the code changed since then that is reachable from outside (API, public-mode gate, CLI, runner, config) was re-read by hand, not with the skill: paid planners are an allow-list of free ones inverted, so a new planner is capped by default; the trace link is built from a server-side id. No findings. Run the skill once more right before going public |
 | Real-model evaluation with saved evidence | DONE | Seven passes in `evidence/eval/` (see `EVIDENCE.md` section 6), 28 single runs in `evidence/runs/`, four experiment runs in `evidence/experiments/`. $3.13 at list price in total, $0 charged |
 | Neatlogs trace screenshots in `evidence/` | DONE | `evidence/screenshots/07`, `09`, `10`, `11`, `13` to `17`: real Gemini runs with WORKFLOW, AGENT, LLM, TOOL, CHAIN and EVALUATOR spans, state changes, and the before and after pair |
 
 ## What only the owner can do, in order
-1. Watch `evidence/video/zerodrop-demo.mp4`. Upload it somewhere linkable (for example unlisted on YouTube).
-2. Entire: `git remote add entire entire://aws-ap-south-1.entire.io/et/hackathone/hackathon`, then `git push entire main 'refs/entire/*:refs/entire/*'`, then make that repo public on entire.io and open the checkpoint page once to check it loads.
-3. Say "make the repo public" (a last secret scan and security review run first), or do it in GitHub settings.
-4. Post at least one #neatHack post from `posts/` before submitting (07 is the strongest).
-5. At 19:00 IST sharp, quote the official neatlogs post with the text in `posts/06-submission.md`, the two links, and `zerodrop-demo-x.mp4` attached. The sponsors engage with the first 50 quote posts.
+1. Watch the video once: https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
+2. Entire page: on entire.io open Repositories, Add repository, install the Entire GitHub App for `Eartherai/zerodrop`.
+3. Post at least one #neatHack post from `posts/` before submitting (07 or 08).
+4. At 19:00 IST sharp, quote the official neatlogs post with the text in `SUBMISSION.md` and attach `evidence/video/zerodrop-demo-x.mp4`. The sponsors engage with the first 50 quote posts.
+5. Optional: choose a licence for the repository (none is set).
 6. After the hackathon: the key hygiene items you already know about.
 
-## Links to fill in at submission
-- Public repo:
-- Demo video:
-- Entire checkpoint:
-- Neatlogs trace of the demo run:
-- cfo.ai plan:
+## Links
+- Public repo: https://github.com/Eartherai/zerodrop
+- Live demo (dashboard replaying real runs): https://eartherai.github.io/zerodrop/
+- Evidence page: https://eartherai.github.io/zerodrop/evidence/
+- Demo video: https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
+- Entire checkpoint: `01M4KEGN3Q174N063453HK5XC6` (page pending the GitHub App, row 3)
+- Neatlogs trace of the demo run: `https://app.neatlogs.com/traces/0652c95c208d53311eecccf73fe1cae0` (project members only; screenshot `10`)
+- cfo.ai plan: https://cfo.ai/s/VyrSUZBAxHyXEJfC

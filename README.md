@@ -9,6 +9,11 @@ report from an independent verifier that the agent cannot influence.
 
 > **The LLM decides, code executes, and an independent checker judges.**
 
+**Try it:** https://eartherai.github.io/zerodrop/ (the dashboard replaying real recorded runs; press Start migration) ·
+**Evidence page:** https://eartherai.github.io/zerodrop/evidence/ ·
+**Video:** https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 ·
+**cfo.ai plan:** https://cfo.ai/s/VyrSUZBAxHyXEJfC
+
 Built during neatHack 2026 by team Tokenmaxing. The dated build log, including what failed, is
 in [`hackathon.md`](hackathon.md). **Judging? Start with [`EVIDENCE.md`](EVIDENCE.md):** one
 page that maps each thing the rules ask for to a file, a run id or a trace.
@@ -124,7 +129,7 @@ code and check the blast radius of a change before making it; saved output is in
 `evidence/entire/`.
 
 **cfo.ai: the business model.** Pricing per verified migration, costs, break-even and runway,
-built from [`BUSINESS.md`](BUSINESS.md).
+built from [`BUSINESS.md`](BUSINESS.md). Public view of the model: https://cfo.ai/s/VyrSUZBAxHyXEJfC
 
 ## Public demo mode
 For an internet-facing deployment set `ZERODROP_PUBLIC_ENABLED=true`. Anyone can run the
@@ -141,5 +146,5 @@ is synthetic.
 ## Docs
 [`EVIDENCE.md`](EVIDENCE.md) · [`ARCHITECTURE.md`](ARCHITECTURE.md) · [`EVALUATION.md`](EVALUATION.md) ·
 [`DEMO.md`](DEMO.md) · [`BUSINESS.md`](BUSINESS.md) ·
-[`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md) · [`hackathon.md`](hackathon.md) ·
+[`SUBMISSION.md`](SUBMISSION.md) · [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md) · [`hackathon.md`](hackathon.md) ·
 [`docs/PLAN.md`](docs/PLAN.md) · [`docs/CONTRACTS.md`](docs/CONTRACTS.md)

@@ -125,6 +125,10 @@
 - 13:40 to 13:55 IST: The other two incidents resolved; the False Success Claim Detector had flagged six spans, four of them real-model runs from Oct 11. Captures `evidence/screenshots/18` to `29`.
 - 13:55 IST: **Demo video, sixth cut** (2:37; 2:19 for X), rebuilt around the organisers' three asks. Four of ten scenes are the Neatlogs incident story: raised, root cause and recommended action, the fix with before and after traces, detector on and incidents resolved. Removed a false line from the old cut ("traces are how we found the rate-limit bug": that bug was found by the evaluation on Oct 10, before tracing was on) and the overstated "each commit carries its coding session".
 - 14:00 IST: Docs brought in line: `EVIDENCE.md` now opens with the incident story, including what Neatlogs got wrong; key-rotation reminders removed from tracked files before going public.
+- 14:04 IST: **Repository made public** with the owner's approval, after a full-history secret scan (61 commits, no leaks) and a check that the history holds only no-reply author addresses.
+- 14:05 IST: **cfo.ai plan shared** with a public view-only link (forecast, assumptions, scenarios, written plan): https://cfo.ai/s/VyrSUZBAxHyXEJfC
+- 14:08 IST: **Live site** on GitHub Pages, served from `docs/`: https://eartherai.github.io/zerodrop/ is the real dashboard in replay mode with four recordings exported from run ledgers (a real Gemini run of the chaos scenario at the final code, the real model's false success from Oct 11, a duplicate-data run, the early check stopping a wrong plan); `/evidence/` is `EVIDENCE.md` as a page; `/video/` hosts the demo video. Checked in a browser after deploy. It replays; it does not call a model.
+- 14:10 IST: Entire's website still returns 404 for the repository although it is public: it only lists repositories with the Entire GitHub App installed. That install is the owner's to approve. `SUBMISSION.md` holds the quote post (279 characters), a reply and the long form.
 
 #### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | Next action |
