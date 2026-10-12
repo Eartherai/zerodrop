@@ -132,6 +132,7 @@
 - 14:15 IST: Docker kit rebuilt at `ab5e1e8` and checked again: the chaos demo through the API, verified SUCCESS, 24 of 24.
 - 14:17 IST: **The model that made the mistakes, on the final code: 18 of 18, no false success** (`gemini-3.1-flash-lite`, 117 calls, $0.2593 at list price). Its passes over the weekend: 18/18, 17/18, 15/18, 10 of 10, 18/18. Still one pass, not a failure rate.
 - 14:20 IST: Video closing line updated to "20 of 20 on a real model, three times" and the site link; one scroll position fixed. Post draft 9 (the incidents). Real-model spend in total: $4.06 at list price, $0 charged, against the $25 cap.
+- 14:25 IST: The organisers' final notice: the quote post must tag @neatlogs, @EntireHQ and @arithecfo, and a submission form is mandatory as well. `SUBMISSION.md` rewritten: quote post with all three tags (275 characters), a reply, ready answers for the form, and a Discord post.
 
 #### Self-assessment at submission (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | What would raise it |

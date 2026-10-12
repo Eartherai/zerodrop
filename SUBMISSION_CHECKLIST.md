@@ -15,7 +15,7 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 | 2 | Public repository with commits dated during the hackathon | DONE | https://github.com/Eartherai/zerodrop, public since Oct 12, 14:04 IST with the owner's approval. First commit Oct 10, 15:38 IST; history never rewritten; full-history secret scan clean |
 | 3 | Accessible Entire checkpoint link plus its ID | OWNER | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, in the public repo (`git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`). entire.io only shows repositories that have the Entire GitHub App installed: on entire.io open Repositories, Add repository, and install it for `Eartherai/zerodrop`; then `https://entire.io/gh/Eartherai/zerodrop` works |
 | 4 | cfo.ai business plan (pricing, costs, revenue, runway) | DONE | Public view-only link: https://cfo.ai/s/VyrSUZBAxHyXEJfC (monthly forecast, assumptions, six scenarios, written plan). Summary and cfo.ai's criticism in `BUSINESS.md`; capture `evidence/screenshots/08` |
-| 5 | X quote post with team, name, project, repo, demo link | OWNER | Text ready in `SUBMISSION.md` (279 characters), with a reply and a long form. Posting is the owner's action, 19:00 IST |
+| 5 | X quote post with team, name, project, repo, demo link | OWNER | Text ready in `SUBMISSION.md` (275 characters, tags @neatlogs, @EntireHQ and @arithecfo as the organisers require), with a reply, form answers, a Discord post and a long form. The quote post and the form are both mandatory. Posting is the owner's action, 19:00 IST |
 
 ## Judging criteria
 | Weight | Criterion | Status | Evidence or what is missing |
