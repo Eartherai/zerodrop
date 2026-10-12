@@ -133,7 +133,7 @@
 - 14:17 IST: **The model that made the mistakes, on the final code: 18 of 18, no false success** (`gemini-3.1-flash-lite`, 117 calls, $0.2593 at list price). Its passes over the weekend: 18/18, 17/18, 15/18, 10 of 10, 18/18. Still one pass, not a failure rate.
 - 14:20 IST: Video closing line updated to "20 of 20 on a real model, three times" and the site link; one scroll position fixed. Post draft 9 (the incidents). Real-model spend in total: $4.06 at list price, $0 charged, against the $25 cap.
 - 15:12 IST: The organisers' final notice: the quote post must tag @neatlogs, @EntireHQ and @arithecfo, and a submission form is mandatory as well. `SUBMISSION.md` rewritten: quote post with all three tags (275 characters), a reply, ready answers for the form, and a Discord post.
-- 16:20 IST: Last review of the video, frame by frame: nothing to change in the picture. The narration was quiet (mean -24 dB), so both cuts were raised to -16 LUFS; the picture stream was copied, not re-encoded. `SUBMISSION.md` now gives both ways to get the Entire page (GitHub App, or a push to the Entire-hosted repo through a second remote; `origin` stays GitHub).
+- 16:14 IST: Last review of the video, frame by frame: nothing to change in the picture. The narration was quiet (mean -24 dB), so both cuts were raised to -16 LUFS; the picture stream was copied, not re-encoded. `SUBMISSION.md` now gives both ways to get the Entire page (GitHub App, or a push to the Entire-hosted repo through a second remote; `origin` stays GitHub).
 
 #### Self-assessment at submission (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | What would raise it |
