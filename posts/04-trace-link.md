@@ -1,9 +1,9 @@
 # Post 4: every run links to its trace (thread)
 
-Source: `hackathon.md` (Oct 10, 23:28 IST). Attach a screenshot of the trace tree from
-`evidence/screenshots/` once captured.
+Source: `hackathon.md` (Oct 10, 23:28 IST). Attach
+`evidence/screenshots/19-neatlogs-after-early-check-stops-the-run.png`.
 
-1/ Every ZeroDrop run is one @neatlogs trace: the planner and diagnoser as agent spans, each model call, each batch write as a tool span, each recovery decision, and the independent verifier as an evaluator span.
+1/ Every ZeroDrop run is one @neatlogs trace: the planner and diagnoser as agent spans, each model call, each batch write as a tool span, each dry run as a guardrail, each recovery decision, and the independent verifier as an evaluator span.
 
 2/ The root span carries the verdict: the verifier's status, what the agent itself claimed, and whether those two disagree.
 The run page links the trace id, and the commit that produced the agent.

@@ -13,7 +13,7 @@ The verifier caught it. The agent's own claim was also FAILED, so no false succe
 3/ Root cause: a 429 with Retry-After was counted as a failed attempt. It is not a failure, it is the server saying "wait".
 Fix: rate-limit waits get their own budget. 20 of 20.
 
-4/ Second fix from the same trace: we were waiting longer than the server asked. Now we wait exactly Retry-After.
+4/ Second fix from the same evaluation: we were waiting longer than the server asked. Now we wait exactly Retry-After.
 That scenario went from 12.1 s to 2.8 s with the same outcome.
 
 Commits 8c0a017 and 574aa2b. #neatHack

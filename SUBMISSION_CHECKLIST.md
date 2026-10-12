@@ -23,7 +23,7 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 | 30% | Agent that works | DONE | **Real model, all 20 scenarios: 20 of 20 with 0 false successes, twice in a row** (`gemini-3.5-flash-lite`; `1838455`, `evidence/eval/*final-code.md`; final code `6c07c9f`, `evidence/eval/*after-fix6.md`). Earlier passes on `gemini-3.1-flash-lite`: 18/18, 17/18, 15/18, then 10 of 10 before the quota ended. Seven real false successes in total, all caught by the verifier; three causes fixed test first (`251cdd4`, `933a7a9`, `7b34f8c`) with scripted regression 18/18 after each. A fourth fix (`6c07c9f`) for a run the model never repaired, shown harmless but not yet shown rescuing a real run. Not done: repeated passes for a failure rate, any Claude run |
 | 25% | Sponsor tools | PARTIAL | Neatlogs: every run traced (model calls with tokens and cost, tool calls with input and result, dry runs as GUARDRAIL spans, retries and failures as `recovery.*` spans, state changes as `state.*` spans, the verifier as a scored EVALUATOR, verdict on the root), linked from the dashboard; before and after trace pair with compared numbers in `EVIDENCE.md`; captures `evidence/screenshots/07` to `17`. Entire: checkpoint referenced by every commit; entire-graph installed, repo indexed and used for a change (`evidence/entire/`); the checkpoint web page is not reachable yet (row 3). cfo.ai: plan built, six scenarios and its criticism in `BUSINESS.md` |
 | 20% | Video | PARTIAL | `evidence/video/zerodrop-demo.mp4` (2:35) and `zerodrop-demo-x.mp4` (2:18 for X); synthetic narration; needs the owner's review and an upload link |
-| 15% | Building in public | OWNER | Seven drafts in `posts/`, none posted |
+| 15% | Building in public | OWNER | Eight drafts in `posts/`, none posted |
 | 10% | Usefulness and originality | DONE | `README.md`, `BUSINESS.md`; the verifier catching a real model's false success is the thesis shown on real data |
 
 ## Engineering gates
@@ -42,7 +42,7 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 3. Say "make the repo public" (a last secret scan and security review run first), or do it in GitHub settings.
 4. Post at least one #neatHack post from `posts/` before submitting (07 is the strongest).
 5. At 19:00 IST sharp, quote the official neatlogs post with the text in `posts/06-submission.md`, the two links, and `zerodrop-demo-x.mp4` attached. The sponsors engage with the first 50 quote posts.
-6. After the hackathon: delete the two Gemini keys (one was pasted in a chat), rotate the Neatlogs key and the AWS keys shared earlier, delete the AWS root access key.
+6. After the hackathon: the key hygiene items you already know about.
 
 ## Links to fill in at submission
 - Public repo:

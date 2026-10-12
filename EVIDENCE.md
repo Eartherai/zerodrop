@@ -5,13 +5,62 @@ repository. Every number here is copied from a saved result file; nothing is est
 Where something is missing or weak, it says so.
 
 Trace links have the form `https://app.neatlogs.com/traces/<trace id>`. They open for members
-of the Neatlogs project, so each one also has a screenshot in `evidence/screenshots/`.
+of the Neatlogs project, so each one also has a screenshot in `evidence/screenshots/`
+(index: [`evidence/screenshots/README.md`](evidence/screenshots/README.md)).
 
-## 1. Before and after, with compared numbers (two Neatlogs traces)
+## 1. Neatlogs incidents: identified and resolved
+
+The organisers asked every team to show how Neatlogs' Incidents feature helped identify and
+resolve the incidents their agent ran into. This is what happened, in order, with the parts
+that do not flatter us left in.
+
+| When (IST) | What | Evidence |
+|---|---|---|
+| Oct 10 to 11 | The agent ran into real failures. We found and fixed them from the independent verifier's reports and the traces, before anything was on the Incidents board | `EVALUATION.md`, fixes 1 to 6 |
+| Oct 11 | Neatlogs AI, on its own, suggested four detections from our traces. One is a "False Success Claim Detector": "Detects instances where the agent claims the migration was successful, but the actual status is FAILED" | screenshots `24`, `25` |
+| Oct 12, 08:42 | We asked Neatlogs' Investigate agent to go through every `zerodrop-migration` trace. It reported three issues and raised them as incidents: false success claims (Critical), halted runs and model-provider errors (High), runs repeating `recovery.CONTRACT` (High) | `evidence/neatlogs/investigation-report.md`, screenshots `20`, `27` |
+| Oct 12, 08:49 | Each incident's own investigation produced a root cause, evidence and a recommended action | screenshot `21`, `evidence/neatlogs/incident-false-success-fix-prompt.md` |
+| Oct 12, 08:58 | **Fix 7, from the critical incident's recommended action** (commit `286c728`): after the first batch of each mapping the independent verifier re-reads those records, and the run stops if they do not match | before and after traces below |
+| Oct 12, 09:02 | **From the repair-loop incident** (commit `d92588d`): a run that cannot be repaired now halts naming the field and value the target refused, for a person to act on | `tests/test_engine.py::test_a_run_that_cannot_be_repaired_halts_saying_what_the_target_refused` |
+| Oct 12 | The suggested detections were switched on. The false-success detector flagged six spans: today's control run and four real-model runs from Oct 11 | screenshot `23` |
+| Oct 12 | All three incidents moved Raised → Investigated → Resolved | screenshots `22`, `28`, `29` |
+
+**The critical incident, before and after the fix it led to.** Same scenario (S01), same flawed
+plan (a scripted planner that reads dates in the wrong time zone, a mistake the dry run cannot
+see), commit `286c728`, early check off and on.
+
+| | Before | After |
+|---|---|---|
+| Run | `run_352df589b91d` | `run_0c898a7e56b0` |
+| Records written before anyone noticed | 182 (all of them) | 28 (one batch of customers) |
+| What the agent said | SUCCESS | FAILED |
+| What the independent verifier said | FAILED | FAILED |
+| False success claim | **true** | **false** |
+| Neatlogs trace | `c2fce46175145a8e7473297151bf04da` | `35bb1a754af7df0c21393e7118cd203e` |
+| Screenshot | `18-neatlogs-before-false-success-flagged.png` | `19-neatlogs-after-early-check-stops-the-run.png` |
+| Result file | `evidence/experiments/early-check-off-naive-S01.json` | `evidence/experiments/early-check-on-naive-S01.json` |
+
+The run still fails, as it should with a wrong plan. What changed is that the agent stops after
+one batch and says so itself, instead of writing everything and claiming success.
+
+**What Neatlogs got right and wrong** (full notes in `evidence/neatlogs/investigation-report.md`):
+- Right: the five evidence traces on the critical incident are exactly our recorded real-model
+  false successes, covering all three causes. Its count of ten comes from a search for
+  "False Success Claim: true".
+- We did not take its first recommendation (move the verifier's checks into the agent's dry
+  run): that would end the verifier's independence. We took its fourth step, a blocking check
+  that asks the evaluator.
+- Wrong: the follow-up investigation cites three healthy runs as examples, and the repair-loop
+  incident's evidence traces are successful one-replan recoveries. The run that really looped
+  is trace `a5b9ad484e4fac9e428f5eb00ba46088`.
+- Honest timing: fixes 1 to 6 were made before the board had an incident on it. Fix 7 and the
+  halt message are the two changes that came from the incidents.
+
+## 2. Before and after, with compared numbers (more pairs)
 
 Same scenario (S02, 1,901 records, no injected faults), same model (`gemini-3.1-flash-lite`),
-before and after one fix. The fix: the dry run rejects a mapping that gives different source
-records the same identity (commit `251cdd4`).
+before and after fix 3: the dry run rejects a mapping that gives different source records the
+same identity (commit `251cdd4`).
 
 | | Before | After |
 |---|---|---|
@@ -22,15 +71,13 @@ records the same identity (commit `251cdd4`).
 | Verifier checks failed | 10 of 24 | 0 of 24 |
 | Writes the target treated as a record it already had | 1,898 of 1,901 | 0 |
 | Model calls | 5 | 5 |
-| Model cost at list price | $0.0109 | $0.0078 |
-| Duration | 66.7 s | 11.1 s |
 | Neatlogs trace | `75f5abadcc7c45344ee5639e556c2621` | `229e14d548b58ab6938fc70ec4009b34` |
-| Screenshot | `evidence/screenshots/14-before-trace-s02-false-success.png` | `evidence/screenshots/15-after-trace-s02-verified.png` |
+| Screenshot | `14-before-trace-s02-false-success.png` | `15-after-trace-s02-verified.png` |
 | Result file | `evidence/runs/S02-clean-demo-size-gemini-3.1-flash-lite-before-identity-guard.json` | `evidence/runs/S02-clean-demo-size-gemini-3.1-flash-lite.json` |
 
-Root cause: the model wrote `external_id` as a constant,
-so every record had the same id and the target kept one per entity. The engine saw 1,901
-accepted writes and believed it was done.
+The before run also took longer (66.7 s against 11.1 s) and cost more ($0.0109 against
+$0.0078 at list price). That gap is not the fix: the before run includes a model call that hit
+a rate limit and was retried.
 
 Two more pairs from later passes on the same model, both a yen amount written 100 times too
 large:
@@ -40,10 +87,9 @@ large:
 | Contradictory decimal parameters are an error (`933a7a9`) | S16, everything goes wrong | `run_14ded6031abe`: agent SUCCESS, verifier FAILED, JPY total 1,205,966,500 instead of 12,059,665. Trace `874c2d43e3b1995e85980d50264aed3f` | `run_e5294505e55c`: verified SUCCESS. Trace `f062910ba90fe51c92e716b566606abd` |
 | Fixed decimals must fit the record's currency (`7b34f8c`) | S03, rate-limit storm | `run_acc170ca8785`: agent SUCCESS, verifier FAILED, JPY total 328,713,000 instead of 3,287,130. Trace `81e79b05a4b1b6f2c15dbd833823ef1f` | `run_30e7764a777f`: verified SUCCESS. Trace `03b05b42cf288529acd3ad3809141357` |
 
-Files: `evidence/eval/*pass2.json`, `*pass3-after-fix4.json`, `*pass4-after-fix5.json`.
-All five fixes with root cause and regression test: [`EVALUATION.md`](EVALUATION.md).
+All seven fixes with root cause and regression test: [`EVALUATION.md`](EVALUATION.md).
 
-## 2. A failure-recovery run
+## 3. A failure-recovery run
 
 S16, "everything goes wrong", planned by `gemini-3.6-flash`: `run_aa73127580bb`, commit
 `d656f98`, trace `0652c95c208d53311eecccf73fe1cae0`.
@@ -56,14 +102,13 @@ S16, "everything goes wrong", planned by `gemini-3.6-flash`: `run_aa73127580bb`,
 
 Result: 1,901 of 1,901 records written, verifier SUCCESS, 12 model calls, $0.082 at list
 price, 145 s. File: `evidence/runs/S16-demo-chaos-gemini-3.6-flash.json`. Screenshots:
-`evidence/screenshots/10-neatlogs-trace-s16-gemini.png` (trace),
-`03-s16-finished-full.png` and `04-s16-certificate.png` (dashboard). The demo video replays
-this run.
+`10-neatlogs-trace-s16-gemini.png` (trace), `03-s16-finished-full.png` and
+`04-s16-certificate.png` (dashboard). The demo video replays this run.
 
 Crash and resume (the process is killed mid-run and restarted from the ledger) is covered by
 S09, S10 and S20; each evaluation file reports its `crash_resumes` count.
 
-## 3. Neatlogs
+## 4. Neatlogs tracing
 
 Rules: traces "should capture model and tool calls, state changes, retries, failures,
 latency, token usage, and cost".
@@ -71,65 +116,48 @@ latency, token usage, and cost".
 | Asked for | Where it is in a ZeroDrop trace | Code |
 |---|---|---|
 | Model calls, tokens, cost, latency | LLM spans from the wrapped model client, under AGENT spans for the planner and the diagnoser | `src/zerodrop/agent/` |
-| Tool calls | TOOL spans for schema discovery, every batch write (`novabill.batch_write`, with attempt number), every lookup, and every tool the model calls (`tool.<name>`) | `src/zerodrop/engine.py`, `src/zerodrop/agent/llm.py` |
+| Tool calls | TOOL spans for schema discovery, every batch write (`novabill.batch_write`, with attempt number), every lookup, and every tool the model calls, with its input and result | `src/zerodrop/engine.py`, `src/zerodrop/agent/llm.py` |
 | State changes | One `state.<STATUS>` span per run status change, with `from_state` and `to_state` | `MigrationEngine._set_status` |
 | Retries and failures | One `recovery.<class>` span per failure handled: transient (wait and retry), ambiguous write (look up first), contract change (replan), bad data (quarantine), auth, budget (halt) | `src/zerodrop/engine.py` |
-| The verdict | Root WORKFLOW span: verifier status, the agent's own claim, false-success flag, checks failed, report hash. EVALUATOR span for the verifier with its input, verdict and a score (checks passed / total) | `MigrationEngine._finish`, `_verify` |
-| The gate before any write | One GUARDRAIL span per dry run (`dry-run.<entity>`): what was checked, passed or not, share of valid samples, and the reason when it blocks a mapping | `MigrationEngine._guarded_dry_run` |
-| What the model's tools returned | Each tool the model calls records its input and its result, so a rejected dry run or submission is readable in the trace, not only in the next model call | `src/zerodrop/agent/llm.py` |
+| The gates before and during writing | GUARDRAIL spans: one per dry run (`dry-run.<entity>`) and one per early check (`early-check.<entity>`), each with what was checked, passed or not, a score, and the reason when it blocks | `MigrationEngine._guarded_dry_run`, `_check_early` |
+| The verdict | Root WORKFLOW span: verifier status, the agent's own claim, false-success flag, checks failed, report hash. EVALUATOR span for the verifier with its input, verdict and a score | `MigrationEngine._finish`, `_verify` |
 
-Every run stores its trace id in the ledger; the dashboard links to it ("Open the trace in
-Neatlogs"). Layer: `src/zerodrop/telemetry.py`.
+Every run stores its trace id in the ledger; the dashboard links to it. Layer:
+`src/zerodrop/telemetry.py`. What Neatlogs itself showed for the project on the morning of
+Oct 12: 225 traces in seven days, a 28.4% trace error rate and $2.56 of measured model spend.
+The error rate counts runs with any errored span, and our scenarios inject faults on purpose,
+so it is not the agent's failure rate.
 
-| Screenshot | What it shows |
-|---|---|
-| `07-neatlogs-trace-s01-gemini.png` | Whole trace of a clean real-model run |
-| `09-neatlogs-llm-span-s01-gemini.png` | One model call: prompt, tool calls, tokens, cost |
-| `10-neatlogs-trace-s16-gemini.png` | The recovery run in section 2 |
-| `11-neatlogs-trace-s07-gemini-grouped.png` | API change run, steps grouped under one span per entity |
-| `13-neatlogs-trace-state-changes.png` | State-change spans (trace `f3cc2e33aa500430a9f221eeb9c468fa`) |
-| `14-…` and `15-…` | The before and after pair in section 1 |
-| `16-neatlogs-guardrail-blocks-refused-values.png` | A whole real-model trace on one page: state changes, three dry-run guardrails, the target refusing a batch, the guardrail then blocking the same mapping (`refused_reference`), the model's repair, the verifier, the verdict |
-| `17-neatlogs-model-dry-run-told-refused-values.png` | Inside a repair: the model's own dry-run calls with input and result |
-
-Each real-model false success has its trace id saved with the run (section 1), so the model
-call that proposed the wrong mapping can be opened next to the verifier's result. Each cause
-was then reproduced as a failing test before the fix.
-
-## 4. Entire: checkpoints and entire-graph
+## 5. Entire: checkpoints and entire-graph
 
 | Item | Evidence |
 |---|---|
-| Checkpoint | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, pushed with the repo. Commits carry an `Entire-Checkpoint` trailer |
+| Checkpoint | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, pushed with the repo. There is one checkpoint; it covers the first part of the build session. Commits made after it carry an `Entire-Checkpoint` trailer that points to it |
 | Redaction | Secret and personal-data redaction configured in `.entire/settings.json` |
-| entire-graph installed | Plugin v0.4.0; index of 145 files, 3,217 symbols, 12,502 relations; agent guide in `.entire/graph-agent.md`, loaded by `CLAUDE.md` and `AGENTS.md` |
-| entire-graph used for a real change | Before making state changes visible in the trace: `entire graph search` located `_set_status` (`evidence/entire/search-state-changes.txt`) and `entire graph impact` listed its 17 callers (`evidence/entire/impact-set-status.txt`). The change is commit `1838455` |
-| entire-graph on commits | Entity-level change lists: fix 5 (`evidence/entire/commit-7b34f8c-entity-changes.txt`), fix 6 (`commit-6c07c9f-…`), the guardrail and evaluator spans (`commit-0ae1d2b-…`). Each lists the methods changed and how many dependents they have |
-| entire-graph on the riskiest function | `evidence/entire/impact-check-mapping.txt`: the blast radius of the dry run, where four of the six fixes live (4 callers, 15 callees, 11 co-change files). Run after fix 6, to document its reach |
+| entire-graph installed | Plugin v0.4.0; index of the repo; agent guide in `.entire/graph-agent.md`, loaded by `CLAUDE.md` and `AGENTS.md` |
+| entire-graph used before a change | Before making state changes visible in the trace: `entire graph search` located `_set_status` (`evidence/entire/search-state-changes.txt`) and `entire graph impact` listed its 17 callers (`evidence/entire/impact-set-status.txt`). The change is commit `1838455` |
+| entire-graph on commits | Entity-level change lists for fix 5 (`commit-7b34f8c-…`), fix 6 (`commit-6c07c9f-…`), the guardrail and evaluator spans (`commit-0ae1d2b-…`) and fix 7 (`commit-286c728-…`) in `evidence/entire/` |
+| entire-graph on the riskiest function | `evidence/entire/impact-check-mapping.txt`: the blast radius of the dry run, where four of the fixes live |
 
-Weak point, stated plainly: the checkpoint covers the first part of the build session, not
-all of it, and its entire.io page only works once the Entire-hosted mirror is pushed and made
-public (owner action, see [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md)).
+Weak point, stated plainly: one checkpoint, covering the setup part of the session, not the
+whole build.
 
-## 5. cfo.ai: pricing, costs, revenue, runway
+## 6. cfo.ai: pricing, costs, revenue, runway
 
-Built in cfo.ai from [`BUSINESS.md`](BUSINESS.md); screenshot
-`evidence/screenshots/08-cfo-ai-monthly-forecast.png`.
+Built in cfo.ai from [`BUSINESS.md`](BUSINESS.md); screenshot `08-cfo-ai-monthly-forecast.png`.
 
 | | cfo.ai base case | cfo.ai with growth halved to 10% a month |
 |---|---|---|
+| Price | $499 per verified migration; failed runs are not billed | same |
+| Cost to deliver one | $36.77 (92.6% margin) | same |
 | Break-even month | March 2027 | March 2027, by only $215 |
-| Lowest cash balance | $35,861 | $35,213 |
+| Lowest cash balance (from $60,000) | $35,861 | $35,213 |
 | Cash at month 24 | $1.88M | $587K |
 
-Unit economics as cfo.ai computed them: a $499 migration costs $36.77 to deliver (92.6%
-margin).
+`BUSINESS.md` has the six scenarios cfo.ai computed and where its agent pushed back on the
+plan (growth rate, flat fixed costs, failed runs not costed), kept in.
 
-Pricing is per verified migration, so revenue is tied to the same verifier result the product
-shows. `BUSINESS.md` has the six scenarios cfo.ai computed and where its agent pushed back on
-the plan (growth rate, flat fixed costs, failed runs not costed), kept in.
-
-## 6. Does the agent work: every evaluation, including the bad ones
+## 7. Does the agent work: every evaluation, including the bad ones
 
 "Matched" means the independent verifier's result equals the outcome that scenario should
 have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL).
@@ -145,39 +173,40 @@ have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL
 | Second model | `gemini-3.5-flash-lite` | `e65cc45` | 18 of 18 | 0 | 119 | $0.4186 |
 | Pass 3 | `gemini-3.1-flash-lite` | `933a7a9` | 15 of 18 | 1 (led to fix 5) | 108 | $0.2278 |
 | Pass 4 | `gemini-3.1-flash-lite` | `7b34f8c` | 10 of the 10 that ran | 0 | 57 | $0.1203 |
-| **All 20 scenarios, after fix 5** | `gemini-3.5-flash-lite` | `1838455` | **20 of 20** | **0** | 138 | $0.4570 |
-| **All 20 scenarios, final code (after fix 6)** | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | **0** | 141 | $0.4650 |
-| Scripted regression after fixes 3, 4, 5, 6 | scripted | `251cdd4`, `933a7a9`, `7b34f8c`, `6c07c9f` | 18 of 18 each | 0 | 0 | $0 |
-
-Real-model cost of the saved runs above and the four in `evidence/experiments/`: $3.13 at list
-price, $0 charged (free tier).
+| All 20 scenarios, after fix 5 | `gemini-3.5-flash-lite` | `1838455` | **20 of 20** | **0** | 138 | $0.4570 |
+| All 20 scenarios, after fix 6 | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | **0** | 141 | $0.4650 |
+| After fix 7, morning | `gemini-3.5-flash-lite` | `286c728` | 8 of the 8 that ran | 0 | 57 | $0.2140 |
+| **All 20 scenarios, final code** | `gemini-3.5-flash-lite` | `d92588d` | **20 of 20** | **0** | 133 | $0.4539 |
+| Scripted regression after fixes 3 to 7 | scripted | `251cdd4`, `933a7a9`, `7b34f8c`, `6c07c9f`, `286c728` | all matched each time | 0 | 0 | $0 |
 
 Reading it honestly:
 - Seven real false success claims in total. The verifier caught all seven. Each of the three
   causes was fixed test first, and no later run repeated a fixed cause.
-- Pass 3 also had one run the model never repaired (S12: it sent a price id where the plan
-  code belongs, three times; the run ended FAILED and said FAILED) and one halted by a
-  provider 503. Both led to changes: the engine now remembers values the target refused and
-  fails a repair that repeats them before any write, and the model client retries a 503. The
-  first of these has not yet been seen rescuing a real run (`EVALUATION.md`, improvement 6).
-- The two rows to weigh: every scenario, real model, 20 of 20, twice in a row, the second
-  time on the final code.
-- Pass 4 was cut short: the free tier's daily quota ran out after ten scenarios. The other
-  eight halted, said FAILED, and the verifier agreed. They are counted as not run.
+- Three full passes of all 20 scenarios in a row matched with no false success, the last one
+  on the final code.
+- Pass 3 also had one run the model never repaired (S12) and one halted by a provider 503.
+  Both led to changes (fix 6, the 503 retry). When we later seeded the same wrong mapping and
+  let real models repair it, both `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite` repaired
+  it at the first attempt with the guard off and on (`evidence/experiments/`), so fix 6 is
+  shown harmless and seen working inside one repair conversation, but not shown rescuing a run.
+- Pass 4 and the morning pass after fix 7 were cut short when the free tier's daily quota ran
+  out. Scenarios that never reached the model are counted as not run.
 - One pass per commit. This shows what happened, not a failure rate.
 - All real-model runs used Gemini Flash models on the free tier (nothing was charged). No
   Claude run exists: the Anthropic account had no credit during the hackathon.
 
+Real-model cost of every saved run: $3.80 at list price, $0 charged (free tier).
+
 Files: `evidence/eval/` (one JSON and one Markdown per evaluation), `evidence/runs/` (one
-JSON per single run). Reproduce the scripted ones with no keys:
+JSON per single run), `evidence/experiments/`. Reproduce the scripted ones with no keys:
 `uv run zerodrop eval --planner oracle --label my-run`.
 
-## 7. Built during the hackathon, in public
+## 8. Built during the hackathon, in public
 
 | Item | Evidence |
 |---|---|
-| Commit dates | First commit `104ff06` on Oct 10, 15:38 IST, after the window opened at 12:30 IST. More than 50 commits since (`git log`), one per task. History never rewritten or force-pushed |
+| Commit dates | First commit `104ff06` on Oct 10, 15:38 IST, after the window opened at 12:30 IST. More than 60 commits since (`git log`), one per task. History never rewritten or force-pushed |
 | Build log | [`hackathon.md`](hackathon.md): dated entries, including what failed |
 | Posts | Drafts in `posts/`; links to the posted versions are in `SUBMISSION_CHECKLIST.md` once posted |
-| Tests | 766 Python tests and 61 UI tests; `uv run pytest -q` |
+| Tests | 780 Python tests and 61 UI tests; `uv run pytest -q` |
 | Run it yourself | `docker compose up --build`, then http://127.0.0.1:8700 and start "Demo - everything goes wrong". No keys needed |

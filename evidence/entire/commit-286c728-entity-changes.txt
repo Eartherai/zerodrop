@@ -1,0 +1,54 @@
+$ entire graph commit --repo . 286c728   (code files only; evidence and docs entries removed for length)
+Semantic changes 5c9b26b39f8df5e2fcc4e771ab7b79fda3226a0b..286c728
+
+src/zerodrop/config.py (Python)
+  ~ class Settings body changed (25 dependents)
+
+src/zerodrop/engine.py (Python)
+  ~ class _RunState body changed (4 dependents)
+  ~ class MigrationEngine body changed (11 dependents)
+  ~ method MigrationEngine.__init__ signature changed (66 dependents)
+  ~ method MigrationEngine._migrate_entity body changed (2 dependents)
+  + method MigrationEngine._write_first_batch added
+  + method MigrationEngine._check_early added
+  ~ method MigrationEngine._metrics body changed (2 dependents)
+
+src/zerodrop/runner.py (Python)
+  ~ function run_scenario body changed (14 dependents)
+  ~ function build_engine body changed (1 dependent)
+
+src/zerodrop/verifier/verify.py (Python)
+  + class SpotCheck added
+  + method SpotCheck.passed added
+  + function spot_check added
+
+tests/test_engine.py (Python)
+  ~ class Harness body changed (71 dependents)
+  ~ method Harness.__init__ signature changed (66 dependents)
+  ~ method Harness.build body changed (20 dependents)
+  + class _Spot added
+  + method _Spot.passed added
+  + class FakeEarlyCheck added
+  + method FakeEarlyCheck.__init__ added
+  + method FakeEarlyCheck.__call__ added
+  + function test_the_first_batch_of_each_entity_is_checked_by_the_verifier_before_the_rest_is_written added
+  + function test_a_failed_early_check_stops_the_run_after_one_batch_and_the_agent_says_failed added
+  + function test_an_early_check_that_cannot_read_both_systems_does_not_stop_the_run added
+  + function test_a_mapping_changed_mid_run_is_checked_again_on_its_first_batch added
+  + function test_without_an_early_check_the_engine_writes_in_source_order_as_before added
+
+tests/test_runner_api.py (Python)
+  - function test_naive_planner_is_caught_by_the_verifier removed (0 dependents)
+  + function test_without_the_early_check_a_flawed_planner_ends_in_a_false_success_the_verifier_catches added
+  + function test_the_early_check_stops_a_flawed_planner_after_one_batch_and_the_agent_says_failed added
+  + function test_the_early_check_passes_a_correct_planner_once_per_entity added
+
+tests/test_verifier.py (Python)
+  + function _spot added
+  + function _ids added
+  + function test_spot_check_passes_for_records_written_correctly added
+  + function test_spot_check_only_looks_at_the_records_it_was_asked_about added
+  + function test_spot_check_reports_a_record_missing_from_the_target added
+  + function test_spot_check_reports_field_mismatches_with_expected_and_actual added
+  + function test_spot_check_sees_one_identity_given_to_many_records added
+  + function test_spot_check_retries_transient_reads_and_reports_a_read_failure added

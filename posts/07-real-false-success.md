@@ -13,4 +13,4 @@ We ran our migration agent with the smallest Gemini model. Five runs finished an
 
 5/ Fix, test first, using the model's exact mapping: the dry run now rejects a mapping that gives different records the same identity, before any write. Same five scenarios, same model: five of five verified.
 
-6/ All twenty of our failure scenarios have now passed with a real model. The @neatlogs traces of the failing runs are how we read what the model actually did. #neatHack
+6/ All twenty of our failure scenarios have now passed with a real model. Every failing run has its @neatlogs trace next to the verifier's report. #neatHack

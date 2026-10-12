@@ -100,7 +100,7 @@ uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json
   (index in `evidence/screenshots/README.md`), including a before and after pair (14, 15).
 - Entire: checkpoint `01M4KEGN3Q174N063453HK5XC6` exists as a git ref and is pushed to GitHub.
   Commits carry a hand-written `Entire-Checkpoint` trailer; do **not** run
-  `entire session attach` again (a key was pasted into the session later). The entire.io page
+  `entire session attach` again (later turns of the session have not been reviewed for publication). The entire.io page
   is a 404 because the site only knows the Entire-hosted repo `/et/hackathone/hackathon`; the
   owner must run `git remote add entire entire://aws-ap-south-1.entire.io/et/hackathone/hackathon`
   and `git push entire main 'refs/entire/*:refs/entire/*'` (blocked for the agent).
@@ -130,5 +130,4 @@ uv run python scripts/compare_evals.py evidence/eval/A.json evidence/eval/B.json
 - One focused commit per task; never rewrite or force-push history (hashes and dates are evidence).
 - Never fabricate numbers. Tests never call the real API.
 - Ask the owner before anything public: repo visibility, posts, public deployment.
-- Owner follow-ups after the hackathon: rotate the Neatlogs key and the AWS keys that were shared
-  in an earlier chat, and delete the AWS root access key.
+- Owner follow-ups after the hackathon: key hygiene, tracked privately by the owner.

@@ -1,0 +1,88 @@
+{
+  "scenario_id": "S01-clean",
+  "planner": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "run_id": "run_23e35a381b2e",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": true,
+  "false_success_claim": false,
+  "crashed_and_resumed": false,
+  "duration_s": 51.457,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 28,
+        "written": 28,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 38,
+        "written": 38,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 116,
+        "written": 116,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 2,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 6,
+    "records_written": 182,
+    "retries": 0,
+    "backoff_seconds": 0.0,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 116,
+    "replans": 1,
+    "dry_run_repairs": 0,
+    "early_checks": 3,
+    "early_check_failures": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 2,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 3,
+    "cost_usd": 0.00774,
+    "wall_seconds": 50.609,
+    "resumed": false,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "8260934b3eed1dfe4f03cf1966a6510a",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 32
+    }
+  },
+  "failed_checks": [],
+  "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+  "git_commit": "d92588dee56f",
+  "experiment": {
+    "name": "refused-reference repair",
+    "guard": "off",
+    "plan": "seeded (not the model's): subscriptions v1 send the price id as plan_code",
+    "repairs": "real model",
+    "target_requests_by_status": {
+      "200": 32
+    }
+  }
+}

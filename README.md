@@ -17,7 +17,7 @@ page that maps each thing the rules ask for to a file, a run id or a trace.
 
 ![ZeroDrop dashboard during the chaos demo: rate-limit failures and recovery steps streaming](evidence/screenshots/01-s16-running.png)
 
-**Demo video (2:35):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)
+**Demo video (2:37):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)
 
 ## Why
 Every SaaS switch is a data migration, and migrations fail quietly: a batch dropped by a rate
@@ -61,14 +61,17 @@ prompt injection in the data.
 | `gemini-3.1-flash-lite`, pass 3 | `933a7a9` | 15 of 18 | 1, caught, fixed in `7b34f8c` |
 | `gemini-3.1-flash-lite`, pass 4 | `7b34f8c` | 10 of the 10 that ran before the daily quota ended | 0 |
 | **`gemini-3.5-flash-lite`, all 20 scenarios** | `1838455` | **20 of 20** | **0** |
-| **`gemini-3.5-flash-lite`, all 20 scenarios, final code** | `6c07c9f` | **20 of 20** | **0** |
+| **`gemini-3.5-flash-lite`, all 20 scenarios** | `6c07c9f` | **20 of 20** | **0** |
+| **`gemini-3.5-flash-lite`, all 20 scenarios, final code** | `d92588d` | **20 of 20** | **0** |
 
 The most useful results were the failures. Seven real-model runs ended with the engine
 believing SUCCESS while the verifier reported FAILED: five where the model gave every record
 the same id, two where it wrote yen amounts 100 times too large. **The independent verifier
 caught all seven.** Each of the three causes was then reproduced as a failing test and closed
-in the engine, so that mapping is now rejected before any write. One pass per commit: this
-shows what happened, not a failure rate. Per-run tables, root causes, the run the agent never
+in the engine, so that mapping is now rejected before any write. Since Oct 12 the engine also
+asks the independent verifier to re-read the first batch of every mapping, so a mistake the
+dry run cannot see stops after one batch and the agent reports FAILED itself. One pass per
+commit: this shows what happened, not a failure rate. Per-run tables, root causes, the run the agent never
 repaired, and limits: [`EVALUATION.md`](EVALUATION.md).
 
 When the agent's claim and the verifier disagree, the certificate says so. This is a real
@@ -91,13 +94,18 @@ uv run zerodrop run S16-demo-chaos --planner oracle   # one run in the terminal
 uv run zerodrop eval --planner oracle --label my-run  # all scenarios, results in evidence/eval/
 uv run pytest -q
 ```
-The oracle and naive planners need no keys and cost nothing. For the real model, copy
-`.env.example` to `.env` and set `ZERODROP_ANTHROPIC_KEY` (and `NEATLOGS_API_KEY` for traces),
-then use `--planner claude`. For Gemini as the planner model instead, set `ZERODROP_GEMINI_KEY`
-and use `--planner gemini`. Each run is capped in code: 30 model calls, $1.50, 15 minutes.
+The oracle and naive planners need no keys and cost nothing. For a real model, copy
+`.env.example` to `.env`, set `ZERODROP_GEMINI_KEY` (and `NEATLOGS_API_KEY` for traces) and
+use `--planner gemini`: that is what every recorded run used. `--planner claude` with
+`ZERODROP_ANTHROPIC_KEY` goes through the same interface but was never run (no credit).
+Each run is capped in code: 30 model calls, $1.50, 15 minutes.
 
 ## Sponsor tools
-**Neatlogs: the runtime record.** Each run is one trace. The root WORKFLOW span carries the
+**Neatlogs: the runtime record, and where incidents were raised and resolved.** Neatlogs'
+own investigation agent went through our traces and raised three incidents; the critical one
+("agent SUCCESS, evaluator FAILED") led to a code change and all three are resolved. Its AI
+also suggested a false-success detector from our traces, which is now on. The whole story with
+what it got right and wrong: [`EVIDENCE.md`](EVIDENCE.md), section 1. Each run is one trace. The root WORKFLOW span carries the
 verdict (verifier status, the agent's own claim, false-success flag, checks, report hash).
 Under it: AGENT spans for the planner and diagnoser, LLM spans from the wrapped model client
 (tokens, cost, latency), TOOL spans per batch write, lookup and model tool call (with input
@@ -109,7 +117,8 @@ of traces with compared numbers is in [`EVIDENCE.md`](EVIDENCE.md). Code:
 
 **Entire: the build record.** Coding sessions are captured as checkpoints stored in git
 (`refs/entire/checkpoints/*`) with secret and personal-data redaction configured in
-`.entire/settings.json`. A commit leads to the session that produced it. The **entire-graph**
+`.entire/settings.json`. There is one checkpoint, covering the first part of the build;
+later commits point to it. The **entire-graph**
 code graph is installed for coding agents (`.entire/graph-agent.md`) and was used to locate
 code and check the blast radius of a change before making it; saved output is in
 `evidence/entire/`.

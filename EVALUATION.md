@@ -120,6 +120,8 @@ The same suite, run again. Each row is one pass of 18 scenarios.
 | 4 | `gemini-3.1-flash-lite` | `7b34f8c` | 10 of the 10 that ran | 0 | 57 | $0.1203 | `20261011T181825Z-…-pass4-after-fix5` |
 | all 20, after fix 5 | `gemini-3.5-flash-lite` | `1838455` | **20 of 20** | 0 | 138 | $0.4570 | `20261011T182932Z-…-final-code` |
 | all 20, after fix 6 | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | 0 | 141 | $0.4650 | `20261011T184330Z-…-after-fix6` |
+| after fix 7, morning | `gemini-3.5-flash-lite` | `286c728` | 8 of the 8 that ran | 0 | 57 | $0.2140 | `20261012T032923Z-…-after-fix7-early-check` |
+| all 20, final code | `gemini-3.5-flash-lite` | `d92588d` | **20 of 20** | 0 | 133 | $0.4539 | `…-final-code-early-check` |
 
 Pass 4 stopped early: the free tier's daily quota ran out after ten scenarios. The remaining
 eight halted (most before their first model call), claimed FAILED themselves, and the verifier
@@ -197,7 +199,7 @@ found a new way.
   commit `6c07c9f` and record its parent, `1838455`; the last two record `a16cfa9` and ran on
   the tree that became the next commit.
 
-### The final code on a real model (Oct 12, 00:00 IST)
+### After fix 5 and fix 6 on a real model (Oct 12, 00:00 IST)
 All 20 scenarios, including the two large ones, on `gemini-3.5-flash-lite` at commit `1838455`
 (fixes 1 to 5): **20 of 20 matched, 0 false success claims**, 17 verified SUCCESS, 2
 PARTIAL_SUCCESS and 1 WAITING_FOR_APPROVAL as expected, 3 crash-and-resume runs, 138 model
@@ -210,6 +212,51 @@ false success claims**, 141 model calls, $0.465 at list price, median 18.5 s
 (`evidence/eval/*after-fix6.{json,md}`). Scripted regression at the same commit: 18 of 18
 (`*oracle-after-fix6-refused-reference.md`). Two passes in a row is still two passes, not a
 failure rate.
+
+### Improvement 7: the independent verifier re-reads the first batch (Oct 12, commit 286c728)
+- **Where it came from:** the critical incident Neatlogs raised on our traces, "False Success
+  Claims (Agent SUCCESS, Evaluator FAILED)". Its recommended action ended with "implement a
+  blocking pre-commit validation step that queries the evaluator before claiming success"
+  (`evidence/neatlogs/`).
+- **Gap it closes:** fixes 3, 4 and 5 reject three specific mapping mistakes in the dry run. A
+  fourth mistake the dry run cannot see would still write every record before the verifier
+  said FAILED.
+- **Fix (test first):** the verifier gains `spot_check`: the same field-by-field comparison as
+  `verify`, for the records of one batch. The engine writes one batch spread over the whole
+  entity (so it holds every currency and status, not only the oldest rows), asks the verifier
+  about exactly those records, and halts if they do not match the source. It asks again when a
+  mapping changes mid-run. The verifier still imports nothing from the engine, and its findings
+  go into the halt message, never to the planner.
+- **Before and after** (S01, scripted planner with a wrong time zone, early check off and on):
+  182 records written and a false success claim (`run_352df589b91d`), against 28 records
+  written and the agent reporting FAILED itself (`run_0c898a7e56b0`). Traces
+  `c2fce46175145a8e7473297151bf04da` and `35bb1a754af7df0c21393e7118cd203e`.
+- **No regression:** scripted suite 20 of 20 with the check on. Real model: 8 of the 8
+  scenarios that ran before the daily quota ended (24 early checks, none failed), then the
+  full pass below.
+- **Limit:** it checks one batch per mapping version. A mistake that only shows on a record
+  outside that batch is still caught only by the final verification.
+
+### From the repair-loop incident (Oct 12, commit d92588d)
+Neatlogs' third incident recommended tracking repeated identical contract violations and
+escalating to a person. Fix 6 already kept refused values from reaching the target twice and
+repairs were capped at three rounds; what was missing was the escalation. The halt now says
+what is still wrong (for example the field and value the target refused) and that a person
+has to correct the mapping.
+
+### Fix 6 on the model that originally failed (Oct 12, 13:35 IST)
+After the daily quota reset we ran the seeded-mapping check on `gemini-3.1-flash-lite`, the
+model that had repeated the refused values in pass 3. Guard off (`run_23e35a381b2e`) and guard
+on (`run_57842aa4fff0`): the model repaired the mapping at the first attempt both times and
+both runs were verified SUCCESS. So this still does not show the guard rescuing a run; it
+shows the model does not always make that mistake. Files:
+`evidence/experiments/repro-refused-reference-gemini-3.1-flash-lite-guard-{off,on}.json`.
+
+### The final code on a real model (Oct 12, 13:46 IST)
+All 20 scenarios on `gemini-3.5-flash-lite` at commit `d92588d` (fixes 1 to 7): **20 of 20
+matched, 0 false success claims**, 17 verified SUCCESS, 3 crash-and-resume runs, 133 model
+calls, $0.4539 at list price. `evidence/eval/*final-code-early-check.{json,md}`. With the two
+passes above, that is three full passes in a row.
 
 ### All real-model false successes
 | Cause | Seen in | Runs | Caught by verifier | Fix |
@@ -224,7 +271,7 @@ Seven in total, seven caught. No later run repeated a cause after its fix.
 One run per scenario, model and commit, on sandbox data. Only Gemini Flash-class models, chosen
 by which had free-tier quota left, so results are not comparable between models. The fixes
 close three specific mistakes; they do not show the model has no fourth. That is the reason
-the verifier is independent.
+the verifier is independent, and why the engine now asks it after the first batch (fix 7).
 
 ## Results: baseline, fix 1, fix 2 (oracle planner)
 Later scripted regressions, 18 scenarios each, all 18 of 18 with no false success: after fix 3
