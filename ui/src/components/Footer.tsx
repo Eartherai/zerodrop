@@ -40,7 +40,8 @@ export function Footer({ detail, mock }: { detail: RunDetail | null; mock: boole
         ) : null}
         <p className="max-w-[70ch] lg:ml-auto">
           LegacyBill and NovaBill are sandbox services built for this project. Their failures are injected from a seeded
-          plan the agent never sees.{mock ? " Mock mode: recorded runs bundled with the page." : ""}
+          plan the agent never sees.
+          {mock ? " This page replays recorded runs bundled with it; nothing here calls a model." : ""}
         </p>
       </div>
     </footer>

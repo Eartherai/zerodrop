@@ -39,7 +39,7 @@ export function Header(props: HeaderProps) {
           <p className="hidden text-sm text-muted md:block">The migration agent that proves nothing was lost</p>
           {mock ? (
             <span className="rounded border border-warning bg-warning-soft px-2 py-0.5 text-xs font-semibold text-warning">
-              Mock data
+              Recorded runs
             </span>
           ) : null}
         </div>

@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZeroDrop evidence</title>
+<style>
+:root { --bg: #f6f4ee; --fg: #17201c; --muted: #5d6a63; --line: #d8d3c4; --panel: #fffdf7; --accent: #1f6f5c; --bad: #b3261e; }
+@media (prefers-color-scheme: dark) { :root { --bg: #10161a; --fg: #e8ecea; --muted: #9aa8a1; --line: #2a343a; --panel: #161e23; --accent: #5fd0b0; --bad: #ff8a80; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 "IBM Plex Sans", system-ui, sans-serif; }
+header, main { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+header { padding-top: 28px; }
+nav { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 15px; }
+a { color: var(--accent); }
+h1 { font-size: 34px; line-height: 1.15; margin: 18px 0 6px; }
+h2 { font-size: 24px; margin: 44px 0 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.lede { color: var(--muted); max-width: 70ch; }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 24px 0 8px; }
+figure { margin: 0; background: var(--panel); border: 1px solid var(--line); }
+figure img { display: block; width: 100%; height: 220px; object-fit: cover; object-position: top; background: #fff; }
+figcaption { padding: 10px 12px; font-size: 14px; }
+video { width: 100%; max-width: 860px; display: block; margin: 12px 0; background: #000; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; margin: 14px 0; background: var(--panel); }
+th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+th { font-weight: 600; }
+code { font: 13px/1.4 "IBM Plex Mono", ui-monospace, monospace; background: color-mix(in srgb, var(--line) 45%, transparent); padding: 1px 4px; overflow-wrap: anywhere; }
+footer { max-width: 1040px; margin: 48px auto 40px; padding: 0 16px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+<nav><a href="/zerodrop/">Dashboard (replay of real runs)</a><a href="/zerodrop/evidence/">Evidence</a><a href="/zerodrop/video/zerodrop-demo.mp4">Demo video</a><a href="https://github.com/Eartherai/zerodrop">Repository</a><a href="https://cfo.ai/s/VyrSUZBAxHyXEJfC">cfo.ai plan</a></nav>
+<h1>ZeroDrop: evidence</h1>
+<p class="lede">The migration agent that proves nothing was lost. This page is <a href="https://github.com/Eartherai/zerodrop/blob/main/EVIDENCE.md">EVIDENCE.md</a> from the repository, with the key Neatlogs captures on top. Every number comes from a saved result file.</p>
+<video controls preload="metadata" src="/zerodrop/video/zerodrop-demo.mp4"></video>
+<div class="shots">
+<figure><a href="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/20-neatlogs-incidents-board-three-raised.png"><img loading="lazy" src="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/20-neatlogs-incidents-board-three-raised.png" alt="Neatlogs raised three incidents from our traces"></a><figcaption>Neatlogs raised three incidents from our traces</figcaption></figure>
+<figure><a href="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/21-neatlogs-incident-false-success-resolved-full-report.png"><img loading="lazy" src="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/21-neatlogs-incident-false-success-resolved-full-report.png" alt="The critical incident: root cause, evidence, recommended action"></a><figcaption>The critical incident: root cause, evidence, recommended action</figcaption></figure>
+<figure><a href="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/18-neatlogs-before-false-success-flagged.png"><img loading="lazy" src="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/18-neatlogs-before-false-success-flagged.png" alt="Before: 182 records written, false success claim true"></a><figcaption>Before: 182 records written, false success claim true</figcaption></figure>
+<figure><a href="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/19-neatlogs-after-early-check-stops-the-run.png"><img loading="lazy" src="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/19-neatlogs-after-early-check-stops-the-run.png" alt="After: the early check stops the run at 28 records"></a><figcaption>After: the early check stops the run at 28 records</figcaption></figure>
+<figure><a href="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/23-neatlogs-false-success-detector-flagged-spans.png"><img loading="lazy" src="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/23-neatlogs-false-success-detector-flagged-spans.png" alt="The detector Neatlogs AI suggested, flagging real-model runs"></a><figcaption>The detector Neatlogs AI suggested, flagging real-model runs</figcaption></figure>
+<figure><a href="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/22-neatlogs-incidents-board-three-resolved.png"><img loading="lazy" src="https://raw.githubusercontent.com/Eartherai/zerodrop/main/evidence/screenshots/22-neatlogs-incidents-board-three-resolved.png" alt="All three incidents resolved"></a><figcaption>All three incidents resolved</figcaption></figure>
+</div>
+</header>
+<main>
+
+<p>One page that maps what the neatHack rules ask for to a file, a run id or a trace in this
+repository. Every number here is copied from a saved result file; nothing is estimated.
+Where something is missing or weak, it says so.</p>
+<p>Trace links have the form <code>https://app.neatlogs.com/traces/&lt;trace id&gt;</code>. They open for members
+of the Neatlogs project, so each one also has a screenshot in <code>evidence/screenshots/</code>
+(index: <a href="https://github.com/Eartherai/zerodrop/blob/main/evidence/screenshots/README.md"><code>evidence/screenshots/README.md</code></a>).</p>
+<h2>1. Neatlogs incidents: identified and resolved</h2>
+<p>The organisers asked every team to show how Neatlogs&#39; Incidents feature helped identify and
+resolve the incidents their agent ran into. This is what happened, in order, with the parts
+that do not flatter us left in.</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>When (IST)</th>
+<th>What</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Oct 10 to 11</td>
+<td>The agent ran into real failures. We found and fixed them from the independent verifier&#39;s reports and the traces, before anything was on the Incidents board</td>
+<td><code>EVALUATION.md</code>, fixes 1 to 6</td>
+</tr>
+<tr>
+<td>Oct 11</td>
+<td>Neatlogs AI, on its own, suggested four detections from our traces. One is a &quot;False Success Claim Detector&quot;: &quot;Detects instances where the agent claims the migration was successful, but the actual status is FAILED&quot;</td>
+<td>screenshots <code>24</code>, <code>25</code></td>
+</tr>
+<tr>
+<td>Oct 12, 08:42</td>
+<td>We asked Neatlogs&#39; Investigate agent to go through every <code>zerodrop-migration</code> trace. It reported three issues and raised them as incidents: false success claims (Critical), halted runs and model-provider errors (High), runs repeating <code>recovery.CONTRACT</code> (High)</td>
+<td><code>evidence/neatlogs/investigation-report.md</code>, screenshots <code>20</code>, <code>27</code></td>
+</tr>
+<tr>
+<td>Oct 12, 08:49</td>
+<td>Each incident&#39;s own investigation produced a root cause, evidence and a recommended action</td>
+<td>screenshot <code>21</code>, <code>evidence/neatlogs/incident-false-success-fix-prompt.md</code></td>
+</tr>
+<tr>
+<td>Oct 12, 08:58</td>
+<td><strong>Fix 7, from the critical incident&#39;s recommended action</strong> (commit <code>286c728</code>): after the first batch of each mapping the independent verifier re-reads those records, and the run stops if they do not match</td>
+<td>before and after traces below</td>
+</tr>
+<tr>
+<td>Oct 12, 09:02</td>
+<td><strong>From the repair-loop incident</strong> (commit <code>d92588d</code>): a run that cannot be repaired now halts naming the field and value the target refused, for a person to act on</td>
+<td><code>tests/test_engine.py::test_a_run_that_cannot_be_repaired_halts_saying_what_the_target_refused</code></td>
+</tr>
+<tr>
+<td>Oct 12</td>
+<td>The suggested detections were switched on. The false-success detector flagged six spans: today&#39;s control run and four real-model runs from Oct 11</td>
+<td>screenshot <code>23</code></td>
+</tr>
+<tr>
+<td>Oct 12</td>
+<td>All three incidents moved Raised → Investigated → Resolved</td>
+<td>screenshots <code>22</code>, <code>28</code>, <code>29</code></td>
+</tr>
+</tbody></table></div>
+<p><strong>The critical incident, before and after the fix it led to.</strong> Same scenario (S01), same flawed
+plan (a scripted planner that reads dates in the wrong time zone, a mistake the dry run cannot
+see), commit <code>286c728</code>, early check off and on.</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Run</td>
+<td><code>run_352df589b91d</code></td>
+<td><code>run_0c898a7e56b0</code></td>
+</tr>
+<tr>
+<td>Records written before anyone noticed</td>
+<td>182 (all of them)</td>
+<td>28 (one batch of customers)</td>
+</tr>
+<tr>
+<td>What the agent said</td>
+<td>SUCCESS</td>
+<td>FAILED</td>
+</tr>
+<tr>
+<td>What the independent verifier said</td>
+<td>FAILED</td>
+<td>FAILED</td>
+</tr>
+<tr>
+<td>False success claim</td>
+<td><strong>true</strong></td>
+<td><strong>false</strong></td>
+</tr>
+<tr>
+<td>Neatlogs trace</td>
+<td><code>c2fce46175145a8e7473297151bf04da</code></td>
+<td><code>35bb1a754af7df0c21393e7118cd203e</code></td>
+</tr>
+<tr>
+<td>Screenshot</td>
+<td><code>18-neatlogs-before-false-success-flagged.png</code></td>
+<td><code>19-neatlogs-after-early-check-stops-the-run.png</code></td>
+</tr>
+<tr>
+<td>Result file</td>
+<td><code>evidence/experiments/early-check-off-naive-S01.json</code></td>
+<td><code>evidence/experiments/early-check-on-naive-S01.json</code></td>
+</tr>
+</tbody></table></div>
+<p>The run still fails, as it should with a wrong plan. What changed is that the agent stops after
+one batch and says so itself, instead of writing everything and claiming success.</p>
+<p><strong>What Neatlogs got right and wrong</strong> (full notes in <code>evidence/neatlogs/investigation-report.md</code>):</p>
+<ul>
+<li>Right: the five evidence traces on the critical incident are exactly our recorded real-model
+false successes, covering all three causes. Its count of ten comes from a search for
+&quot;False Success Claim: true&quot;.</li>
+<li>We did not take its first recommendation (move the verifier&#39;s checks into the agent&#39;s dry
+run): that would end the verifier&#39;s independence. We took its fourth step, a blocking check
+that asks the evaluator.</li>
+<li>Wrong: the follow-up investigation cites three healthy runs as examples, and the repair-loop
+incident&#39;s evidence traces are successful one-replan recoveries. The run that really looped
+is trace <code>a5b9ad484e4fac9e428f5eb00ba46088</code>.</li>
+<li>Honest timing: fixes 1 to 6 were made before the board had an incident on it. Fix 7 and the
+halt message are the two changes that came from the incidents.</li>
+</ul>
+<h2>2. Before and after, with compared numbers (more pairs)</h2>
+<p>Same scenario (S02, 1,901 records, no injected faults), same model (<code>gemini-3.1-flash-lite</code>),
+before and after fix 3: the dry run rejects a mapping that gives different source records the
+same identity (commit <code>251cdd4</code>).</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Commit</td>
+<td><code>78d92da</code></td>
+<td><code>251cdd4</code></td>
+</tr>
+<tr>
+<td>Run</td>
+<td><code>run_5d0171f3cddf</code></td>
+<td><code>run_0a92f29d3a45</code></td>
+</tr>
+<tr>
+<td>What the agent believed</td>
+<td>SUCCESS</td>
+<td>SUCCESS</td>
+</tr>
+<tr>
+<td>What the independent verifier found</td>
+<td><strong>FAILED</strong></td>
+<td><strong>SUCCESS</strong></td>
+</tr>
+<tr>
+<td>Verifier checks failed</td>
+<td>10 of 24</td>
+<td>0 of 24</td>
+</tr>
+<tr>
+<td>Writes the target treated as a record it already had</td>
+<td>1,898 of 1,901</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Model calls</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Neatlogs trace</td>
+<td><code>75f5abadcc7c45344ee5639e556c2621</code></td>
+<td><code>229e14d548b58ab6938fc70ec4009b34</code></td>
+</tr>
+<tr>
+<td>Screenshot</td>
+<td><code>14-before-trace-s02-false-success.png</code></td>
+<td><code>15-after-trace-s02-verified.png</code></td>
+</tr>
+<tr>
+<td>Result file</td>
+<td><code>evidence/runs/S02-clean-demo-size-gemini-3.1-flash-lite-before-identity-guard.json</code></td>
+<td><code>evidence/runs/S02-clean-demo-size-gemini-3.1-flash-lite.json</code></td>
+</tr>
+</tbody></table></div>
+<p>The before run also took longer (66.7 s against 11.1 s) and cost more ($0.0109 against
+$0.0078 at list price). That gap is not the fix: the before run includes a model call that hit
+a rate limit and was retried.</p>
+<p>Two more pairs from later passes on the same model, both a yen amount written 100 times too
+large:</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Fix</th>
+<th>Scenario</th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Contradictory decimal parameters are an error (<code>933a7a9</code>)</td>
+<td>S16, everything goes wrong</td>
+<td><code>run_14ded6031abe</code>: agent SUCCESS, verifier FAILED, JPY total 1,205,966,500 instead of 12,059,665. Trace <code>874c2d43e3b1995e85980d50264aed3f</code></td>
+<td><code>run_e5294505e55c</code>: verified SUCCESS. Trace <code>f062910ba90fe51c92e716b566606abd</code></td>
+</tr>
+<tr>
+<td>Fixed decimals must fit the record&#39;s currency (<code>7b34f8c</code>)</td>
+<td>S03, rate-limit storm</td>
+<td><code>run_acc170ca8785</code>: agent SUCCESS, verifier FAILED, JPY total 328,713,000 instead of 3,287,130. Trace <code>81e79b05a4b1b6f2c15dbd833823ef1f</code></td>
+<td><code>run_30e7764a777f</code>: verified SUCCESS. Trace <code>03b05b42cf288529acd3ad3809141357</code></td>
+</tr>
+</tbody></table></div>
+<p>All seven fixes with root cause and regression test: <a href="https://github.com/Eartherai/zerodrop/blob/main/EVALUATION.md"><code>EVALUATION.md</code></a>.</p>
+<h2>3. A failure-recovery run</h2>
+<p>S16, &quot;everything goes wrong&quot;, planned by <code>gemini-3.6-flash</code>: <code>run_aa73127580bb</code>, commit
+<code>d656f98</code>, trace <code>0652c95c208d53311eecccf73fe1cae0</code>.</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>What went wrong during the run</th>
+<th>What the agent did</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Target answered 429 with <code>Retry-After</code></td>
+<td>Waited what the server asked, then retried</td>
+<td>4 retries, 2.0 s waited</td>
+</tr>
+<tr>
+<td>A write timed out after the target had committed it</td>
+<td>Looked the records up before sending anything again</td>
+<td>1 ambiguous write, 50 lookups, 50 found, 0 duplicates</td>
+</tr>
+<tr>
+<td>Target API changed from v1 to v2 mid-run</td>
+<td>The model diagnosed the change and rewrote two mappings</td>
+<td>1 replan; subscriptions and invoices moved to mapping version 2</td>
+</tr>
+</tbody></table></div>
+<p>Result: 1,901 of 1,901 records written, verifier SUCCESS, 12 model calls, $0.082 at list
+price, 145 s. File: <code>evidence/runs/S16-demo-chaos-gemini-3.6-flash.json</code>. Screenshots:
+<code>10-neatlogs-trace-s16-gemini.png</code> (trace), <code>03-s16-finished-full.png</code> and
+<code>04-s16-certificate.png</code> (dashboard). The demo video replays this run.</p>
+<p>Crash and resume (the process is killed mid-run and restarted from the ledger) is covered by
+S09, S10 and S20; each evaluation file reports its <code>crash_resumes</code> count.</p>
+<h2>4. Neatlogs tracing</h2>
+<p>Rules: traces &quot;should capture model and tool calls, state changes, retries, failures,
+latency, token usage, and cost&quot;.</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Asked for</th>
+<th>Where it is in a ZeroDrop trace</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Model calls, tokens, cost, latency</td>
+<td>LLM spans from the wrapped model client, under AGENT spans for the planner and the diagnoser</td>
+<td><code>src/zerodrop/agent/</code></td>
+</tr>
+<tr>
+<td>Tool calls</td>
+<td>TOOL spans for schema discovery, every batch write (<code>novabill.batch_write</code>, with attempt number), every lookup, and every tool the model calls, with its input and result</td>
+<td><code>src/zerodrop/engine.py</code>, <code>src/zerodrop/agent/llm.py</code></td>
+</tr>
+<tr>
+<td>State changes</td>
+<td>One <code>state.&lt;STATUS&gt;</code> span per run status change, with <code>from_state</code> and <code>to_state</code></td>
+<td><code>MigrationEngine._set_status</code></td>
+</tr>
+<tr>
+<td>Retries and failures</td>
+<td>One <code>recovery.&lt;class&gt;</code> span per failure handled: transient (wait and retry), ambiguous write (look up first), contract change (replan), bad data (quarantine), auth, budget (halt)</td>
+<td><code>src/zerodrop/engine.py</code></td>
+</tr>
+<tr>
+<td>The gates before and during writing</td>
+<td>GUARDRAIL spans: one per dry run (<code>dry-run.&lt;entity&gt;</code>) and one per early check (<code>early-check.&lt;entity&gt;</code>), each with what was checked, passed or not, a score, and the reason when it blocks</td>
+<td><code>MigrationEngine._guarded_dry_run</code>, <code>_check_early</code></td>
+</tr>
+<tr>
+<td>The verdict</td>
+<td>Root WORKFLOW span: verifier status, the agent&#39;s own claim, false-success flag, checks failed, report hash. EVALUATOR span for the verifier with its input, verdict and a score</td>
+<td><code>MigrationEngine._finish</code>, <code>_verify</code></td>
+</tr>
+</tbody></table></div>
+<p>Every run stores its trace id in the ledger; the dashboard links to it. Layer:
+<code>src/zerodrop/telemetry.py</code>. What Neatlogs itself showed for the project on the morning of
+Oct 12: 225 traces in seven days, a 28.4% trace error rate and $2.56 of measured model spend.
+The error rate counts runs with any errored span, and our scenarios inject faults on purpose,
+so it is not the agent&#39;s failure rate.</p>
+<h2>5. Entire: checkpoints and entire-graph</h2>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Checkpoint</td>
+<td>ID <code>01M4KEGN3Q174N063453HK5XC6</code>, git ref <code>refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6</code>, pushed with the repo. There is one checkpoint; it covers the first part of the build session. Commits made after it carry an <code>Entire-Checkpoint</code> trailer that points to it</td>
+</tr>
+<tr>
+<td>Redaction</td>
+<td>Secret and personal-data redaction configured in <code>.entire/settings.json</code></td>
+</tr>
+<tr>
+<td>entire-graph installed</td>
+<td>Plugin v0.4.0; index of the repo; agent guide in <code>.entire/graph-agent.md</code>, loaded by <code>CLAUDE.md</code> and <code>AGENTS.md</code></td>
+</tr>
+<tr>
+<td>entire-graph used before a change</td>
+<td>Before making state changes visible in the trace: <code>entire graph search</code> located <code>_set_status</code> (<code>evidence/entire/search-state-changes.txt</code>) and <code>entire graph impact</code> listed its 17 callers (<code>evidence/entire/impact-set-status.txt</code>). The change is commit <code>1838455</code></td>
+</tr>
+<tr>
+<td>entire-graph on commits</td>
+<td>Entity-level change lists for fix 5 (<code>commit-7b34f8c-…</code>), fix 6 (<code>commit-6c07c9f-…</code>), the guardrail and evaluator spans (<code>commit-0ae1d2b-…</code>) and fix 7 (<code>commit-286c728-…</code>) in <code>evidence/entire/</code></td>
+</tr>
+<tr>
+<td>entire-graph on the riskiest function</td>
+<td><code>evidence/entire/impact-check-mapping.txt</code>: the blast radius of the dry run, where four of the fixes live</td>
+</tr>
+</tbody></table></div>
+<p>Weak point, stated plainly: one checkpoint, covering the setup part of the session, not the
+whole build.</p>
+<h2>6. cfo.ai: pricing, costs, revenue, runway</h2>
+<p>Built in cfo.ai from <a href="https://github.com/Eartherai/zerodrop/blob/main/BUSINESS.md"><code>BUSINESS.md</code></a>; screenshot <code>08-cfo-ai-monthly-forecast.png</code>.</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>cfo.ai base case</th>
+<th>cfo.ai with growth halved to 10% a month</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Price</td>
+<td>$499 per verified migration; failed runs are not billed</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Cost to deliver one</td>
+<td>$36.77 (92.6% margin)</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Break-even month</td>
+<td>March 2027</td>
+<td>March 2027, by only $215</td>
+</tr>
+<tr>
+<td>Lowest cash balance (from $60,000)</td>
+<td>$35,861</td>
+<td>$35,213</td>
+</tr>
+<tr>
+<td>Cash at month 24</td>
+<td>$1.88M</td>
+<td>$587K</td>
+</tr>
+</tbody></table></div>
+<p><code>BUSINESS.md</code> has the six scenarios cfo.ai computed and where its agent pushed back on the
+plan (growth rate, flat fixed costs, failed runs not costed), kept in.</p>
+<h2>7. Does the agent work: every evaluation, including the bad ones</h2>
+<p>&quot;Matched&quot; means the independent verifier&#39;s result equals the outcome that scenario should
+have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL).</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Evaluation</th>
+<th>Planner</th>
+<th>Commit</th>
+<th>Matched</th>
+<th>False success claims</th>
+<th>Model calls</th>
+<th>Cost (list)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Baseline</td>
+<td>scripted</td>
+<td><code>c4766e2</code></td>
+<td>19 of 20</td>
+<td>0</td>
+<td>0</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>After fix 1 (rate-limit waits)</td>
+<td>scripted</td>
+<td><code>8c0a017</code></td>
+<td>20 of 20</td>
+<td>0</td>
+<td>0</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>After fix 2 (<code>Retry-After</code>)</td>
+<td>scripted</td>
+<td><code>574aa2b</code></td>
+<td>20 of 20</td>
+<td>0</td>
+<td>0</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>Per-scenario real-model runs</td>
+<td>5 Gemini Flash models</td>
+<td>four commits, <code>d656f98</code> to <code>251cdd4</code></td>
+<td>20 of 28 runs, all 20 scenarios</td>
+<td>5 (all before fix 3)</td>
+<td>176</td>
+<td>$0.91</td>
+</tr>
+<tr>
+<td>Pass 1</td>
+<td><code>gemini-3.1-flash-lite</code></td>
+<td><code>f858712</code></td>
+<td>18 of 18</td>
+<td>0</td>
+<td>111</td>
+<td>$0.2233</td>
+</tr>
+<tr>
+<td>Pass 2</td>
+<td><code>gemini-3.1-flash-lite</code></td>
+<td><code>e65cc45</code></td>
+<td>17 of 18</td>
+<td>1 (led to fix 4)</td>
+<td>117</td>
+<td>$0.2472</td>
+</tr>
+<tr>
+<td>Second model</td>
+<td><code>gemini-3.5-flash-lite</code></td>
+<td><code>e65cc45</code></td>
+<td>18 of 18</td>
+<td>0</td>
+<td>119</td>
+<td>$0.4186</td>
+</tr>
+<tr>
+<td>Pass 3</td>
+<td><code>gemini-3.1-flash-lite</code></td>
+<td><code>933a7a9</code></td>
+<td>15 of 18</td>
+<td>1 (led to fix 5)</td>
+<td>108</td>
+<td>$0.2278</td>
+</tr>
+<tr>
+<td>Pass 4</td>
+<td><code>gemini-3.1-flash-lite</code></td>
+<td><code>7b34f8c</code></td>
+<td>10 of the 10 that ran</td>
+<td>0</td>
+<td>57</td>
+<td>$0.1203</td>
+</tr>
+<tr>
+<td>All 20 scenarios, after fix 5</td>
+<td><code>gemini-3.5-flash-lite</code></td>
+<td><code>1838455</code></td>
+<td><strong>20 of 20</strong></td>
+<td><strong>0</strong></td>
+<td>138</td>
+<td>$0.4570</td>
+</tr>
+<tr>
+<td>All 20 scenarios, after fix 6</td>
+<td><code>gemini-3.5-flash-lite</code></td>
+<td><code>6c07c9f</code></td>
+<td><strong>20 of 20</strong></td>
+<td><strong>0</strong></td>
+<td>141</td>
+<td>$0.4650</td>
+</tr>
+<tr>
+<td>After fix 7, morning</td>
+<td><code>gemini-3.5-flash-lite</code></td>
+<td><code>286c728</code></td>
+<td>8 of the 8 that ran</td>
+<td>0</td>
+<td>57</td>
+<td>$0.2140</td>
+</tr>
+<tr>
+<td><strong>All 20 scenarios, final code</strong></td>
+<td><code>gemini-3.5-flash-lite</code></td>
+<td><code>d92588d</code></td>
+<td><strong>20 of 20</strong></td>
+<td><strong>0</strong></td>
+<td>133</td>
+<td>$0.4539</td>
+</tr>
+<tr>
+<td>Scripted regression after fixes 3 to 7</td>
+<td>scripted</td>
+<td><code>251cdd4</code>, <code>933a7a9</code>, <code>7b34f8c</code>, <code>6c07c9f</code>, <code>286c728</code></td>
+<td>all matched each time</td>
+<td>0</td>
+<td>0</td>
+<td>$0</td>
+</tr>
+</tbody></table></div>
+<p>Reading it honestly:</p>
+<ul>
+<li>Seven real false success claims in total. The verifier caught all seven. Each of the three
+causes was fixed test first, and no later run repeated a fixed cause.</li>
+<li>Three full passes of all 20 scenarios in a row matched with no false success, the last one
+on the final code.</li>
+<li>Pass 3 also had one run the model never repaired (S12) and one halted by a provider 503.
+Both led to changes (fix 6, the 503 retry). When we later seeded the same wrong mapping and
+let real models repair it, both <code>gemini-3.5-flash-lite</code> and <code>gemini-3.1-flash-lite</code> repaired
+it at the first attempt with the guard off and on (<code>evidence/experiments/</code>), so fix 6 is
+shown harmless and seen working inside one repair conversation, but not shown rescuing a run.</li>
+<li>Pass 4 and the morning pass after fix 7 were cut short when the free tier&#39;s daily quota ran
+out. Scenarios that never reached the model are counted as not run.</li>
+<li>One pass per commit. This shows what happened, not a failure rate.</li>
+<li>All real-model runs used Gemini Flash models on the free tier (nothing was charged). No
+Claude run exists: the Anthropic account had no credit during the hackathon.</li>
+</ul>
+<p>Real-model cost of every saved run: $3.80 at list price, $0 charged (free tier).</p>
+<p>Files: <code>evidence/eval/</code> (one JSON and one Markdown per evaluation), <code>evidence/runs/</code> (one
+JSON per single run), <code>evidence/experiments/</code>. Reproduce the scripted ones with no keys:
+<code>uv run zerodrop eval --planner oracle --label my-run</code>.</p>
+<h2>8. Built during the hackathon, in public</h2>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Commit dates</td>
+<td>First commit <code>104ff06</code> on Oct 10, 15:38 IST, after the window opened at 12:30 IST. More than 60 commits since (<code>git log</code>), one per task. History never rewritten or force-pushed</td>
+</tr>
+<tr>
+<td>Build log</td>
+<td><a href="https://github.com/Eartherai/zerodrop/blob/main/hackathon.md"><code>hackathon.md</code></a>: dated entries, including what failed</td>
+</tr>
+<tr>
+<td>Posts</td>
+<td>Drafts in <code>posts/</code>; links to the posted versions are in <code>SUBMISSION_CHECKLIST.md</code> once posted</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>780 Python tests and 61 UI tests; <code>uv run pytest -q</code></td>
+</tr>
+<tr>
+<td>Run it yourself</td>
+<td><code>docker compose up --build</code>, then <a href="http://127.0.0.1:8700">http://127.0.0.1:8700</a> and start &quot;Demo - everything goes wrong&quot;. No keys needed</td>
+</tr>
+</tbody></table></div>
+
+
+</main>
+<footer>Built during neatHack 2026 by team Tokenmaxing. Source: <a href="https://github.com/Eartherai/zerodrop">https://github.com/Eartherai/zerodrop</a></footer>
+</body>
+</html>

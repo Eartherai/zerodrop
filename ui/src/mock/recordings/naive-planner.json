@@ -1,7 +1,7 @@
 {
  "scenario": {
   "id": "naive-planner",
-  "title": "False-success trap (naive mapping)",
+  "title": "False-success trap (naive mapping) (scripted planner, Oct 10; this mapping is now rejected before any write)",
   "description": "A deliberately naive planner treats JPY like a 2-decimal currency. The engine believes it succeeded; the independent verifier catches the money mismatch. Small dataset."
  },
  "fault_plan": {

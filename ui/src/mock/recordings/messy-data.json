@@ -1,7 +1,7 @@
 {
  "scenario": {
   "id": "messy-data",
-  "title": "Messy data: orphans, duplicate e-mails",
+  "title": "Messy data: orphans, duplicate e-mails (scripted planner, Oct 10)",
   "description": "Orphan invoices and customers whose e-mails collide after lower-casing. The agent must quarantine them with reasons instead of failing or silently dropping. Small dataset."
  },
  "fault_plan": {

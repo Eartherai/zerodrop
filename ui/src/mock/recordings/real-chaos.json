@@ -1,0 +1,2893 @@
+{
+ "scenario": {
+  "id": "real-chaos",
+  "title": "Everything goes wrong (real run, Gemini, final code)",
+  "description": "A real run planned by gemini-3.5-flash-lite at the final code: rate limits, a timeout after a write that landed, and the target API changing version mid-run. The independent verifier re-reads the first batch of each mapping, then everything at the end."
+ },
+ "fault_plan": {
+  "seed": 0,
+  "rules": [],
+  "note": "recorded run; the fault plan is in scenarios/scenarios.yaml"
+ },
+ "summary": {
+  "run_id": "run_72af2fe2270f",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "goal": "Move all customers, subscriptions and invoices from LegacyBill to NovaBill. Do not lose, duplicate or alter any record; skip records the legacy system marks as deleted.",
+  "scenario_id": "real-chaos",
+  "counts": {
+   "customers": {
+    "total": 292,
+    "written": 292,
+    "quarantined": 0,
+    "pending": 0
+   },
+   "subscriptions": {
+    "total": 383,
+    "written": 383,
+    "quarantined": 0,
+    "pending": 0
+   },
+   "invoices": {
+    "total": 1226,
+    "written": 1226,
+    "quarantined": 0,
+    "pending": 0
+   }
+  },
+  "mapping_versions": {
+   "customers": 1,
+   "subscriptions": 2,
+   "invoices": 2
+  },
+  "llm": {
+   "calls": 8,
+   "cost_usd": 0.03260827
+  },
+  "error": null,
+  "planner": {
+   "kind": "model",
+   "name": "gemini-3.5-flash-lite"
+  },
+  "trace_id": "ca27455b29c859e29ffc382c5e35a31e",
+  "trace_url": "https://app.neatlogs.com/traces/ca27455b29c859e29ffc382c5e35a31e",
+  "commit": null,
+  "created_at": 1791792761.295769
+ },
+ "events": [
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 1,
+   "ts": 1791792761.295769,
+   "kind": "state",
+   "message": "run created: Move all customers, subscriptions and invoices from LegacyBill to NovaBill. Do not lose, duplicate or alter any record; skip records the legacy system marks as deleted.",
+   "state": "CREATED",
+   "entity": null,
+   "data": {
+    "scenario": "S16-demo-chaos"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 2,
+   "ts": 1791792761.296098,
+   "kind": "info",
+   "message": "planner: gemini-3.5-flash-lite (model)",
+   "state": "CREATED",
+   "entity": null,
+   "data": {
+    "planner_kind": "model",
+    "planner_name": "gemini-3.5-flash-lite"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 3,
+   "ts": 1791792761.296179,
+   "kind": "info",
+   "message": "neatlogs trace ca27455b29c859e29ffc382c5e35a31e",
+   "state": "CREATED",
+   "entity": null,
+   "data": {
+    "neatlogs_trace_id": "ca27455b29c859e29ffc382c5e35a31e"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 4,
+   "ts": 1791792761.296253,
+   "kind": "state",
+   "message": "CREATED -> DISCOVERING",
+   "state": "DISCOVERING",
+   "entity": null,
+   "data": {
+    "previous": "CREATED"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 5,
+   "ts": 1791792761.315365,
+   "kind": "info",
+   "message": "discovered 1909 source records; target API v1",
+   "state": "DISCOVERING",
+   "entity": null,
+   "data": {
+    "counts_reported": {
+     "customers": 300,
+     "invoices": 1226,
+     "subscriptions": 383
+    },
+    "records_loaded": {
+     "customers": 300,
+     "invoices": 1226,
+     "subscriptions": 383
+    },
+    "target_api_version": "v1",
+    "timezone": "Asia/Kolkata"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 6,
+   "ts": 1791792761.315474,
+   "kind": "state",
+   "message": "DISCOVERING -> PLANNING",
+   "state": "PLANNING",
+   "entity": null,
+   "data": {
+    "previous": "DISCOVERING"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 7,
+   "ts": 1791792777.8041012,
+   "kind": "llm",
+   "message": "plan: 5 LLM calls so far ($0.0209)",
+   "state": "PLANNING",
+   "entity": null,
+   "data": {
+    "calls": 5,
+    "cost_usd": 0.020929870000000003
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 8,
+   "ts": 1791792777.8049622,
+   "kind": "plan",
+   "message": "plan: customers -> subscriptions -> invoices",
+   "state": "PLANNING",
+   "entity": null,
+   "data": {
+    "entity_order": [
+     "customers",
+     "subscriptions",
+     "invoices"
+    ],
+    "mappings": {
+     "customers": {
+      "exclude_if": [
+       {
+        "equals": true,
+        "field": "deleted"
+       }
+      ],
+      "fields": [
+       "external_id",
+       "given_name",
+       "family_name",
+       "email",
+       "country",
+       "status",
+       "created_at",
+       "notes"
+      ],
+      "rationale": "Migrate customers from LegacyBill, excluding soft-deleted records.",
+      "target_api_version": "v1",
+      "version": 1
+     },
+     "invoices": {
+      "exclude_if": [],
+      "fields": [
+       "external_id",
+       "customer_id",
+       "subscription_id",
+       "amount_minor",
+       "currency",
+       "issued_at",
+       "status"
+      ],
+      "rationale": "Migrate invoices referencing customers and subscriptions.",
+      "target_api_version": "v1",
+      "version": 1
+     },
+     "subscriptions": {
+      "exclude_if": [],
+      "fields": [
+       "external_id",
+       "customer_id",
+       "plan_code",
+       "status",
+       "start_at",
+       "quantity"
+      ],
+      "rationale": "Migrate subscriptions referencing customers.",
+      "target_api_version": "v1",
+      "version": 1
+     }
+    },
+    "notes": "Successfully created and dry-run tested all mapping specs for customers, subscriptions, and invoices. Soft-deleted customers are excluded. Timezones and currency minor units are correctly handled."
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 9,
+   "ts": 1791792777.805147,
+   "kind": "state",
+   "message": "PLANNING -> DRY_RUN",
+   "state": "DRY_RUN",
+   "entity": null,
+   "data": {
+    "previous": "PLANNING"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 10,
+   "ts": 1791792777.820364,
+   "kind": "decision",
+   "message": "dry run customers v1 on v1: 196/196 samples valid",
+   "state": "DRY_RUN",
+   "entity": "customers",
+   "data": {
+    "checked": 196,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 4,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 1,
+    "ok": true,
+    "passed": 196,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 11,
+   "ts": 1791792777.830643,
+   "kind": "decision",
+   "message": "dry run subscriptions v1 on v1: 200/200 samples valid",
+   "state": "DRY_RUN",
+   "entity": "subscriptions",
+   "data": {
+    "checked": 200,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 1,
+    "ok": true,
+    "passed": 200,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 12,
+   "ts": 1791792777.8414452,
+   "kind": "decision",
+   "message": "dry run invoices v1 on v1: 200/200 samples valid",
+   "state": "DRY_RUN",
+   "entity": "invoices",
+   "data": {
+    "checked": 200,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 1,
+    "ok": true,
+    "passed": 200,
+    "systematic_codes": [],
+    "target_api_version": "v1"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 13,
+   "ts": 1791792777.8415842,
+   "kind": "state",
+   "message": "DRY_RUN -> EXECUTING",
+   "state": "EXECUTING",
+   "entity": null,
+   "data": {
+    "previous": "DRY_RUN"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 14,
+   "ts": 1791792777.846548,
+   "kind": "batch",
+   "message": "customers batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 15,
+   "ts": 1791792777.854495,
+   "kind": "decision",
+   "message": "early check: the verifier re-read the first 50 customers written with mapping v1; all 50 match the source",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "checked": 50,
+    "matching": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 16,
+   "ts": 1791792777.856878,
+   "kind": "batch",
+   "message": "customers batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 17,
+   "ts": 1791792777.8592188,
+   "kind": "batch",
+   "message": "customers batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 18,
+   "ts": 1791792777.861685,
+   "kind": "batch",
+   "message": "customers batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 19,
+   "ts": 1791792777.8630998,
+   "kind": "failure",
+   "message": "customers batch of 50 failed (TRANSIENT): target responded 429 (retry after 0.5s)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 1,
+    "failure_class": "TRANSIENT",
+    "status": 429
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 20,
+   "ts": 1791792777.863192,
+   "kind": "recovery",
+   "message": "transient failure (target responded 429 (retry after 0.5s)); retrying in 0.50s (attempt 1)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 1,
+    "delay_s": 0.5,
+    "failure_class": "TRANSIENT",
+    "retry_after": 0.5
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 21,
+   "ts": 1791792778.377718,
+   "kind": "failure",
+   "message": "customers batch of 50 failed (TRANSIENT): target responded 429 (retry after 0.5s)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 2,
+    "failure_class": "TRANSIENT",
+    "status": 429
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 22,
+   "ts": 1791792778.378038,
+   "kind": "recovery",
+   "message": "transient failure (target responded 429 (retry after 0.5s)); retrying in 0.50s (attempt 2)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 2,
+    "delay_s": 0.5,
+    "failure_class": "TRANSIENT",
+    "retry_after": 0.5
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 23,
+   "ts": 1791792778.8903182,
+   "kind": "failure",
+   "message": "customers batch of 50 failed (TRANSIENT): target responded 429 (retry after 0.5s)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 3,
+    "failure_class": "TRANSIENT",
+    "status": 429
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 24,
+   "ts": 1791792778.8907,
+   "kind": "recovery",
+   "message": "transient failure (target responded 429 (retry after 0.5s)); retrying in 0.50s (attempt 3)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 3,
+    "delay_s": 0.5,
+    "failure_class": "TRANSIENT",
+    "retry_after": 0.5
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 25,
+   "ts": 1791792779.406842,
+   "kind": "failure",
+   "message": "customers batch of 50 failed (TRANSIENT): target responded 429 (retry after 0.5s)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 4,
+    "failure_class": "TRANSIENT",
+    "status": 429
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 26,
+   "ts": 1791792779.407318,
+   "kind": "recovery",
+   "message": "transient failure (target responded 429 (retry after 0.5s)); retrying in 0.50s (attempt 4)",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "attempt": 4,
+    "delay_s": 0.5,
+    "failure_class": "TRANSIENT",
+    "retry_after": 0.5
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 27,
+   "ts": 1791792779.9179552,
+   "kind": "batch",
+   "message": "customers batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 28,
+   "ts": 1791792779.923029,
+   "kind": "batch",
+   "message": "customers batch (attempt 1): 42/42 written",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 42,
+    "written": 42
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 29,
+   "ts": 1791792779.923844,
+   "kind": "decision",
+   "message": "customers complete: 292 written, 0 quarantined",
+   "state": "EXECUTING",
+   "entity": "customers",
+   "data": {
+    "failed": 0,
+    "pending": 0,
+    "quarantined": 0,
+    "total": 292,
+    "written": 292
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 30,
+   "ts": 1791792779.930636,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v1",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 31,
+   "ts": 1791792779.9467268,
+   "kind": "decision",
+   "message": "early check: the verifier re-read the first 50 subscriptions written with mapping v1; all 50 match the source",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "checked": 50,
+    "matching": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 32,
+   "ts": 1791792779.949803,
+   "kind": "failure",
+   "message": "target API version changed: v1 -> v2; re-validating every pending mapping",
+   "state": "EXECUTING",
+   "entity": null,
+   "data": {
+    "failure_class": "CONTRACT",
+    "version_from": "v1",
+    "version_to": "v2"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 33,
+   "ts": 1791792779.94995,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 0/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 50,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 0
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 34,
+   "ts": 1791792779.950021,
+   "kind": "failure",
+   "message": "50 of 50 subscriptions items rejected with unknown_field: target contract change suspected",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "dominant_code": "unknown_field",
+    "failure_class": "CONTRACT"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 35,
+   "ts": 1791792779.950211,
+   "kind": "state",
+   "message": "EXECUTING -> RECOVERING",
+   "state": "RECOVERING",
+   "entity": null,
+   "data": {
+    "previous": "EXECUTING"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 36,
+   "ts": 1791792779.951626,
+   "kind": "recovery",
+   "message": "paused writes; refetched target schema (v1 -> v2)",
+   "state": "RECOVERING",
+   "entity": "subscriptions",
+   "data": {
+    "schema_changes": {
+     "invoices": {
+      "added_fields": [],
+      "changed_fields": [
+       "currency"
+      ],
+      "removed_fields": []
+     },
+     "subscriptions": {
+      "added_fields": [
+       "price_id"
+      ],
+      "changed_fields": [],
+      "removed_fields": [
+       "plan_code"
+      ]
+     }
+    },
+    "trigger": "contract"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 37,
+   "ts": 1791792779.961337,
+   "kind": "decision",
+   "message": "dry run subscriptions v1 on v2: 0/200 samples valid",
+   "state": "RECOVERING",
+   "entity": "subscriptions",
+   "data": {
+    "checked": 200,
+    "dominant_code": "unknown_field",
+    "errors": [
+     {
+      "errors": [
+       "plan_code: unknown_field: field is not allowed by the target schema",
+       "price_id: missing_field: required field is missing"
+      ],
+      "source_id": "S000001"
+     },
+     {
+      "errors": [
+       "plan_code: unknown_field: field is not allowed by the target schema",
+       "price_id: missing_field: required field is missing"
+      ],
+      "source_id": "S000003"
+     },
+     {
+      "errors": [
+       "plan_code: unknown_field: field is not allowed by the target schema",
+       "price_id: missing_field: required field is missing"
+      ],
+      "source_id": "S000005"
+     },
+     {
+      "errors": [
+       "plan_code: unknown_field: field is not allowed by the target schema",
+       "price_id: missing_field: required field is missing"
+      ],
+      "source_id": "S000007"
+     },
+     {
+      "errors": [
+       "plan_code: unknown_field: field is not allowed by the target schema",
+       "price_id: missing_field: required field is missing"
+      ],
+      "source_id": "S000009"
+     }
+    ],
+    "excluded": 0,
+    "failed": 200,
+    "mapping_problem": true,
+    "mapping_version": 1,
+    "ok": false,
+    "passed": 0,
+    "systematic_codes": [
+     "unknown_field"
+    ],
+    "target_api_version": "v2"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 38,
+   "ts": 1791792779.981206,
+   "kind": "decision",
+   "message": "dry run invoices v1 on v2: 0/200 samples valid",
+   "state": "RECOVERING",
+   "entity": "invoices",
+   "data": {
+    "checked": 200,
+    "dominant_code": "not_lowercase",
+    "errors": [
+     {
+      "errors": [
+       "currency: not_lowercase: 'EUR' does not match pattern ^[a-z]{3}$"
+      ],
+      "source_id": "I000001"
+     },
+     {
+      "errors": [
+       "currency: not_lowercase: 'EUR' does not match pattern ^[a-z]{3}$"
+      ],
+      "source_id": "I000007"
+     },
+     {
+      "errors": [
+       "currency: not_lowercase: 'USD' does not match pattern ^[a-z]{3}$"
+      ],
+      "source_id": "I000013"
+     },
+     {
+      "errors": [
+       "currency: not_lowercase: 'JPY' does not match pattern ^[a-z]{3}$"
+      ],
+      "source_id": "I000019"
+     },
+     {
+      "errors": [
+       "currency: not_lowercase: 'INR' does not match pattern ^[a-z]{3}$"
+      ],
+      "source_id": "I000026"
+     }
+    ],
+    "excluded": 0,
+    "failed": 200,
+    "mapping_problem": true,
+    "mapping_version": 1,
+    "ok": false,
+    "passed": 0,
+    "systematic_codes": [
+     "not_lowercase"
+    ],
+    "target_api_version": "v2"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 39,
+   "ts": 1791792779.981387,
+   "kind": "decision",
+   "message": "asking the planner to repair the subscriptions mapping (20 failing samples, 1 other pending mappings)",
+   "state": "RECOVERING",
+   "entity": "subscriptions",
+   "data": {
+    "codes": [
+     "unknown_field"
+    ]
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 40,
+   "ts": 1791792789.426446,
+   "kind": "llm",
+   "message": "repair: 8 LLM calls so far ($0.0326)",
+   "state": "RECOVERING",
+   "entity": null,
+   "data": {
+    "calls": 8,
+    "cost_usd": 0.03260827
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 41,
+   "ts": 1791792789.427007,
+   "kind": "plan",
+   "message": "mapping subscriptions v1 -> v2 (for v2)",
+   "state": "RECOVERING",
+   "entity": "subscriptions",
+   "data": {
+    "changes": {
+     "added": [
+      "price_id"
+     ],
+     "changed": [],
+     "removed": [
+      "plan_code"
+     ]
+    },
+    "rationale": "Migrate subscriptions referencing customers and prices.",
+    "version_from": 1,
+    "version_to": 2
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 42,
+   "ts": 1791792789.427233,
+   "kind": "plan",
+   "message": "mapping invoices v1 -> v2 (for v2)",
+   "state": "RECOVERING",
+   "entity": "invoices",
+   "data": {
+    "changes": {
+     "added": [],
+     "changed": [
+      "currency"
+     ],
+     "removed": []
+    },
+    "rationale": "Migrate invoices referencing customers and subscriptions with lower-case currency.",
+    "version_from": 1,
+    "version_to": 2
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 43,
+   "ts": 1791792789.438839,
+   "kind": "decision",
+   "message": "dry run subscriptions v2 on v2: 200/200 samples valid",
+   "state": "RECOVERING",
+   "entity": "subscriptions",
+   "data": {
+    "checked": 200,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 2,
+    "ok": true,
+    "passed": 200,
+    "systematic_codes": [],
+    "target_api_version": "v2"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 44,
+   "ts": 1791792789.449842,
+   "kind": "decision",
+   "message": "dry run invoices v2 on v2: 200/200 samples valid",
+   "state": "RECOVERING",
+   "entity": "invoices",
+   "data": {
+    "checked": 200,
+    "dominant_code": null,
+    "errors": [],
+    "excluded": 0,
+    "failed": 0,
+    "mapping_problem": false,
+    "mapping_version": 2,
+    "ok": true,
+    "passed": 200,
+    "systematic_codes": [],
+    "target_api_version": "v2"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 45,
+   "ts": 1791792789.450079,
+   "kind": "recovery",
+   "message": "mappings valid for v2; resuming writes",
+   "state": "RECOVERING",
+   "entity": "subscriptions",
+   "data": {
+    "mapping_versions": {
+     "invoices": 2,
+     "subscriptions": 2
+    }
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 46,
+   "ts": 1791792789.450171,
+   "kind": "state",
+   "message": "RECOVERING -> EXECUTING",
+   "state": "EXECUTING",
+   "entity": null,
+   "data": {
+    "previous": "RECOVERING"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 47,
+   "ts": 1791792789.4538481,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 48,
+   "ts": 1791792789.46466,
+   "kind": "decision",
+   "message": "early check: the verifier re-read the first 50 subscriptions written with mapping v2; all 50 match the source",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "checked": 50,
+    "matching": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 49,
+   "ts": 1791792789.4669812,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 50,
+   "ts": 1791792789.4692109,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 51,
+   "ts": 1791792789.471443,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 52,
+   "ts": 1791792789.473502,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 53,
+   "ts": 1791792789.475577,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 54,
+   "ts": 1791792789.477189,
+   "kind": "batch",
+   "message": "subscriptions batch (attempt 1): 33/33 written",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 33,
+    "written": 33
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 55,
+   "ts": 1791792789.4775171,
+   "kind": "decision",
+   "message": "subscriptions complete: 383 written, 0 quarantined",
+   "state": "EXECUTING",
+   "entity": "subscriptions",
+   "data": {
+    "failed": 0,
+    "pending": 0,
+    "quarantined": 0,
+    "total": 383,
+    "written": 383
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 56,
+   "ts": 1791792789.481079,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 57,
+   "ts": 1791792789.4981928,
+   "kind": "decision",
+   "message": "early check: the verifier re-read the first 50 invoices written with mapping v2; all 50 match the source",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "checked": 50,
+    "matching": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 58,
+   "ts": 1791792789.500412,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 59,
+   "ts": 1791792791.503596,
+   "kind": "failure",
+   "message": "invoices batch of 50 failed (AMBIGUOUS_WRITE): target timed out after the request was sent",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "attempt": 1,
+    "failure_class": "AMBIGUOUS_WRITE",
+    "status": null
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 60,
+   "ts": 1791792791.542454,
+   "kind": "recovery",
+   "message": "ambiguous write on invoices: 50 of 50 items were committed; re-sending 0",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "found": 50,
+    "resend": 0
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 61,
+   "ts": 1791792791.545151,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 62,
+   "ts": 1791792791.547605,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 63,
+   "ts": 1791792791.550813,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 64,
+   "ts": 1791792791.553466,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 65,
+   "ts": 1791792791.5559301,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 66,
+   "ts": 1791792791.558333,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 67,
+   "ts": 1791792791.561535,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 68,
+   "ts": 1791792791.564543,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 69,
+   "ts": 1791792791.5671191,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 70,
+   "ts": 1791792791.5703108,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 71,
+   "ts": 1791792791.589049,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 72,
+   "ts": 1791792791.5942268,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 73,
+   "ts": 1791792791.5965881,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 74,
+   "ts": 1791792791.598932,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 75,
+   "ts": 1791792791.6013749,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 76,
+   "ts": 1791792791.603497,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 77,
+   "ts": 1791792791.6060648,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 78,
+   "ts": 1791792791.608821,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 79,
+   "ts": 1791792791.61104,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 80,
+   "ts": 1791792791.61309,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 81,
+   "ts": 1791792791.6151319,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 50/50 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 50,
+    "written": 50
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 82,
+   "ts": 1791792791.616538,
+   "kind": "batch",
+   "message": "invoices batch (attempt 1): 26/26 written",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "already_present": 0,
+    "api_version": "v2",
+    "attempt": 1,
+    "contract_rejected": 0,
+    "failed": 0,
+    "held_for_revalidation": 0,
+    "quarantined": 0,
+    "replayed": 0,
+    "retry": 0,
+    "size": 26,
+    "written": 26
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 83,
+   "ts": 1791792791.616979,
+   "kind": "decision",
+   "message": "invoices complete: 1226 written, 0 quarantined",
+   "state": "EXECUTING",
+   "entity": "invoices",
+   "data": {
+    "failed": 0,
+    "pending": 0,
+    "quarantined": 0,
+    "total": 1226,
+    "written": 1226
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 84,
+   "ts": 1791792791.617322,
+   "kind": "decision",
+   "message": "engine believes the run is SUCCESS; handing over to the verifier",
+   "state": "EXECUTING",
+   "entity": null,
+   "data": {}
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 85,
+   "ts": 1791792791.617357,
+   "kind": "state",
+   "message": "EXECUTING -> VERIFYING",
+   "state": "VERIFYING",
+   "entity": null,
+   "data": {
+    "previous": "EXECUTING"
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 86,
+   "ts": 1791792791.6586912,
+   "kind": "verify",
+   "message": "independent verifier: SUCCESS (24/24 checks passed)",
+   "state": "VERIFYING",
+   "entity": null,
+   "data": {
+    "agent_claimed_status": "SUCCESS",
+    "failed_checks": [],
+    "false_success_claim": false,
+    "report_hash": "80c90855161b4c53bfd2d9a0d675ea4223e9af6ba69188c9f5f9cd32a89cd037",
+    "source_counts": {
+     "customers": 292,
+     "invoices": 1226,
+     "subscriptions": 383
+    },
+    "status": "SUCCESS",
+    "target_counts": {
+     "customers": 292,
+     "invoices": 1226,
+     "subscriptions": 383
+    }
+   }
+  },
+  {
+   "run_id": "run_72af2fe2270f",
+   "seq": 87,
+   "ts": 1791792791.659025,
+   "kind": "state",
+   "message": "VERIFYING -> SUCCESS",
+   "state": "SUCCESS",
+   "entity": null,
+   "data": {
+    "previous": "VERIFYING"
+   }
+  }
+ ],
+ "mappings": [
+  {
+   "entity": "customers",
+   "version": 1,
+   "spec": {
+    "entity": "customers",
+    "version": 1,
+    "target_api_version": "v1",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "cust_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "given_name",
+      "source": "full_name",
+      "ops": [
+       {
+        "op": "split_name",
+        "part": "first",
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "family_name",
+      "source": "full_name",
+      "ops": [
+       {
+        "op": "split_name",
+        "part": "last",
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "email",
+      "source": "email",
+      "ops": [
+       {
+        "op": "lower",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "country",
+      "source": "country",
+      "ops": [
+       {
+        "op": "upper",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "status",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "A",
+          "target": "active"
+         },
+         {
+          "source": "S",
+          "target": "suspended"
+         },
+         {
+          "source": "X",
+          "target": "closed"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "created_at",
+      "source": "created",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%m/%d/%Y"
+        ],
+        "assume_tz": "Asia/Kolkata",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "notes",
+      "source": "notes",
+      "ops": [
+       {
+        "op": "null_if_empty",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": false
+     }
+    ],
+    "exclude_if": [
+     {
+      "field": "deleted",
+      "equals": true
+     }
+    ],
+    "rationale": "Migrate customers from LegacyBill, excluding soft-deleted records."
+   }
+  },
+  {
+   "entity": "subscriptions",
+   "version": 1,
+   "spec": {
+    "entity": "subscriptions",
+    "version": 1,
+    "target_api_version": "v1",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "sub_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "customer_id",
+      "source": "cust_id",
+      "ops": [
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "customers",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "plan_code",
+      "source": "plan_code",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "state",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "live",
+          "target": "active"
+         },
+         {
+          "source": "past_due",
+          "target": "delinquent"
+         },
+         {
+          "source": "cancelled",
+          "target": "canceled"
+         },
+         {
+          "source": "trial",
+          "target": "trialing"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "start_at",
+      "source": "started",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%Y-%m-%d %H:%M:%S"
+        ],
+        "assume_tz": "Asia/Kolkata",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "quantity",
+      "source": "seats",
+      "ops": [
+       {
+        "op": "to_int",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     }
+    ],
+    "exclude_if": [],
+    "rationale": "Migrate subscriptions referencing customers."
+   }
+  },
+  {
+   "entity": "subscriptions",
+   "version": 2,
+   "spec": {
+    "entity": "subscriptions",
+    "version": 2,
+    "target_api_version": "v2",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "sub_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "customer_id",
+      "source": "cust_id",
+      "ops": [
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "customers",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "price_id",
+      "source": "plan_code",
+      "ops": [
+       {
+        "op": "lookup",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": "prices",
+        "match_field": "lookup_key",
+        "return_field": "id",
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "state",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "live",
+          "target": "active"
+         },
+         {
+          "source": "past_due",
+          "target": "delinquent"
+         },
+         {
+          "source": "cancelled",
+          "target": "canceled"
+         },
+         {
+          "source": "trial",
+          "target": "trialing"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "start_at",
+      "source": "started",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%Y-%m-%d %H:%M:%S"
+        ],
+        "assume_tz": "Asia/Kolkata",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "quantity",
+      "source": "seats",
+      "ops": [
+       {
+        "op": "to_int",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     }
+    ],
+    "exclude_if": [],
+    "rationale": "Migrate subscriptions referencing customers and prices."
+   }
+  },
+  {
+   "entity": "invoices",
+   "version": 1,
+   "spec": {
+    "entity": "invoices",
+    "version": 1,
+    "target_api_version": "v1",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "inv_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "customer_id",
+      "source": "cust_id",
+      "ops": [
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "customers",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "subscription_id",
+      "source": "sub_id",
+      "ops": [
+       {
+        "op": "null_if_empty",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       },
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "subscriptions",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": false
+     },
+     {
+      "target": "amount_minor",
+      "source": "amount",
+      "ops": [
+       {
+        "op": "decimal_to_minor",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": "currency",
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "currency",
+      "source": "currency",
+      "ops": [
+       {
+        "op": "upper",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "issued_at",
+      "source": "issued",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%Y-%m-%d"
+        ],
+        "assume_tz": "UTC",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "paid",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "Y",
+          "target": "paid"
+         },
+         {
+          "source": "N",
+          "target": "open"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     }
+    ],
+    "exclude_if": [],
+    "rationale": "Migrate invoices referencing customers and subscriptions."
+   }
+  },
+  {
+   "entity": "invoices",
+   "version": 2,
+   "spec": {
+    "entity": "invoices",
+    "version": 2,
+    "target_api_version": "v2",
+    "fields": [
+     {
+      "target": "external_id",
+      "source": "inv_id",
+      "ops": [],
+      "required": true
+     },
+     {
+      "target": "customer_id",
+      "source": "cust_id",
+      "ops": [
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "customers",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "subscription_id",
+      "source": "sub_id",
+      "ops": [
+       {
+        "op": "null_if_empty",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       },
+       {
+        "op": "ref",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": "subscriptions",
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": false
+     },
+     {
+      "target": "amount_minor",
+      "source": "amount",
+      "ops": [
+       {
+        "op": "decimal_to_minor",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": "currency",
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "currency",
+      "source": "currency",
+      "ops": [
+       {
+        "op": "lower",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "issued_at",
+      "source": "issued",
+      "ops": [
+       {
+        "op": "parse_datetime",
+        "part": null,
+        "formats": [
+         "%Y-%m-%d"
+        ],
+        "assume_tz": "UTC",
+        "decimals": null,
+        "currency_field": null,
+        "mapping": null,
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     },
+     {
+      "target": "status",
+      "source": "paid",
+      "ops": [
+       {
+        "op": "enum_map",
+        "part": null,
+        "formats": null,
+        "assume_tz": null,
+        "decimals": null,
+        "currency_field": null,
+        "mapping": [
+         {
+          "source": "Y",
+          "target": "paid"
+         },
+         {
+          "source": "N",
+          "target": "open"
+         }
+        ],
+        "default": null,
+        "entity": null,
+        "table": null,
+        "match_field": null,
+        "return_field": null,
+        "true_values": null,
+        "value": null
+       }
+      ],
+      "required": true
+     }
+    ],
+    "exclude_if": [],
+    "rationale": "Migrate invoices referencing customers and subscriptions with lower-case currency."
+   }
+  }
+ ],
+ "report": {
+  "run_id": "run_72af2fe2270f",
+  "status": "SUCCESS",
+  "checks": [
+   {
+    "name": "count",
+    "passed": true,
+    "entity": "customers",
+    "expected": 292,
+    "actual": 292,
+    "detail": "source 292 (8 soft-deleted excluded), quarantined 0, target 292"
+   },
+   {
+    "name": "no_duplicate_external_ids",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "missing_records_quarantined",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "no_unexpected_records",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "unique_emails",
+    "passed": true,
+    "entity": "customers",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "source_fidelity",
+    "passed": true,
+    "entity": "customers",
+    "expected": 292,
+    "actual": 292,
+    "detail": ""
+   },
+   {
+    "name": "count",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 383,
+    "actual": 383,
+    "detail": "source 383 (0 soft-deleted excluded), quarantined 0, target 383"
+   },
+   {
+    "name": "no_duplicate_external_ids",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "missing_records_quarantined",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "no_unexpected_records",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "source_fidelity",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 383,
+    "actual": 383,
+    "detail": ""
+   },
+   {
+    "name": "referential_integrity",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "count",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 1226,
+    "actual": 1226,
+    "detail": "source 1226 (0 soft-deleted excluded), quarantined 0, target 1226"
+   },
+   {
+    "name": "no_duplicate_external_ids",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "missing_records_quarantined",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "no_unexpected_records",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "source_fidelity",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 1226,
+    "actual": 1226,
+    "detail": ""
+   },
+   {
+    "name": "referential_integrity",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 0,
+    "actual": 0,
+    "detail": ""
+   },
+   {
+    "name": "money_by_currency",
+    "passed": true,
+    "entity": "invoices",
+    "expected": {
+     "EUR": 17162583,
+     "INR": 2120696895,
+     "JPY": 12059665,
+     "USD": 16403330
+    },
+    "actual": {
+     "EUR": 17162583,
+     "INR": 2120696895,
+     "JPY": 12059665,
+     "USD": 16403330
+    },
+    "detail": ""
+   },
+   {
+    "name": "golden_records",
+    "passed": true,
+    "entity": "customers",
+    "expected": 292,
+    "actual": 292,
+    "detail": ""
+   },
+   {
+    "name": "golden_records",
+    "passed": true,
+    "entity": "subscriptions",
+    "expected": 383,
+    "actual": 383,
+    "detail": ""
+   },
+   {
+    "name": "golden_records",
+    "passed": true,
+    "entity": "invoices",
+    "expected": 1226,
+    "actual": 1226,
+    "detail": ""
+   },
+   {
+    "name": "golden_quarantine",
+    "passed": true,
+    "entity": null,
+    "expected": [],
+    "actual": [],
+    "detail": ""
+   },
+   {
+    "name": "quarantine_reasons",
+    "passed": true,
+    "entity": null,
+    "expected": [],
+    "actual": [],
+    "detail": ""
+   }
+  ],
+  "quarantined": [],
+  "source_counts": {
+   "customers": 292,
+   "subscriptions": 383,
+   "invoices": 1226
+  },
+  "target_counts": {
+   "customers": 292,
+   "subscriptions": 383,
+   "invoices": 1226
+  },
+  "money_source_minor": {
+   "EUR": 17162583,
+   "INR": 2120696895,
+   "JPY": 12059665,
+   "USD": 16403330
+  },
+  "money_target_minor": {
+   "EUR": 17162583,
+   "INR": 2120696895,
+   "JPY": 12059665,
+   "USD": 16403330
+  },
+  "report_hash": "80c90855161b4c53bfd2d9a0d675ea4223e9af6ba69188c9f5f9cd32a89cd037"
+ }
+}

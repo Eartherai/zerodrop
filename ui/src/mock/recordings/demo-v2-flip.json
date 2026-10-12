@@ -1,7 +1,7 @@
 {
  "scenario": {
   "id": "demo-v2-flip",
-  "title": "API v2 change + 429 storm + crash/resume",
+  "title": "API v2 change + 429 storm + crash/resume (scripted planner, Oct 10)",
   "description": "NovaBill switches to API v2 mid-migration (plan_code -> price_id, lower-case currency) during a 429 storm; a timeout-after-write and a partial batch follow, then the process is killed and resumed from the ledger. Demo dataset (300 customers)."
  },
  "fault_plan": {
