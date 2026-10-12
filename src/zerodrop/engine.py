@@ -839,9 +839,20 @@ class MigrationEngine:
                 )
                 return
             if used >= limit:
+                # The halt is the escalation: say what is still wrong so a person can act on it.
+                reasons = list(
+                    dict.fromkeys(
+                        sample.error.message.split(";")[0].strip()
+                        for samples in failing.values()
+                        for sample in samples
+                        if sample.error and sample.error.message
+                    )
+                )[:2]
+                why = f" ({'; '.join(reasons)})" if reasons else ""
                 raise _Halt(
                     FailureClass.CONTRACT,
-                    f"mapping for {names} still invalid after {limit} repair rounds",
+                    f"mapping for {names} still invalid after {limit} repair rounds{why}; "
+                    "needs a person to correct the mapping",
                 )
             entity = next(e for e in entities if e in failing)
             others = [e for e in entities if e != entity]

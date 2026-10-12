@@ -1568,6 +1568,25 @@ def test_a_repair_that_still_produces_values_the_target_refused_is_not_sent_agai
     assert h.target.external_ids("subscriptions") and assert_no_duplicates(h.target) is None
 
 
+def test_a_run_that_cannot_be_repaired_halts_saying_what_the_target_refused() -> None:
+    # Neatlogs incident "Runs Stuck Repeating recovery.CONTRACT": the same refused values, repair after
+    # repair. The run must stop within the repair limit and tell a person exactly what was refused.
+    planner = ScriptedPlanner(
+        plan=wrong_reference_plan(), repair=lambda ctx: [price_id_as_plan_code(("upper",))]
+    )
+    h = Harness(planner=planner)
+    result = h.run()
+    assert result.status == RunStatus.FAILED and result.agent_claimed_status == RunStatus.FAILED
+    assert len(planner.repair_contexts) <= h.settings.max_replans
+    message = halt_event(h).message
+    assert "still invalid after" in message and "needs a person" in message
+    assert "plan_code" in message and "price_" in message  # the field and a value the target refused
+    refused_twice = [
+        k for k, v in h.target.history.items() if k.startswith("subscriptions:") and v.count(422) > 1
+    ]
+    assert refused_twice == []  # and the refused values never reached the target a second time
+
+
 def test_the_dry_run_fails_a_mapping_whose_values_the_target_already_refused() -> None:
     h = Harness()
     tools = PlannerTools(h.source, h.target)

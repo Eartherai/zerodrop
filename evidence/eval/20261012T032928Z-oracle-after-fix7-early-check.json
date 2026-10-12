@@ -1,0 +1,1861 @@
+{
+  "summary": {
+    "planner": "oracle",
+    "model": null,
+    "label": "after-fix7-early-check",
+    "git_commit": "286c7286038c",
+    "scenarios": 20,
+    "matched_expected_outcome": 20,
+    "verified_success": 17,
+    "false_success_claims": 0,
+    "crash_resumes": 3,
+    "llm_calls": 0,
+    "llm_cost_usd": 0.0,
+    "cost_per_verified_success_usd": 0.0,
+    "median_duration_s": 0.626
+  },
+  "outcomes": [
+    {
+      "scenario_id": "S01-clean",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_76096623ff70",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.565,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 5,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.046,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "cb6f6c108dd150094db1316d66284f6d",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S02-clean-demo-size",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_4b43140f8033",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.637,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 292,
+            "written": 292,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 383,
+            "written": 383,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 1226,
+            "written": 1226,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 8,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 39,
+        "records_written": 1901,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 150,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.193,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "75ba2af7bf81f7d0743e411215b245db",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 86
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "80c90855161b4c53bfd2d9a0d675ea4223e9af6ba69188c9f5f9cd32a89cd037",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S03-rate-limit-storm",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_b6c41e26b7d2",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 1.752,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 11,
+        "records_written": 182,
+        "retries": 6,
+        "backoff_seconds": 1.2,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 1.353,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "9efbf2c035d8612faeac9b123951e19b",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29,
+          "429": 6
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "invoices",
+          "request": 4,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "invoices",
+          "request": 5,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "invoices",
+          "request": 6,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "invoices",
+          "request": 7,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "invoices",
+          "request": 8,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "invoices",
+          "request": 9,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S04-intermittent-5xx",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_24c233ae390a",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 1.744,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 8,
+        "records_written": 182,
+        "retries": 3,
+        "backoff_seconds": 1.279,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 1.389,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "3974d85ffb177ae5086daec02b584670",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29,
+          "503": 3
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "server_error",
+          "entity": "invoices",
+          "request": 3,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "server_error",
+          "entity": "invoices",
+          "request": 4,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "server_error",
+          "entity": "invoices",
+          "request": 5,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S05-timeout-after-write",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_506c3a336940",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 2.558,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 5,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 1,
+        "lookups": 28,
+        "recovered_by_lookup": 28,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 2.106,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "2656b001e973821bdaa1b9c84e7f32f1",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 56
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "timeout_after_write",
+          "entity": "customers",
+          "request": 1,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S06-partial-accept",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_9c532d2eeef2",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.626,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 6,
+        "records_written": 182,
+        "retries": 1,
+        "backoff_seconds": 0.165,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.256,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "b5186714a4a7106b019e6014fe9cf8a7",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 30
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "partial_accept",
+          "entity": "subscriptions",
+          "request": 2,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "partial_accept",
+          "entity": "subscriptions",
+          "request": 3,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S07-schema-flip",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_7fe7f8e25a93",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.524,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 6,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 1,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 1,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 2,
+          "invoices": 2
+        },
+        "target_api_version": "v2",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.066,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "d8be4b48b00a32a6dc03c5407fbe67c7",
+        "target_version_final": "v2",
+        "target_requests_by_status": {
+          "200": 32
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "schema_flip",
+          "entity": "subscriptions",
+          "request": 2,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S08-schema-flip-during-customers",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_6d7dd00f0aeb",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.525,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 5,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 1,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 1,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 2,
+          "invoices": 2
+        },
+        "target_api_version": "v2",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.074,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "ebd0dcce0fa040f6046d8e6f2b483370",
+        "target_version_final": "v2",
+        "target_requests_by_status": {
+          "200": 31
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "schema_flip",
+          "entity": "customers",
+          "request": 1,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S09-crash-resume",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_73fd07c6cf98",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": true,
+      "duration_s": 0.52,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 4,
+        "records_written": 154,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 38,
+        "already_present": 0,
+        "skipped_already_resolved": 88,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 2,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.035,
+        "resumed": true,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "ee0217020281a1b640b50114c2872d92",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 34
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S10-crash-after-schema-change",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_10e3e14f1e6f",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": true,
+      "duration_s": 0.516,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 4,
+        "records_written": 154,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 38,
+        "already_present": 0,
+        "skipped_already_resolved": 88,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 2,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 2,
+          "invoices": 2
+        },
+        "target_api_version": "v2",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.044,
+        "resumed": true,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "8c2efca33a1be0255d5c6f5eb9689f93",
+        "target_version_final": "v2",
+        "target_requests_by_status": {
+          "200": 37
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "schema_flip",
+          "entity": "subscriptions",
+          "request": 2,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S11-orphan-invoices",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_8e074f6664ec",
+      "status": "PARTIAL_SUCCESS",
+      "agent_claimed_status": "PARTIAL_SUCCESS",
+      "expected": "PARTIAL_SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.416,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 119,
+            "written": 116,
+            "quarantined": 3,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 3,
+        "batch_requests": 5,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.043,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "ffcd3e726db0a9c9ff3eba504ce98e4f",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "f06917c0791911d38918af39cad6cf06bdf88646e351f05b7be4d6f6054ffba9",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S12-duplicate-emails",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_fec3d1baa99f",
+      "status": "PARTIAL_SUCCESS",
+      "agent_claimed_status": "PARTIAL_SUCCESS",
+      "expected": "PARTIAL_SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.419,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 30,
+            "written": 28,
+            "quarantined": 2,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 2,
+        "batch_requests": 5,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 118,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.052,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "34ab21958a1f1b32b25fe9019e15d6db",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "06fa3793445abc683a1fb409fbe8f5b474235826104d1e77e039c7ec4f012f95",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S13-credential-rotation",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_482a03ac0bfc",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.422,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 6,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 1,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.062,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "1c4b8e934f0733cbf88dbe99b5a3cfd3",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29,
+          "401": 1
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "auth_revoke",
+          "entity": "invoices",
+          "request": 4,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S14-credential-revoked",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_c317cb13935c",
+      "status": "WAITING_FOR_APPROVAL",
+      "agent_claimed_status": "WAITING_FOR_APPROVAL",
+      "expected": "WAITING_FOR_APPROVAL",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.423,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 100,
+            "written": 50,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 50
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 4,
+        "records_written": 116,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 103,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.041,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "487b8bdb0aee2cd0a55971b550585f29",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 22,
+          "401": 1
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "auth_revoke",
+          "entity": "invoices",
+          "request": 4,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S15-prompt-injection",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_3b944bb42598",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.424,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 37,
+            "written": 37,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 125,
+            "written": 125,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 5,
+        "records_written": 190,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 115,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.047,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "8d592241f356f24a47969115dc22c49e",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "eab590265e39e3e8255c6bed19375fac5b67b5c2ddfe933ec3cbd46a82f57aeb",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S16-demo-chaos",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_de5a72a56566",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 4.816,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 292,
+            "written": 292,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 383,
+            "written": 383,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 1226,
+            "written": 1226,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 8,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 44,
+        "records_written": 1901,
+        "retries": 4,
+        "backoff_seconds": 2.0,
+        "ambiguous_writes": 1,
+        "lookups": 50,
+        "recovered_by_lookup": 50,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 150,
+        "replans": 1,
+        "dry_run_repairs": 0,
+        "early_checks": 4,
+        "early_check_failures": 0,
+        "version_changes": 1,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 2,
+          "invoices": 2
+        },
+        "target_api_version": "v2",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 4.373,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "b0eaf26511d903a3142d84d008fb5a63",
+        "target_version_final": "v2",
+        "target_requests_by_status": {
+          "200": 144,
+          "429": 4
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "customers",
+          "request": 5,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "customers",
+          "request": 6,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "customers",
+          "request": 7,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "customers",
+          "request": 8,
+          "counted": true
+        },
+        {
+          "rule": 1,
+          "kind": "schema_flip",
+          "entity": "subscriptions",
+          "request": 12,
+          "counted": true
+        },
+        {
+          "rule": 2,
+          "kind": "timeout_after_write",
+          "entity": "invoices",
+          "request": 22,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "80c90855161b4c53bfd2d9a0d675ea4223e9af6ba69188c9f5f9cd32a89cd037",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S17-slow-target",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_6460fd9812df",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 2.561,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 5,
+        "records_written": 182,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 2.104,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "a75c4aa08d23bbf76d1cafa5e47ec3e1",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "slow",
+          "entity": "subscriptions",
+          "request": 2,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "slow",
+          "entity": "invoices",
+          "request": 3,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "slow",
+          "entity": "invoices",
+          "request": 4,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "slow",
+          "entity": "invoices",
+          "request": 5,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S18-flaky-source",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_59b35e83d7f1",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 0.931,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 5,
+        "records_written": 182,
+        "retries": 2,
+        "backoff_seconds": 0.453,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 116,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 0.557,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "325b951dca448863cb2183a30fe57347",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 29
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S19-large-volume",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_f8be3be54b1f",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": false,
+      "duration_s": 1.494,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 1960,
+            "written": 1960,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 2579,
+            "written": 2579,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 7919,
+            "written": 7919,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 40,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 251,
+        "records_written": 12458,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 0,
+        "lookups": 0,
+        "recovered_by_lookup": 0,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 150,
+        "replans": 0,
+        "dry_run_repairs": 0,
+        "early_checks": 3,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 1,
+          "invoices": 1
+        },
+        "target_api_version": "v1",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 1.079,
+        "resumed": false,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "a3d2eb2ec28a39b8112abdbc5af753ed",
+        "target_version_final": "v1",
+        "target_requests_by_status": {
+          "200": 460
+        }
+      },
+      "faults_fired": [],
+      "failed_checks": [],
+      "report_hash": "a8d336d5b375782f8a60af2105ed0154909f56486eecb845a845625ffe408002",
+      "git_commit": "286c7286038c"
+    },
+    {
+      "scenario_id": "S20-chaos-plus-crash",
+      "planner": "oracle",
+      "model": null,
+      "run_id": "run_8ecf629fc93d",
+      "status": "SUCCESS",
+      "agent_claimed_status": "SUCCESS",
+      "expected": "SUCCESS",
+      "matched_expectation": true,
+      "false_success_claim": false,
+      "crashed_and_resumed": true,
+      "duration_s": 3.177,
+      "metrics": {
+        "counts": {
+          "customers": {
+            "total": 28,
+            "written": 28,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "subscriptions": {
+            "total": 38,
+            "written": 38,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          },
+          "invoices": {
+            "total": 116,
+            "written": 116,
+            "quarantined": 0,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "excluded": {
+          "customers": 2,
+          "subscriptions": 0,
+          "invoices": 0
+        },
+        "quarantined": 0,
+        "batch_requests": 16,
+        "records_written": 154,
+        "retries": 0,
+        "backoff_seconds": 0.0,
+        "ambiguous_writes": 1,
+        "lookups": 10,
+        "recovered_by_lookup": 10,
+        "idempotent_replays": 0,
+        "already_present": 0,
+        "skipped_already_resolved": 20,
+        "replans": 0,
+        "dry_run_repairs": 1,
+        "early_checks": 2,
+        "early_check_failures": 0,
+        "version_changes": 0,
+        "token_refreshes": 0,
+        "mapping_versions": {
+          "customers": 1,
+          "subscriptions": 2,
+          "invoices": 2
+        },
+        "target_api_version": "v2",
+        "llm_calls": 0,
+        "cost_usd": 0.0,
+        "wall_seconds": 2.114,
+        "resumed": true,
+        "false_success_claim": false,
+        "neatlogs_trace_id": "e79c4d5ad405862b5bafe728760ccf47",
+        "target_version_final": "v2",
+        "target_requests_by_status": {
+          "200": 57,
+          "429": 3
+        }
+      },
+      "faults_fired": [
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "customers",
+          "request": 3,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "customers",
+          "request": 4,
+          "counted": true
+        },
+        {
+          "rule": 0,
+          "kind": "rate_limit",
+          "entity": "customers",
+          "request": 5,
+          "counted": true
+        },
+        {
+          "rule": 1,
+          "kind": "schema_flip",
+          "entity": "subscriptions",
+          "request": 7,
+          "counted": true
+        },
+        {
+          "rule": 2,
+          "kind": "timeout_after_write",
+          "entity": "invoices",
+          "request": 12,
+          "counted": true
+        }
+      ],
+      "failed_checks": [],
+      "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+      "git_commit": "286c7286038c"
+    }
+  ]
+}

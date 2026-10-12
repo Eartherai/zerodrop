@@ -1,0 +1,83 @@
+{
+  "scenario_id": "S01-clean",
+  "planner": "naive",
+  "model": null,
+  "run_id": "run_352df589b91d",
+  "status": "FAILED",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": false,
+  "false_success_claim": true,
+  "crashed_and_resumed": false,
+  "duration_s": 0.581,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 28,
+        "written": 28,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 38,
+        "written": 38,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 116,
+        "written": 116,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 2,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 5,
+    "records_written": 182,
+    "retries": 0,
+    "backoff_seconds": 0.0,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 1,
+    "early_checks": 0,
+    "early_check_failures": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 2,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 0,
+    "cost_usd": 0.0,
+    "wall_seconds": 0.05,
+    "resumed": false,
+    "false_success_claim": true,
+    "neatlogs_trace_id": "c2fce46175145a8e7473297151bf04da",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 17
+    }
+  },
+  "faults_fired": [],
+  "failed_checks": [
+    "source_fidelity: 28 problem(s): C000001.created_at: expected '2019-03-08T18:30:00Z', got '2019-03-09T00:00:00Z'; C000002.created_at: expected '2019-05-04T18:30:00Z', got '2019-05-05T00:00:00Z'; C000003.created_at: expected '2020-01-13T18:30",
+    "golden_records: 28 problem(s): C000001.created_at: expected '2019-03-08T18:30:00Z', got '2019-03-09T00:00:00Z'; C000002.created_at: expected '2019-05-04T18:30:00Z', got '2019-05-05T00:00:00Z'; C000003.created_at: expected '2020-01-13T18:30:"
+  ],
+  "report_hash": "aff45ca9a78327c4db8d10d2123e8a69aeeef1ff34565ea07a7c26a86f793fd3",
+  "git_commit": "286c7286038c"
+}
