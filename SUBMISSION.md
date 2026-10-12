@@ -1,11 +1,9 @@
 # Submission
 
 **Check this first.** The organisers extended the window by seven hours on Discord (Oct 12,
-23:35 IST), to about **06:55 IST on Tue Oct 13**. At 00:09 IST the public form at
-https://neatlogs.com/submission still rendered as closed (its page had the old 23:55 closing time
-built in). Open the form in your own browser. If it is closed, post the quote post anyway (the
-quote plus the three tags is what neatlogs says its systems detect) and ask in Discord how the
-form takes entries during the extension. Both steps are mandatory.
+23:35 IST). The form at https://neatlogs.com/submission now says it **closes at 7:00 AM IST on
+Tue Oct 13** (checked 00:24 IST; it had still shown the old time at 00:09). Both steps are
+mandatory: the quote post and the form.
 
 ## 1. The quote post (256 characters; 280 if X adds the quoted link to the text)
 
@@ -43,11 +41,11 @@ With @neatlogs: every run is one trace. Its Investigate agent raised 3 incidents
 https://eartherai.github.io/zerodrop/evidence/
 ```
 
-Reply 3 (229 characters; Entire; no image needed, the link shows the commit page):
+Reply 3 (266 characters; Entire; attach a screenshot of `entire verdict --models-only` in a terminal if you can):
 ```
-With @EntireHQ: before changing how runs change state, entire graph impact listed the 17 callers of _set_status. The incident fix as Entire shows it:
-https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7
-Limit: one checkpoint, covering the start of the build.
+With @EntireHQ: entire graph impact listed the 17 callers of _set_status before we changed it. We also built an Entire CLI plugin, entire verdict: each commit's checkpoint next to what the checker measured there.
+https://github.com/Eartherai/zerodrop/tree/main/tools/entire-verdict
+Limit: one checkpoint so far.
 ```
 
 Reply 4 (208 characters; cfo.ai; attach `evidence/screenshots/08-cfo-ai-monthly-forecast.png`):
@@ -69,9 +67,9 @@ To @neatlogs (246 characters):
 Thanks. Your Investigate agent raised the Critical incident (agent SUCCESS, evaluator FAILED). Its 4th recommended step became commit 286c728: the same wrong plan wrote 182 records before and stops at 28 now. What it got wrong is in the repo too.
 ```
 
-To Entire or its devrel (198 characters):
+To Entire or its devrel (under 280 characters):
 ```
-Thanks. entire graph impact listed 17 callers of _set_status before we changed it (commit 1838455). Honest limit: one checkpoint, covering the start of the build. Graph output is in evidence/entire.
+Thanks. entire graph impact listed 17 callers of _set_status before we changed it. We also wrote an Entire CLI plugin, entire verdict: https://github.com/Eartherai/zerodrop/tree/main/tools/entire-verdict Honest limit: one checkpoint, covering the start of the build.
 ```
 
 To cfo.ai (176 characters):
@@ -160,6 +158,7 @@ cfo.ai holds the model, built from the cost we measured per migration: $499 per 
 ```
 Checkpoints: checkpoint 01M4KEGN3Q174N063453HK5XC6 holds the start of the build session in git, secrets redacted; more than 40 later commits carry its Entire-Checkpoint trailer. Public, no sign-in: the session https://entire.io/et/hackathone/hackathon/session/3ca2e4c1-0518-40bc-86bb-a3d3f8786516 and the incident fix as a commit page https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7 .
 entire-graph, to assess risky changes before making them: entire graph impact on MigrationEngine._set_status listed 17 callers before we changed it; we also ran it on the incident fix 286c728 and on the dry-run function where four fixes live. Saved output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire
+A build on Entire's CLI: entire verdict, a plugin we wrote (an executable named entire-verdict, installed with entire plugin install). It joins each commit's Entire checkpoint to what the independent checker measured at that commit, from the saved result files; on our repository it recomputes the seven false successes by commit. Source, tests and README: https://github.com/Eartherai/zerodrop/tree/main/tools/entire-verdict
 Limit, stated plainly: one checkpoint, covering the first part of the build.
 ```
 Update the checkpoint count and the limit sentence here if the in-repo sessions add checkpoints.
@@ -167,6 +166,7 @@ Update the checkpoint count and the limit sentence here if the in-repo sessions 
 **What you traced, debugged or improved with neatlogs**
 ```
 Traced: every migration run is one neatlogs trace: model calls with tokens and cost, each batch write, each retry, each state change, and the independent checker's verdict. Debugged: neatlogs' Investigate agent read our traces and raised 3 incidents; the Critical one was "agent SUCCESS, evaluator FAILED", and its 5 evidence traces were exactly our real false successes. Improved: its recommended step 4 became commit 286c728 (the checker re-reads the first batch). The same wrong plan now stops after 28 records and reports FAILED itself, instead of writing all 182 and claiming SUCCESS. A second incident led to commit d92588d. All 3 are Resolved, and the false-success detector neatlogs AI suggested is on.
+Every published number is recomputed from the saved result files by GitHub on each push: https://github.com/Eartherai/zerodrop/actions/workflows/ci.yml
 Demo: https://eartherai.github.io/zerodrop/ · Video: https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 · Evidence, including what neatlogs got wrong: https://eartherai.github.io/zerodrop/evidence/
 ```
 
@@ -233,3 +233,4 @@ Links
 - Open the Demo link once and press Start migration.
 - After any later commit, run `git push entire main` so the Entire page stays current.
 - Post at least two of the build-in-public posts in section 2c.
+- Licence: the repository has none yet. For the Entire plugin to count as open source, choose one (MIT is the usual choice for a hackathon project) and say so; the file takes a minute to add.

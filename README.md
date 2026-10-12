@@ -25,7 +25,7 @@ page that maps each thing the rules ask for to a file, a run id or a trace.
 |---|---|
 | Agent works, recovers, improves | 20 of 20 failure scenarios on a real model in each of three full passes; 7 false successes, all caught: [EVIDENCE.md 7](EVIDENCE.md#7-does-the-agent-work-every-evaluation-including-the-bad-ones) |
 | neatlogs Incidents | 3 incidents raised on our traces, all resolved, two code changes: [EVIDENCE.md 1](EVIDENCE.md#1-neatlogs-incidents-identified-and-resolved) |
-| Entire | Public page: https://entire.io/et/hackathone/hackathon (commits, and the session with its checkpoint). Checkpoint `01M4KEGN3Q174N063453HK5XC6`; entire-graph output: [`evidence/entire/`](evidence/entire) |
+| Entire | Public page: https://entire.io/et/hackathone/hackathon (commits, and the session with its checkpoint). Checkpoint `01M4KEGN3Q174N063453HK5XC6`; an Entire CLI plugin we built, [`entire verdict`](tools/entire-verdict); entire-graph output: [`evidence/entire/`](evidence/entire) |
 | cfo.ai | $499 per verified migration, $36.77 to deliver, break-even March 2027: https://cfo.ai/s/VyrSUZBAxHyXEJfC |
 | Video (2:39) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
 | Built in public | [`hackathon.md`](hackathon.md): dated log, including what failed; drafts and posts in [`posts/`](posts) |
