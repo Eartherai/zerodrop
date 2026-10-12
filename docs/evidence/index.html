@@ -550,6 +550,15 @@ have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL
 <td>$0.4539</td>
 </tr>
 <tr>
+<td><strong>Final code, the model that made the mistakes</strong></td>
+<td><code>gemini-3.1-flash-lite</code></td>
+<td><code>d92588d</code> (file records <code>ab5e1e8</code>; no engine code changed between them)</td>
+<td><strong>18 of 18</strong></td>
+<td><strong>0</strong></td>
+<td>117</td>
+<td>$0.2593</td>
+</tr>
+<tr>
 <td>Scripted regression after fixes 3 to 7</td>
 <td>scripted</td>
 <td><code>251cdd4</code>, <code>933a7a9</code>, <code>7b34f8c</code>, <code>6c07c9f</code>, <code>286c728</code></td>
@@ -564,7 +573,8 @@ have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL
 <li>Seven real false success claims in total. The verifier caught all seven. Each of the three
 causes was fixed test first, and no later run repeated a fixed cause.</li>
 <li>Three full passes of all 20 scenarios in a row matched with no false success, the last one
-on the final code.</li>
+on the final code. On the final code, <code>gemini-3.1-flash-lite</code>, the model that produced all
+seven false successes, also matched 18 of 18 with none.</li>
 <li>Pass 3 also had one run the model never repaired (S12) and one halted by a provider 503.
 Both led to changes (fix 6, the 503 retry). When we later seeded the same wrong mapping and
 let real models repair it, both <code>gemini-3.5-flash-lite</code> and <code>gemini-3.1-flash-lite</code> repaired
@@ -576,7 +586,7 @@ out. Scenarios that never reached the model are counted as not run.</li>
 <li>All real-model runs used Gemini Flash models on the free tier (nothing was charged). No
 Claude run exists: the Anthropic account had no credit during the hackathon.</li>
 </ul>
-<p>Real-model cost of every saved run: $3.80 at list price, $0 charged (free tier).</p>
+<p>Real-model cost of every saved run: $4.06 at list price, $0 charged (free tier).</p>
 <p>Files: <code>evidence/eval/</code> (one JSON and one Markdown per evaluation), <code>evidence/runs/</code> (one
 JSON per single run), <code>evidence/experiments/</code>. Reproduce the scripted ones with no keys:
 <code>uv run zerodrop eval --planner oracle --label my-run</code>.</p>

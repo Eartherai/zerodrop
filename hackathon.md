@@ -129,6 +129,18 @@
 - 14:05 IST: **cfo.ai plan shared** with a public view-only link (forecast, assumptions, scenarios, written plan): https://cfo.ai/s/VyrSUZBAxHyXEJfC
 - 14:08 IST: **Live site** on GitHub Pages, served from `docs/`: https://eartherai.github.io/zerodrop/ is the real dashboard in replay mode with four recordings exported from run ledgers (a real Gemini run of the chaos scenario at the final code, the real model's false success from Oct 11, a duplicate-data run, the early check stopping a wrong plan); `/evidence/` is `EVIDENCE.md` as a page; `/video/` hosts the demo video. Checked in a browser after deploy. It replays; it does not call a model.
 - 14:10 IST: Entire's website still returns 404 for the repository although it is public: it only lists repositories with the Entire GitHub App installed. That install is the owner's to approve. `SUBMISSION.md` holds the quote post (279 characters), a reply and the long form.
+- 14:15 IST: Docker kit rebuilt at `ab5e1e8` and checked again: the chaos demo through the API, verified SUCCESS, 24 of 24.
+- 14:17 IST: **The model that made the mistakes, on the final code: 18 of 18, no false success** (`gemini-3.1-flash-lite`, 117 calls, $0.2593 at list price). Its passes over the weekend: 18/18, 17/18, 15/18, 10 of 10, 18/18. Still one pass, not a failure rate.
+- 14:20 IST: Video closing line updated to "20 of 20 on a real model, three times" and the site link; one scroll position fixed. Post draft 9 (the incidents). Real-model spend in total: $4.06 at list price, $0 charged, against the $25 cap.
+
+#### Self-assessment at submission (my own judgment, 1 to 10; not a measurement)
+| Criterion | Weight | Score | Why | What would raise it |
+|---|---|---|---|---|
+| Agent that works | 30% | 9 | Three full passes of 20 on one real model and 18 of 18 on the weakest, all on or near the final code; seven real false successes caught; every bad pass published | A real billing system instead of sandboxes; repeated passes; a Claude run |
+| Sponsor tools | 25% | 8 | Neatlogs: tracing with its own span kinds, three incidents raised, investigated and resolved, two code changes from them, detector on. cfo.ai: plan with a public link and its criticism kept. Entire: one checkpoint and entire-graph output | The Entire web page (needs the owner to install its GitHub App); a checkpoint that covers the whole build |
+| Video | 20% | 8 | One video on the organisers' three asks, every claim mapped to a file; synthetic voice | A human voice |
+| Building in public | 15% | 4 | Repository, live site and evidence page are public; nine post drafts, none posted | The owner posting |
+| Usefulness, originality | 10% | 8 | An independent check of an agent's own claim, shown on real failures, with a business plan | A design partner |
 
 #### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | Next action |

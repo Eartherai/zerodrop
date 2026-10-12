@@ -58,8 +58,9 @@ migration, about $37 to deliver, break-even March 2027 even with growth halved.
 
 What the numbers are: seven real false successes from real models, all caught by the checker;
 three causes fixed test first; then all 20 failure scenarios passing on a real model three
-times in a row, the last on the final code. One pass per commit, sandbox systems, Gemini
-models on the free tier ($3.80 at list price in total). No Claude run exists.
+times in a row, the last on the final code, where the model that made the mistakes also passes
+18 of 18. One pass per commit, sandbox systems, Gemini
+models on the free tier ($4.06 at list price in total). No Claude run exists.
 
 Links
 - Sponsor evidence: https://eartherai.github.io/zerodrop/evidence/
@@ -74,4 +75,4 @@ Links
 - Entire page: on entire.io go to Repositories, Add repository, and install the Entire GitHub
   App for `Eartherai/zerodrop`. Then `https://entire.io/gh/Eartherai/zerodrop` works and can be
   added to the links above.
-- Post at least one build-in-public post from `posts/` first (07 or 08), tagged #neatHack.
+- Post at least one build-in-public post from `posts/` first (09, 07 or 08), tagged #neatHack.

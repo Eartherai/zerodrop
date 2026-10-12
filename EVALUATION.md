@@ -258,6 +258,13 @@ matched, 0 false success claims**, 17 verified SUCCESS, 3 crash-and-resume runs,
 calls, $0.4539 at list price. `evidence/eval/*final-code-early-check.{json,md}`. With the two
 passes above, that is three full passes in a row.
 
+Then the model that had produced all seven false successes, `gemini-3.1-flash-lite`, on the
+same engine code (14:17 IST): **18 of 18 matched, 0 false success claims**, 117 model calls,
+$0.2593 at list price (`evidence/eval/*gemini-3.1-flash-lite-final-code.{json,md}`; the file
+records commit `ab5e1e8` because documentation commits landed during the run, with no change
+under `src/zerodrop/` since `d92588d`). Its record across the weekend: 18/18, 17/18, 15/18,
+10 of 10, and now 18/18 with every fix in place.
+
 ### All real-model false successes
 | Cause | Seen in | Runs | Caught by verifier | Fix |
 |---|---|---|---|---|

@@ -68,6 +68,7 @@ prompt injection in the data.
 | **`gemini-3.5-flash-lite`, all 20 scenarios** | `1838455` | **20 of 20** | **0** |
 | **`gemini-3.5-flash-lite`, all 20 scenarios** | `6c07c9f` | **20 of 20** | **0** |
 | **`gemini-3.5-flash-lite`, all 20 scenarios, final code** | `d92588d` | **20 of 20** | **0** |
+| **`gemini-3.1-flash-lite`, final code** (the model that made the mistakes) | `d92588d` | **18 of 18** | **0** |
 
 The most useful results were the failures. Seven real-model runs ended with the engine
 believing SUCCESS while the verifier reported FAILED: five where the model gave every record

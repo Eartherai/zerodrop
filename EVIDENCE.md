@@ -177,13 +177,15 @@ have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL
 | All 20 scenarios, after fix 6 | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | **0** | 141 | $0.4650 |
 | After fix 7, morning | `gemini-3.5-flash-lite` | `286c728` | 8 of the 8 that ran | 0 | 57 | $0.2140 |
 | **All 20 scenarios, final code** | `gemini-3.5-flash-lite` | `d92588d` | **20 of 20** | **0** | 133 | $0.4539 |
+| **Final code, the model that made the mistakes** | `gemini-3.1-flash-lite` | `d92588d` (file records `ab5e1e8`; no engine code changed between them) | **18 of 18** | **0** | 117 | $0.2593 |
 | Scripted regression after fixes 3 to 7 | scripted | `251cdd4`, `933a7a9`, `7b34f8c`, `6c07c9f`, `286c728` | all matched each time | 0 | 0 | $0 |
 
 Reading it honestly:
 - Seven real false success claims in total. The verifier caught all seven. Each of the three
   causes was fixed test first, and no later run repeated a fixed cause.
 - Three full passes of all 20 scenarios in a row matched with no false success, the last one
-  on the final code.
+  on the final code. On the final code, `gemini-3.1-flash-lite`, the model that produced all
+  seven false successes, also matched 18 of 18 with none.
 - Pass 3 also had one run the model never repaired (S12) and one halted by a provider 503.
   Both led to changes (fix 6, the 503 retry). When we later seeded the same wrong mapping and
   let real models repair it, both `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite` repaired
@@ -195,7 +197,7 @@ Reading it honestly:
 - All real-model runs used Gemini Flash models on the free tier (nothing was charged). No
   Claude run exists: the Anthropic account had no credit during the hackathon.
 
-Real-model cost of every saved run: $3.80 at list price, $0 charged (free tier).
+Real-model cost of every saved run: $4.06 at list price, $0 charged (free tier).
 
 Files: `evidence/eval/` (one JSON and one Markdown per evaluation), `evidence/runs/` (one
 JSON per single run), `evidence/experiments/`. Reproduce the scripted ones with no keys:
