@@ -1,0 +1,86 @@
+{
+  "scenario_id": "S10-crash-after-schema-change",
+  "planner": "gemini",
+  "model": "gemini-3-flash-preview",
+  "run_id": "run_715bc0a94dfa",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": true,
+  "false_success_claim": false,
+  "crashed_and_resumed": true,
+  "duration_s": 49.514,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 28,
+        "written": 28,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 38,
+        "written": 38,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 116,
+        "written": 116,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 2,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 4,
+    "records_written": 154,
+    "retries": 0,
+    "backoff_seconds": 0.0,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 38,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 2,
+      "invoices": 2
+    },
+    "target_api_version": "v2",
+    "llm_calls": 9,
+    "cost_usd": 0.049414,
+    "wall_seconds": 0.031,
+    "resumed": true,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "934e94a5883fedaace7b6a1f5a4fef4a",
+    "target_version_final": "v2",
+    "target_requests_by_status": {
+      "200": 25
+    }
+  },
+  "faults_fired": [
+    {
+      "rule": 0,
+      "kind": "schema_flip",
+      "entity": "subscriptions",
+      "request": 2,
+      "counted": true
+    }
+  ],
+  "failed_checks": [],
+  "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+  "git_commit": "78d92da007e8"
+}

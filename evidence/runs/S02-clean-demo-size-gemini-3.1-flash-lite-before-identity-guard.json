@@ -1,0 +1,89 @@
+{
+  "scenario_id": "S02-clean-demo-size",
+  "planner": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "run_id": "run_5d0171f3cddf",
+  "status": "FAILED",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": false,
+  "false_success_claim": true,
+  "crashed_and_resumed": false,
+  "duration_s": 66.656,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 292,
+        "written": 292,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 383,
+        "written": 383,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 1226,
+        "written": 1226,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 8,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 39,
+    "records_written": 1901,
+    "retries": 0,
+    "backoff_seconds": 0.0,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 0,
+    "already_present": 1898,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 5,
+    "cost_usd": 0.010851,
+    "wall_seconds": 65.796,
+    "resumed": false,
+    "false_success_claim": true,
+    "neatlogs_trace_id": "75f5abadcc7c45344ee5639e556c2621",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 50
+    }
+  },
+  "faults_fired": [],
+  "failed_checks": [
+    "count: source 292 (8 soft-deleted excluded), quarantined 0, target 1",
+    "missing_records_quarantined: missing from target and not quarantined: C000002, C000003, C000004, C000005, C000006 (+286 more)",
+    "count: source 383 (0 soft-deleted excluded), quarantined 0, target 1",
+    "missing_records_quarantined: missing from target and not quarantined: S000002, S000003, S000004, S000005, S000006 (+377 more)",
+    "count: source 1226 (0 soft-deleted excluded), quarantined 0, target 1",
+    "missing_records_quarantined: missing from target and not quarantined: I000002, I000003, I000004, I000005, I000006 (+1220 more)",
+    "money_by_currency: 4 problem(s): EUR: expected 17162583, got 828 (x4.82445e-05); INR: expected 2120696895, got 0 (x0); JPY: expected 12059665, got 0 (x0); USD: expected 16403330, got 0 (x0)",
+    "golden_records: 1 problem(s): missing: C000002, C000003, C000004, C000005, C000006 (+286 more)",
+    "golden_records: 1 problem(s): missing: S000002, S000003, S000004, S000005, S000006 (+377 more)",
+    "golden_records: 1 problem(s): missing: I000002, I000003, I000004, I000005, I000006 (+1220 more)"
+  ],
+  "report_hash": "15b828d75b6ff0b55d3850497c6e98bb44ba33ccbb4ecf2f52832ef2fa6218c0",
+  "git_commit": "78d92da007e8"
+}

@@ -1,0 +1,122 @@
+{
+  "scenario_id": "S03-rate-limit-storm",
+  "planner": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "run_id": "run_94cb39061aa2",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": true,
+  "false_success_claim": false,
+  "crashed_and_resumed": false,
+  "duration_s": 61.005,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 28,
+        "written": 28,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 38,
+        "written": 38,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 116,
+        "written": 116,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 2,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 11,
+    "records_written": 182,
+    "retries": 6,
+    "backoff_seconds": 1.2,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 4,
+    "cost_usd": 0.007553,
+    "wall_seconds": 60.323,
+    "resumed": false,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "4db1e63982c65d924011cc6ccfc32af0",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 17,
+      "429": 6
+    }
+  },
+  "faults_fired": [
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "invoices",
+      "request": 4,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "invoices",
+      "request": 5,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "invoices",
+      "request": 6,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "invoices",
+      "request": 7,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "invoices",
+      "request": 8,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "invoices",
+      "request": 9,
+      "counted": true
+    }
+  ],
+  "failed_checks": [],
+  "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+  "git_commit": "251cdd462a72"
+}

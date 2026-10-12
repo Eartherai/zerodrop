@@ -1,0 +1,123 @@
+{
+  "scenario_id": "S16-demo-chaos",
+  "planner": "gemini",
+  "model": "gemini-3.8-flash",
+  "run_id": "run_df3f40bbda91",
+  "status": "FAILED",
+  "agent_claimed_status": "FAILED",
+  "expected": "SUCCESS",
+  "matched_expectation": false,
+  "false_success_claim": false,
+  "crashed_and_resumed": false,
+  "duration_s": 110.698,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 292,
+        "written": 292,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 100,
+        "written": 50,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 50
+      },
+      "invoices": {
+        "total": 0,
+        "written": 0,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 8,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 12,
+    "records_written": 342,
+    "retries": 4,
+    "backoff_seconds": 2.0,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 1,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v2",
+    "llm_calls": 8,
+    "cost_usd": 0.081821,
+    "wall_seconds": 109.815,
+    "resumed": false,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "67a01d50a204521684e4849dc1a82def",
+    "target_version_final": "v2",
+    "target_requests_by_status": {
+      "200": 22,
+      "429": 4
+    }
+  },
+  "faults_fired": [
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 5,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 6,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 7,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 8,
+      "counted": true
+    },
+    {
+      "rule": 1,
+      "kind": "schema_flip",
+      "entity": "subscriptions",
+      "request": 12,
+      "counted": true
+    }
+  ],
+  "failed_checks": [
+    "count: source 383 (0 soft-deleted excluded), quarantined 0, target 50",
+    "missing_records_quarantined: missing from target and not quarantined: S000051, S000052, S000053, S000054, S000055 (+328 more)",
+    "count: source 1226 (0 soft-deleted excluded), quarantined 0, target 0",
+    "missing_records_quarantined: missing from target and not quarantined: I000001, I000002, I000003, I000004, I000005 (+1221 more)",
+    "money_by_currency: 4 problem(s): EUR: expected 17162583, got 0 (x0); INR: expected 2120696895, got 0 (x0); JPY: expected 12059665, got 0 (x0); USD: expected 16403330, got 0 (x0)",
+    "golden_records: 1 problem(s): missing: S000051, S000052, S000053, S000054, S000055 (+328 more)",
+    "golden_records: 1 problem(s): missing: I000001, I000002, I000003, I000004, I000005 (+1221 more)"
+  ],
+  "report_hash": "15cb1b7f2f4056437d8598262a77079620e7c3db499c56aef9b1daa19ea2e3da",
+  "git_commit": "d656f9899e98"
+}

@@ -1,0 +1,78 @@
+{
+  "scenario_id": "S19-large-volume",
+  "planner": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "run_id": "run_9c37b9010737",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": true,
+  "false_success_claim": false,
+  "crashed_and_resumed": false,
+  "duration_s": 10.04,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 1960,
+        "written": 1960,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 2579,
+        "written": 2579,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 7919,
+        "written": 7919,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 40,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 251,
+    "records_written": 12458,
+    "retries": 0,
+    "backoff_seconds": 0.0,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 4,
+    "cost_usd": 0.007842,
+    "wall_seconds": 9.185,
+    "resumed": false,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "5d9ea22e820cf7be6beded41a90bc93a",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 385
+    }
+  },
+  "faults_fired": [],
+  "failed_checks": [],
+  "report_hash": "a8d336d5b375782f8a60af2105ed0154909f56486eecb845a845625ffe408002",
+  "git_commit": "251cdd462a72"
+}

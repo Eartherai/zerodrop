@@ -1,0 +1,101 @@
+{
+  "scenario_id": "S04-intermittent-5xx",
+  "planner": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "run_id": "run_c9e2c197f962",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": true,
+  "false_success_claim": false,
+  "crashed_and_resumed": false,
+  "duration_s": 9.352,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 28,
+        "written": 28,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 38,
+        "written": 38,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 116,
+        "written": 116,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 2,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 8,
+    "records_written": 182,
+    "retries": 3,
+    "backoff_seconds": 1.279,
+    "ambiguous_writes": 0,
+    "lookups": 0,
+    "recovered_by_lookup": 0,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 4,
+    "cost_usd": 0.006669,
+    "wall_seconds": 8.652,
+    "resumed": false,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "458d122ce76f51754e10f543d19e7940",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 17,
+      "503": 3
+    }
+  },
+  "faults_fired": [
+    {
+      "rule": 0,
+      "kind": "server_error",
+      "entity": "invoices",
+      "request": 3,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "server_error",
+      "entity": "invoices",
+      "request": 4,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "server_error",
+      "entity": "invoices",
+      "request": 5,
+      "counted": true
+    }
+  ],
+  "failed_checks": [],
+  "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+  "git_commit": "78d92da007e8"
+}

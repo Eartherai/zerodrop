@@ -1,0 +1,122 @@
+{
+  "scenario_id": "S16-demo-chaos",
+  "planner": "gemini",
+  "model": "gemini-3.6-flash",
+  "run_id": "run_aa73127580bb",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": true,
+  "false_success_claim": false,
+  "crashed_and_resumed": false,
+  "duration_s": 145.29,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 292,
+        "written": 292,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 383,
+        "written": 383,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 1226,
+        "written": 1226,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 8,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 44,
+    "records_written": 1901,
+    "retries": 4,
+    "backoff_seconds": 2.0,
+    "ambiguous_writes": 1,
+    "lookups": 50,
+    "recovered_by_lookup": 50,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 1,
+    "dry_run_repairs": 0,
+    "version_changes": 1,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 2,
+      "invoices": 2
+    },
+    "target_api_version": "v2",
+    "llm_calls": 12,
+    "cost_usd": 0.08171,
+    "wall_seconds": 144.459,
+    "resumed": false,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "0652c95c208d53311eecccf73fe1cae0",
+    "target_version_final": "v2",
+    "target_requests_by_status": {
+      "200": 119,
+      "429": 4
+    }
+  },
+  "faults_fired": [
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 5,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 6,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 7,
+      "counted": true
+    },
+    {
+      "rule": 0,
+      "kind": "rate_limit",
+      "entity": "customers",
+      "request": 8,
+      "counted": true
+    },
+    {
+      "rule": 1,
+      "kind": "schema_flip",
+      "entity": "subscriptions",
+      "request": 12,
+      "counted": true
+    },
+    {
+      "rule": 2,
+      "kind": "timeout_after_write",
+      "entity": "invoices",
+      "request": 22,
+      "counted": true
+    }
+  ],
+  "failed_checks": [],
+  "report_hash": "80c90855161b4c53bfd2d9a0d675ea4223e9af6ba69188c9f5f9cd32a89cd037",
+  "git_commit": "d656f9899e98"
+}

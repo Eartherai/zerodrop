@@ -1,0 +1,95 @@
+{
+  "scenario_id": "S05-timeout-after-write",
+  "planner": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "run_id": "run_a0d8eb72824f",
+  "status": "FAILED",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": false,
+  "false_success_claim": true,
+  "crashed_and_resumed": false,
+  "duration_s": 12.001,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 28,
+        "written": 28,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 38,
+        "written": 38,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 116,
+        "written": 116,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 2,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 5,
+    "records_written": 182,
+    "retries": 0,
+    "backoff_seconds": 0.0,
+    "ambiguous_writes": 1,
+    "lookups": 28,
+    "recovered_by_lookup": 28,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 4,
+    "cost_usd": 0.007454,
+    "wall_seconds": 10.55,
+    "resumed": false,
+    "false_success_claim": true,
+    "neatlogs_trace_id": "e95e9393b3b6ea9c8864834f5bd8ec2f",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 44
+    }
+  },
+  "faults_fired": [
+    {
+      "rule": 0,
+      "kind": "timeout_after_write",
+      "entity": "customers",
+      "request": 1,
+      "counted": true
+    }
+  ],
+  "failed_checks": [
+    "count: source 28 (2 soft-deleted excluded), quarantined 0, target 1",
+    "missing_records_quarantined: missing from target and not quarantined: C000001, C000002, C000003, C000004, C000005 (+23 more)",
+    "no_unexpected_records: on target but not expected: external_id (not in source)",
+    "source_fidelity: 38 problem(s): S000001.customer_external_id: expected 'C000005', got 'external_id'; S000002.customer_external_id: expected 'C000004', got 'external_id'; S000003.customer_external_id: expected 'C000006', got 'external_id'; S",
+    "source_fidelity: 116 problem(s): I000001.customer_external_id: expected 'C000005', got 'external_id'; I000002.customer_external_id: expected 'C000004', got 'external_id'; I000003.customer_external_id: expected 'C000004', got 'external_id'; ",
+    "golden_records: 2 problem(s): missing: C000001, C000002, C000003, C000004, C000005 (+23 more); unexpected: external_id",
+    "golden_records: 38 problem(s): S000001.customer_external_id: expected 'C000005', got 'external_id'; S000002.customer_external_id: expected 'C000004', got 'external_id'; S000003.customer_external_id: expected 'C000006', got 'external_id'; S0",
+    "golden_records: 116 problem(s): I000001.customer_external_id: expected 'C000005', got 'external_id'; I000002.customer_external_id: expected 'C000004', got 'external_id'; I000003.customer_external_id: expected 'C000004', got 'external_id'; I"
+  ],
+  "report_hash": "9a436eb90024a759f4744c325616e5248f4d63ff5d1b387368c5f839b6c2d9b1",
+  "git_commit": "78d92da007e8"
+}

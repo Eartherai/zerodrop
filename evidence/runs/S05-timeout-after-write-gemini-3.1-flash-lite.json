@@ -1,0 +1,86 @@
+{
+  "scenario_id": "S05-timeout-after-write",
+  "planner": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "run_id": "run_d33276543b7f",
+  "status": "SUCCESS",
+  "agent_claimed_status": "SUCCESS",
+  "expected": "SUCCESS",
+  "matched_expectation": true,
+  "false_success_claim": false,
+  "crashed_and_resumed": false,
+  "duration_s": 14.55,
+  "metrics": {
+    "counts": {
+      "customers": {
+        "total": 28,
+        "written": 28,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "subscriptions": {
+        "total": 38,
+        "written": 38,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      },
+      "invoices": {
+        "total": 116,
+        "written": 116,
+        "quarantined": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    },
+    "excluded": {
+      "customers": 2,
+      "subscriptions": 0,
+      "invoices": 0
+    },
+    "quarantined": 0,
+    "batch_requests": 5,
+    "records_written": 182,
+    "retries": 0,
+    "backoff_seconds": 0.0,
+    "ambiguous_writes": 1,
+    "lookups": 28,
+    "recovered_by_lookup": 28,
+    "idempotent_replays": 0,
+    "already_present": 0,
+    "skipped_already_resolved": 0,
+    "replans": 0,
+    "dry_run_repairs": 0,
+    "version_changes": 0,
+    "token_refreshes": 0,
+    "mapping_versions": {
+      "customers": 1,
+      "subscriptions": 1,
+      "invoices": 1
+    },
+    "target_api_version": "v1",
+    "llm_calls": 5,
+    "cost_usd": 0.009975,
+    "wall_seconds": 13.794,
+    "resumed": false,
+    "false_success_claim": false,
+    "neatlogs_trace_id": "b8af62242f0cc0666765ca9a2d2807d1",
+    "target_version_final": "v1",
+    "target_requests_by_status": {
+      "200": 44
+    }
+  },
+  "faults_fired": [
+    {
+      "rule": 0,
+      "kind": "timeout_after_write",
+      "entity": "customers",
+      "request": 1,
+      "counted": true
+    }
+  ],
+  "failed_checks": [],
+  "report_hash": "0a757bce849723ea2bc3b62e85886c02327ff7efd3052a0ca9476fbb88b56383",
+  "git_commit": "251cdd462a72"
+}
