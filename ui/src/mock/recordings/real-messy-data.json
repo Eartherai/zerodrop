@@ -2,7 +2,7 @@
  "scenario": {
   "id": "real-messy-data",
   "title": "Duplicates in the source (real run, Gemini)",
-  "description": "Two customers share an e-mail. The target refuses the second; the agent sets it aside with a reason and the run ends PARTIAL_SUCCESS, as it should."
+  "description": "Two customers reuse another customer's e-mail. The target refuses both; the agent sets them aside with a reason and the run ends PARTIAL_SUCCESS, as it should."
  },
  "fault_plan": {
   "seed": 0,

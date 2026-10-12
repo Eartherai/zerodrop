@@ -3,7 +3,7 @@
 Target length 2:50, hard limit 3:00. Script and voice-over lines: `DEMO.md`.
 
 ## What exists
-`zerodrop-demo.mp4` in this folder is a finished cut (2:35, narrated with a synthetic voice),
+`zerodrop-demo.mp4` in this folder is a finished cut (2:41, the eighth, narrated with a synthetic voice),
 built from a dashboard replay of the real Gemini S16 run and captures of Neatlogs, the Entire
 CLI and cfo.ai. Script as rendered: `DEMO.md`. The steps below are for recording your own take
 with your own voice, if you prefer that to the synthetic one.

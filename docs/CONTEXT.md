@@ -1,5 +1,7 @@
 # ZeroDrop: full project context (handoff)
 
+> Handoff note written during the build; some statements are out of date. Current state: `README.md` and `EVIDENCE.md`.
+
 Everything a new Claude Code session needs to continue the neatHack 2026 build. No secrets are
 in this file or anywhere in the repo: keys live only in the git-ignored `.env`.
 

@@ -17,7 +17,7 @@ planners (no model, no keys).
 |---|---|---|
 | Agent (30%) | 20 of 20 scenarios on a real model in each of three full passes; 18 of 18 on the model that made the mistakes; 7 real false successes, all caught ([section 7](#7-does-the-agent-work-every-evaluation-including-the-bad-ones)). Try it: `EARLY_CHECK=false uv run zerodrop run S01-clean --planner naive` | Sandbox systems, one pass per commit, no Claude run |
 | Sponsor tools (25%) | neatlogs: 3 incidents raised on our traces, all resolved, 2 code changes ([section 1](#1-neatlogs-incidents-identified-and-resolved)). Entire: public page https://entire.io/et/hackathone/hackathon , checkpoint `01M4KEGN3Q174N063453HK5XC6`, `git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`, graph output in [`evidence/entire/`](evidence/entire). cfo.ai: https://cfo.ai/s/VyrSUZBAxHyXEJfC | One Entire checkpoint, covering the start of the build |
-| Video (20%) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 (2:39) | Synthetic voice; the run shown is a recording of a real run |
+| Video (20%) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 (2:41) | Synthetic voice; the run shown is a recording of a real run |
 | Building in public (15%) | [`hackathon.md`](hackathon.md), dated, including what failed; commits from Oct 10, 15:38 IST: `git log --reverse --format='%ci %h %s'` | |
 | Usefulness (10%) | The verdict comes from a checker that shares no code with the agent | No real billing system migrated |
 
@@ -36,10 +36,10 @@ that do not flatter us left in.
 | Oct 10 to 11 | The agent ran into real failures. We found and fixed them from the independent verifier's reports and the traces, before anything was on the Incidents board | `EVALUATION.md`, fixes 1 to 6 |
 | Oct 11 | Neatlogs AI, on its own, suggested four detections from our traces. One is a "False Success Claim Detector": "Detects instances where the agent claims the migration was successful, but the actual status is FAILED" | screenshots `24`, `25` |
 | Oct 12, 08:42 | We asked Neatlogs' Investigate agent to go through every `zerodrop-migration` trace. It reported three issues and raised them as incidents: false success claims (Critical), halted runs and model-provider errors (High), runs repeating `recovery.CONTRACT` (High) | `evidence/neatlogs/investigation-report.md`, screenshots `20`, `27` |
-| Oct 12, 08:49 | Each incident's own investigation produced a root cause, evidence and a recommended action | screenshot `21`, `evidence/neatlogs/incident-false-success-fix-prompt.md` |
+| Oct 12, 08:49 | Each incident's own investigation produced a root-cause section, evidence and a recommended action. For the critical incident that section reads "Root cause is not established because the repository code has not been inspected"; its recommended action is what we used | screenshot `21`, `evidence/neatlogs/incident-false-success-fix-prompt.md` |
 | Oct 12, 08:58 | **Fix 7, from the critical incident's recommended action** (commit `286c728`): after the first batch of each mapping the independent verifier re-reads those records, and the run stops if they do not match | before and after traces below |
 | Oct 12, 09:02 | **From the repair-loop incident** (commit `d92588d`): a run that cannot be repaired now halts naming the field and value the target refused, for a person to act on | `tests/test_engine.py::test_a_run_that_cannot_be_repaired_halts_saying_what_the_target_refused` |
-| Oct 12 | The suggested detections were switched on. The false-success detector flagged six spans: today's control run and four real-model runs from Oct 11 | screenshot `23` |
+| Oct 12 | The suggested detections were switched on. The false-success detector's suggested pattern did not match our span output, so we widened it first. It then flagged six spans: two from the day's control run and four of the seven real-model false successes from Oct 11 | screenshot `23` |
 | Oct 12 | All three incidents moved Raised → Investigated → Resolved | screenshots `22`, `28`, `29` |
 
 **The critical incident, before and after the fix it led to.** Same scenario (S01), same flawed
@@ -141,16 +141,16 @@ latency, token usage, and cost".
 
 Every run stores its trace id in the ledger; the dashboard links to it. Layer:
 `src/zerodrop/telemetry.py`. What Neatlogs itself showed for the project on the morning of
-Oct 12: 225 traces in seven days, a 28.4% trace error rate and $2.56 of measured model spend.
-The error rate counts runs with any errored span, and our scenarios inject faults on purpose,
-so it is not the agent's failure rate.
+Oct 12 (read off its project overview; no file was saved): 225 traces in seven days, a 28.4%
+trace error rate and $2.56 of measured model spend. The error rate counts runs with any errored
+span, and our scenarios inject faults on purpose, so it is not the agent's failure rate.
 
 ## 5. Entire: checkpoints and entire-graph
 
 | Item | Evidence |
 |---|---|
 | Entire page | https://entire.io/et/hackathone/hackathon : public, no sign-in. Commits, and under Sessions the coding session with its checkpoint. Checked public on Oct 12, 19:36 IST |
-| Checkpoint | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, pushed with the repo. There is one checkpoint; it covers the first part of the build session. Commits made after it carry an `Entire-Checkpoint` trailer that points to it |
+| Checkpoint | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, pushed with the repo. There is one checkpoint; it covers the first part of the build session. 52 of the repository's 79 commits carry an `Entire-Checkpoint` trailer that points to it (counted Oct 13, 04:40 IST) |
 | Redaction | Secret and personal-data redaction configured in `.entire/settings.json` |
 | Deep links, public | The session: https://entire.io/et/hackathone/hackathon/session/3ca2e4c1-0518-40bc-86bb-a3d3f8786516 . The incident fix as a commit page: https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7 |
 | An Entire CLI plugin, built here | [`tools/entire-verdict`](tools/entire-verdict): `entire verdict` joins each commit's Entire checkpoint to what the independent checker measured at that commit. Installed with `entire plugin install ./tools/entire-verdict/entire-verdict`; tested in `tests/test_entire_verdict_plugin.py`. Its output for this repository, [`evidence/entire/verdict-by-commit.md`](evidence/entire/verdict-by-commit.md), recomputes the seven false successes from the result files: five at `78d92da`, one at `e65cc45`, one at `933a7a9` |
@@ -195,7 +195,7 @@ have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL
 | Pass 4 | `gemini-3.1-flash-lite` | `7b34f8c` | 10 of the 10 that ran | 0 | 57 | $0.1203 |
 | All 20 scenarios, after fix 5 | `gemini-3.5-flash-lite` | `1838455` | **20 of 20** | **0** | 138 | $0.4570 |
 | All 20 scenarios, after fix 6 | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | **0** | 141 | $0.4650 |
-| After fix 7, morning | `gemini-3.5-flash-lite` | `286c728` | 8 of the 8 that ran | 0 | 57 | $0.2140 |
+| After fix 7, morning | `gemini-3.5-flash-lite` | `286c728` for S01 to S06, `d92588d` for S07 and S08 (that commit landed during the pass) | 8 of the 8 that ran | 0 | 57 | $0.2140 |
 | **All 20 scenarios, final code** | `gemini-3.5-flash-lite` | `d92588d` | **20 of 20** | **0** | 133 | $0.4539 |
 | **Final code, the model that made the mistakes** | `gemini-3.1-flash-lite` | `d92588d` (file records `ab5e1e8`; no engine code changed between them) | **18 of 18** | **0** | 117 | $0.2593 |
 | Scripted regression after fixes 3 to 7 | scripted | `251cdd4`, `933a7a9`, `7b34f8c`, `6c07c9f`, `286c728` | all matched each time | 0 | 0 | $0 |
@@ -212,7 +212,8 @@ Reading it honestly:
   it at the first attempt with the guard off and on (`evidence/experiments/`), so fix 6 is
   shown harmless and seen working inside one repair conversation, but not shown rescuing a run.
 - Pass 4 and the morning pass after fix 7 were cut short when the free tier's daily quota ran
-  out. Scenarios that never reached the model are counted as not run.
+  out. Scenarios stopped by the quota are counted as not run; two of them had already made
+  model calls and wrote no records.
 - One pass per commit. This shows what happened, not a failure rate.
 - All real-model runs used Gemini Flash models on the free tier (nothing was charged). No
   Claude run exists: the Anthropic account had no credit during the hackathon.

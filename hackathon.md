@@ -34,14 +34,6 @@
 - Blocked at this point (owner action): the Anthropic key is valid but the API answers "credit balance is too low", so no real-model run has happened yet ($0 spent); trace readback through the Neatlogs CLI needs a browser approval.
 - 23:40 IST: **Submission docs, first complete drafts.** `README.md` (pitch, how it works, results, quick start, sponsor tools), `DEMO.md` (2:55 script with timestamps; each sponsor tool covered for architecture, implementation, runtime, reasoning, result), `BUSINESS.md` (customer, pricing, unit economics, break-even, runway scenario for cfo.ai; model cost per migration left as "pending measurement"), `SUBMISSION_CHECKLIST.md`, and six post drafts in `posts/` (two are marked NOT READY until real-model numbers exist). Nothing posted. Full-history secret scan: no leaks.
 
-#### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
-| Criterion | Weight | Score | Why | Next action |
-|---|---|---|---|---|
-| Agent that works | 30% | 6 | Engine, recovery and verifier are proven on 20 scenarios, but only with the scripted planner. No real-model run yet | **Weakest by weight.** Real Claude runs as soon as API credits are available |
-| Sponsor tools | 25% | 6 | Neatlogs traces link to runs; Entire checkpoint exists; cfo.ai plan not built; no trace screenshots | Trace screenshots, cfo.ai plan (owner sign-in) |
-| Video | 20% | 3 | Script only | Record dashboard assets, write recording steps |
-| Building in public | 15% | 2 | Drafts only, nothing posted | Owner approval to post |
-| Usefulness, originality | 10% | 7 | Clear problem, independent verifier is the differentiator | Business plan in cfo.ai |
 - 23:50 IST: **Video assets, first pass.** Recorded with Playwright at 1920x1080 against the live dashboard (oracle and naive planners, $0): `evidence/video/s16-demo-chaos-oracle-dashboard.mp4` (run `run_113d17d09ecf`, verified SUCCESS, 24/24 checks, trace `808ee43d4bc2e50e1766d8e46549d0b8`), `evidence/video/s01-naive-false-success-dashboard.mp4` (run `run_6f860e513488`: agent claimed SUCCESS, verifier FAILED, 21/24), and six screenshots in `evidence/screenshots/`. Recording and voice-over steps for the owner: `evidence/video/RECORDING.md`. These are backup assets; the final take should use the Claude planner once it is measured.
 - 23:55 IST: **Security review** of the API, public mode, static file serving, sandbox bind host, trace link and Docker kit: no high-confidence findings. Secret scan of the full history (24 commits at scan time): no leaks.
 - 23:58 IST: **State at end of this stretch.** Still blocked on two owner actions: (1) API credits on the Anthropic key's organization (a one-token test call still answers "credit balance is too low"; $0 of the $25 budget spent), (2) browser approval for Neatlogs read access (two device codes expired unapproved). Not started because they need the owner: cfo.ai plan, final video, posts, making the repo public.
@@ -78,15 +70,6 @@
 - 18:50 IST: **Pre-publication audit of the Entire checkpoint** (`refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`). What it contains: the first 13 turns of the Mac session (setup), captured on Oct 10 at 23:12 IST. Later `entire session attach` calls only added the checkpoint trailer to new commits; they did not add later turns. Counted by search, values never printed: 0 occurrences of any of the three keys in `.env` across all refs and all history; 0 images; 0 hits for the owner's name, e-mail, college, the Google Cloud project number or the Neatlogs org id (all of which appeared later in the session, after the snapshot). Present and worth knowing before going public: the home directory path, two unrelated local project folder names from a process listing, an expired Entire login code, and the Neatlogs project id. gitleaks over all refs: no leaks. An earlier note of mine said the checkpoint held personal details surfaced by cfo.ai; that was wrong, and this entry corrects it.
 
 - 19:10 IST: **Single-model evaluation.** The owner supplied a second free-tier Gemini key. The standard suite ran in one pass on `gemini-3.1-flash-lite` (the smallest model, and the one that had produced the false successes) at commit `f858712`: **18 of 18 matched, 0 false success claims**, 111 model calls, $0.2233 at list price ($0.0149 per verified success), median 17.0 s. Files: `evidence/eval/20261011T130853Z-gemini-gemini-3.1-flash-lite-single-model.*`. Total real-model spend so far: $0 charged, about $1.2 at list price. Process note: the key was pasted into the chat, so from here on commits carry the checkpoint trailer written by hand and the session is not re-attached to Entire.
-
-#### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
-| Criterion | Weight | Score | Why | Next action |
-|---|---|---|---|---|
-| Agent that works | 30% | 8 | All 20 scenarios verified with a real model; a real false success caught and fixed. Single runs only, small models | Repeat runs on one model if billing is enabled |
-| Sponsor tools | 25% | 7 | Neatlogs traces are readable and linked; cfo.ai plan built and folded in; Entire checkpoint exists but its web page is still a 404 | **Weakest:** owner runs the Entire push; review the checkpoint transcript |
-| Video | 20% | 7 | Full narrated cut with real footage; synthetic voice; not reviewed by the owner | Owner review and upload |
-| Building in public | 15% | 2 | Seven post drafts, nothing posted | Owner approval to post |
-| Usefulness, originality | 10% | 8 | The verifier catching a real model's false success is the product thesis shown on real data | - |
 
 - **Correction to the time stamps above.** The Oct 11 entries marked 16:25 to 19:10 IST are 20 to 30 minutes later than the commits that contain them, which cannot be right. Git is the authority: third video cut 16:04, dashboard redesign 16:20, planner identity 18:11, checkpoint audit 18:26, single-model evaluation 18:38 to 18:48.
 - 23:13 IST: **Second pass on the same model found a new false success.** `gemini-3.1-flash-lite` at `e65cc45`: 17 of 18, 117 calls, $0.2472. S16 (`run_14ded6031abe`, trace `874c2d43e3b1995e85980d50264aed3f`): engine SUCCESS, verifier FAILED, JPY total 100 times too large on 157 invoices. So the 18 of 18 from pass 1 was one good pass, not proof. Root cause: the model gave `decimal_to_minor` both `decimals: 2` and `currency_field`, and the mapping language silently used the fixed value.
@@ -146,8 +129,9 @@
 - 00:22 IST: **An Entire CLI plugin, `entire verdict`** (`tools/entire-verdict`, with tests). Entire discovers plugins as executables named `entire-<name>`; this one joins each commit's Entire checkpoint to what the independent checker measured at that commit, from the saved result files. Run on this repository it counts seven false successes across 222 real-model runs (five at `78d92da`, one at `e65cc45`, one at `933a7a9`), the same seven the documents report, recomputed by a different route. Its output is saved in `evidence/entire/verdict-by-commit.md`. `SUBMISSION.md` was rewritten from what the research on the live submission stream found: which post to quote, the form's real fields, and that the public form page still showed the old closing time.
 - 00:26 IST: **GitHub now recomputes the published numbers on every push.** `scripts/verify_numbers.py` reads the saved result files and checks every result row of the README and of `EVIDENCE.md` against them (scenarios matched, false successes, model calls, cost), plus the totals: seven false successes, 182 and 28 records in the control runs, $4.06. First run: 37 figures, no mismatch; four rows that describe a quota-cut pass in words are listed as not checked. `scripts/ci_keyless_runs.py` runs the agent three times with scripted planners and checks the verifier's verdicts. The workflow also runs lint, the tests and the dashboard tests. Before writing the reader, entire-graph located where result files are written (`evidence/entire/search-result-files.txt`).
 - 00:28 IST: **The first run of that check failed, and it was right.** On GitHub it counted two false successes and $3.16, not seven and $4.06: the 28 single-run result files in `evidence/runs/` (written Oct 11, cited in `EVIDENCE.md` and `EVALUATION.md`) had never been committed, because the `.gitignore` line `runs/`, meant for the local ledger folder, also matched `evidence/runs/`. So the public repository had been missing the saved outcomes of five of the seven false successes and of the demo run. The rule is now `/runs/` and the 28 files are committed as they were written on Oct 11; nothing in them was edited. This is the kind of mistake the check exists to catch, and it had been ours for two days.
+- 04:33 IST: Wording sweep from the audit's list, documents only: what is claimed now matches what the files show. The critical incident's own root-cause section says the cause was not established (we supplied it); the detector's suggested pattern had to be widened and it flagged four of the seven real false successes; three of the twenty scenarios are clean runs; the morning pass after fix 7 ran on two commits; the trace-count sentence says it was read off a page and not saved. Older self-score tables removed from this file (they are in the git history). The four in-repository sessions the owner started at 01:06 did not run: the `claude` command in that terminal was signed out.
 
-#### Self-assessment at submission (my own judgment, 1 to 10; not a measurement)
+#### Self-assessment at submission (my own judgment, 1 to 10; not a measurement; earlier versions of this table were removed on Oct 13, they are in the git history)
 | Criterion | Weight | Score | Why | What would raise it |
 |---|---|---|---|---|
 | Agent that works | 30% | 9 | Three full passes of 20 on one real model and 18 of 18 on the weakest, all on or near the final code; seven real false successes caught; every bad pass published | A real billing system instead of sandboxes; repeated passes; a Claude run |
@@ -156,17 +140,8 @@
 | Building in public | 15% | 4 | Repository, live site and evidence page are public; nine post drafts, none posted | The owner posting |
 | Usefulness, originality | 10% | 8 | An independent check of an agent's own claim, shown on real failures, with a business plan | A design partner |
 
-#### Self-assessment after this step (my own judgment, 1 to 10; not a measurement)
-| Criterion | Weight | Score | Why | Next action |
-|---|---|---|---|---|
-| Agent that works | 30% | 9 | 20 of 20 on a real model twice in a row, the second time on the final code; seven real false successes all caught, three causes fixed test first; bad passes published | Fix 6 check on the model that failed, after the quota reset; a Claude run if credit appears |
-| Sponsor tools | 25% | 7 | Neatlogs: state, retries, failures, cost in every trace, before and after pair. entire-graph installed and used. cfo.ai plan with its criticism. Entire checkpoint page still a 404 and covers only the first part of the build | **Weakest:** owner pushes to the Entire remote and makes it public |
-| Video | 20% | 7 | Narrated cut with real footage, 2:35, plus a 2:18 cut for X; synthetic voice; not reviewed by the owner | Owner review and upload |
-| Building in public | 15% | 2 | Drafts only | Owner posts; first post as early as possible on Oct 12 |
-| Usefulness, originality | 10% | 8 | Independent verification of an agent's own claim, shown on real failures | - |
-
 ## Demo
-- Video: `evidence/video/zerodrop-demo.mp4` (2:39) and `evidence/video/zerodrop-demo-x.mp4` (2:19, for X).
+- Video: `evidence/video/zerodrop-demo.mp4` (2:41) and `evidence/video/zerodrop-demo-x.mp4` (2:20, for X).
 - Local: `docker compose up --build`, or `uv sync && (cd ui && npm ci && npm run build) && uv run zerodrop serve`, then open http://127.0.0.1:8700 and start "Demo - everything goes wrong". Add `--planner gemini` and a `ZERODROP_GEMINI_KEY` to run it with a real model.
 
 ## Known limitations and next steps

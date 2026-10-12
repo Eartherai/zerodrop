@@ -120,7 +120,7 @@ The same suite, run again. Each row is one pass of 18 scenarios.
 | 4 | `gemini-3.1-flash-lite` | `7b34f8c` | 10 of the 10 that ran | 0 | 57 | $0.1203 | `20261011T181825Z-…-pass4-after-fix5` |
 | all 20, after fix 5 | `gemini-3.5-flash-lite` | `1838455` | **20 of 20** | 0 | 138 | $0.4570 | `20261011T182932Z-…-final-code` |
 | all 20, after fix 6 | `gemini-3.5-flash-lite` | `6c07c9f` | **20 of 20** | 0 | 141 | $0.4650 | `20261011T184330Z-…-after-fix6` |
-| after fix 7, morning | `gemini-3.5-flash-lite` | `286c728` | 8 of the 8 that ran | 0 | 57 | $0.2140 | `20261012T032923Z-…-after-fix7-early-check` |
+| after fix 7, morning | `gemini-3.5-flash-lite` | `286c728` for S01 to S06, `d92588d` for S07 and S08 | 8 of the 8 that ran | 0 | 57 | $0.2140 | `20261012T032923Z-…-after-fix7-early-check` |
 | all 20, final code | `gemini-3.5-flash-lite` | `d92588d` | **20 of 20** | 0 | 133 | $0.4539 | `…-final-code-early-check` |
 
 Pass 4 stopped early: the free tier's daily quota ran out after ten scenarios. The remaining

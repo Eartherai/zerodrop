@@ -1,4 +1,4 @@
-# Post 9: what Neatlogs' incidents found in our agent (thread, NOT POSTED)
+# Post 9: what Neatlogs' incidents found in our agent (thread; text ready, the owner posts it)
 
 Source for every claim: `EVIDENCE.md` section 1 and `evidence/neatlogs/investigation-report.md`.
 Attach `evidence/screenshots/20-neatlogs-incidents-board-three-raised.png`,

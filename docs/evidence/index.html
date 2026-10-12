@@ -76,7 +76,7 @@ planners (no model, no keys).</p>
 </tr>
 <tr>
 <td>Video (20%)</td>
-<td><a href="https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4">https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4</a> (2:39)</td>
+<td><a href="https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4">https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4</a> (2:41)</td>
 <td>Synthetic voice; the run shown is a recording of a real run</td>
 </tr>
 <tr>
@@ -122,7 +122,7 @@ that do not flatter us left in.</p>
 </tr>
 <tr>
 <td>Oct 12, 08:49</td>
-<td>Each incident&#39;s own investigation produced a root cause, evidence and a recommended action</td>
+<td>Each incident&#39;s own investigation produced a root-cause section, evidence and a recommended action. For the critical incident that section reads &quot;Root cause is not established because the repository code has not been inspected&quot;; its recommended action is what we used</td>
 <td>screenshot <code>21</code>, <code>evidence/neatlogs/incident-false-success-fix-prompt.md</code></td>
 </tr>
 <tr>
@@ -137,7 +137,7 @@ that do not flatter us left in.</p>
 </tr>
 <tr>
 <td>Oct 12</td>
-<td>The suggested detections were switched on. The false-success detector flagged six spans: today&#39;s control run and four real-model runs from Oct 11</td>
+<td>The suggested detections were switched on. The false-success detector&#39;s suggested pattern did not match our span output, so we widened it first. It then flagged six spans: two from the day&#39;s control run and four of the seven real-model false successes from Oct 11</td>
 <td>screenshot <code>23</code></td>
 </tr>
 <tr>
@@ -382,9 +382,9 @@ latency, token usage, and cost&quot;.</p>
 </tbody></table></div>
 <p>Every run stores its trace id in the ledger; the dashboard links to it. Layer:
 <code>src/zerodrop/telemetry.py</code>. What Neatlogs itself showed for the project on the morning of
-Oct 12: 225 traces in seven days, a 28.4% trace error rate and $2.56 of measured model spend.
-The error rate counts runs with any errored span, and our scenarios inject faults on purpose,
-so it is not the agent&#39;s failure rate.</p>
+Oct 12 (read off its project overview; no file was saved): 225 traces in seven days, a 28.4%
+trace error rate and $2.56 of measured model spend. The error rate counts runs with any errored
+span, and our scenarios inject faults on purpose, so it is not the agent&#39;s failure rate.</p>
 <h2>5. Entire: checkpoints and entire-graph</h2>
 <div class="scroll"><table>
 <thead>
@@ -399,7 +399,7 @@ so it is not the agent&#39;s failure rate.</p>
 </tr>
 <tr>
 <td>Checkpoint</td>
-<td>ID <code>01M4KEGN3Q174N063453HK5XC6</code>, git ref <code>refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6</code>, pushed with the repo. There is one checkpoint; it covers the first part of the build session. Commits made after it carry an <code>Entire-Checkpoint</code> trailer that points to it</td>
+<td>ID <code>01M4KEGN3Q174N063453HK5XC6</code>, git ref <code>refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6</code>, pushed with the repo. There is one checkpoint; it covers the first part of the build session. 52 of the repository&#39;s 79 commits carry an <code>Entire-Checkpoint</code> trailer that points to it (counted Oct 13, 04:40 IST)</td>
 </tr>
 <tr>
 <td>Redaction</td>
@@ -587,7 +587,7 @@ have (SUCCESS, PARTIAL_SUCCESS with records quarantined, or WAITING_FOR_APPROVAL
 <tr>
 <td>After fix 7, morning</td>
 <td><code>gemini-3.5-flash-lite</code></td>
-<td><code>286c728</code></td>
+<td><code>286c728</code> for S01 to S06, <code>d92588d</code> for S07 and S08 (that commit landed during the pass)</td>
 <td>8 of the 8 that ran</td>
 <td>0</td>
 <td>57</td>
@@ -634,7 +634,8 @@ let real models repair it, both <code>gemini-3.5-flash-lite</code> and <code>gem
 it at the first attempt with the guard off and on (<code>evidence/experiments/</code>), so fix 6 is
 shown harmless and seen working inside one repair conversation, but not shown rescuing a run.</li>
 <li>Pass 4 and the morning pass after fix 7 were cut short when the free tier&#39;s daily quota ran
-out. Scenarios that never reached the model are counted as not run.</li>
+out. Scenarios stopped by the quota are counted as not run; two of them had already made
+model calls and wrote no records.</li>
 <li>One pass per commit. This shows what happened, not a failure rate.</li>
 <li>All real-model runs used Gemini Flash models on the free tier (nothing was charged). No
 Claude run exists: the Anthropic account had no credit during the hackathon.</li>

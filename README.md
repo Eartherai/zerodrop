@@ -23,11 +23,11 @@ page that maps each thing the rules ask for to a file, a run id or a trace.
 
 | Judging | Proof in one click |
 |---|---|
-| Agent works, recovers, improves | 20 of 20 failure scenarios on a real model in each of three full passes; 7 false successes, all caught: [EVIDENCE.md 7](EVIDENCE.md#7-does-the-agent-work-every-evaluation-including-the-bad-ones) |
+| Agent works, recovers, improves | 20 of 20 scenarios on a real model in each of three full passes; 7 false successes, all caught: [EVIDENCE.md 7](EVIDENCE.md#7-does-the-agent-work-every-evaluation-including-the-bad-ones) |
 | neatlogs Incidents | 3 incidents raised on our traces, all resolved, two code changes: [EVIDENCE.md 1](EVIDENCE.md#1-neatlogs-incidents-identified-and-resolved) |
 | Entire | Public page: https://entire.io/et/hackathone/hackathon (commits, and the session with its checkpoint). Checkpoint `01M4KEGN3Q174N063453HK5XC6`; an Entire CLI plugin we built, [`entire verdict`](tools/entire-verdict); entire-graph output: [`evidence/entire/`](evidence/entire) |
 | cfo.ai | $499 per verified migration, $36.77 to deliver, break-even March 2027: https://cfo.ai/s/VyrSUZBAxHyXEJfC |
-| Video (2:39) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
+| Video (2:41) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
 | Built in public | [`hackathon.md`](hackathon.md): dated log, including what failed; drafts and posts in [`posts/`](posts) |
 
 Every result row on this page is recomputed from the saved result files on every push, by GitHub
@@ -39,7 +39,7 @@ the tests and three keyless runs of the agent (scripted planners, no model).
 
 ![ZeroDrop dashboard during the chaos demo: rate-limit failures and recovery steps streaming](evidence/screenshots/01-s16-running.png)
 
-**Demo video (2:39):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)
+**Demo video (2:41):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)
 
 ## Why
 Every SaaS switch is a data migration, and migrations fail quietly: a batch dropped by a rate
@@ -59,7 +59,8 @@ When the engine believes SUCCESS and the verifier disagrees, that is recorded as
 **false success claim**. Details: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Results
-Twenty seeded failure scenarios (`scenarios/scenarios.yaml`), each ending with the verifier.
+Twenty seeded scenarios (`scenarios/scenarios.yaml`): 17 with injected failures, a crash or bad
+data, and 3 clean runs, each ending with the verifier.
 
 | Evaluation | Matched expected verified outcome | False success claims |
 |---|---|---|
@@ -81,7 +82,7 @@ prompt injection in the data.
 | `gemini-3.1-flash-lite`, pass 2 | `e65cc45` | 17 of 18 | 1, caught, fixed in `933a7a9` |
 | `gemini-3.5-flash-lite` | `e65cc45` | 18 of 18 | 0 |
 | `gemini-3.1-flash-lite`, pass 3 | `933a7a9` | 15 of 18 | 1, caught, fixed in `7b34f8c` |
-| `gemini-3.1-flash-lite`, pass 4 | `7b34f8c` | 10 of the 10 that ran before the daily quota ended | 0 |
+| `gemini-3.1-flash-lite`, pass 4 | `7b34f8c` | 10 of the 10 that finished before the daily quota ended | 0 |
 | **`gemini-3.5-flash-lite`, all 20 scenarios** | `1838455` | **20 of 20** | **0** |
 | **`gemini-3.5-flash-lite`, all 20 scenarios** | `6c07c9f` | **20 of 20** | **0** |
 | `gemini-3.5-flash-lite`, after fix 7 | `286c728` | 8 of the 8 that finished before the daily quota ended | 0 |

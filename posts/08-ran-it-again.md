@@ -1,6 +1,6 @@
-# Post 8: we ran it again, and it got worse before it got better (thread, NOT POSTED)
+# Post 8: we ran it again, and it got worse before it got better (thread; text ready, the owner posts it)
 
-Source for every number: `EVIDENCE.md` section 6 and `EVALUATION.md` ("More passes", improvements
+Source for every number: `EVIDENCE.md` section 7 and `EVALUATION.md` ("More passes", improvements
 4 to 6, "The final code on a real model"). Attach
 `evidence/screenshots/14-before-trace-s02-false-success.png` and
 `15-after-trace-s02-verified.png`.
