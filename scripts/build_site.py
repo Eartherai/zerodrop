@@ -72,7 +72,7 @@ footer {{ max-width: 1040px; margin: 48px auto 40px; padding: 0 16px; color: var
 </head>
 <body>
 <header>
-<nav><a href="{base}">Dashboard (replay of real runs)</a><a href="{base}evidence/">Evidence</a><a href="{base}video/zerodrop-demo.mp4">Demo video</a><a href="{repo}">Repository</a><a href="{cfo}">cfo.ai plan</a></nav>
+<nav><a href="{base}">Dashboard (replay of real runs)</a><a href="{base}evidence/">Evidence</a><a href="{base}video/zerodrop-demo.mp4">Demo video</a><a href="{repo}">Repository</a><a href="{cfo}">cfo.ai plan</a><a href="https://entire.io/et/hackathone/hackathon">Entire</a></nav>
 <h1>ZeroDrop: evidence</h1>
 <p class="lede">The migration agent that proves nothing was lost. This page is <a href="{repo}/blob/main/EVIDENCE.md">EVIDENCE.md</a> from the repository, with the key Neatlogs captures on top. Every number comes from a saved result file.</p>
 <video controls preload="metadata" src="{base}video/zerodrop-demo.mp4"></video>

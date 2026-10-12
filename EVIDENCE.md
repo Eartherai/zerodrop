@@ -9,7 +9,7 @@ Where something is missing or weak, it says so.
 | Criterion | What to look at | What it does not show |
 |---|---|---|
 | Agent (30%) | 20 of 20 scenarios on a real model in each of three full passes; 18 of 18 on the model that made the mistakes; 7 real false successes, all caught ([section 7](#7-does-the-agent-work-every-evaluation-including-the-bad-ones)). Try it: `EARLY_CHECK=false uv run zerodrop run S01-clean --planner naive` | Sandbox systems, one pass per commit, no Claude run |
-| Sponsor tools (25%) | neatlogs: 3 incidents raised on our traces, all resolved, 2 code changes ([section 1](#1-neatlogs-incidents-identified-and-resolved)). Entire: checkpoint `01M4KEGN3Q174N063453HK5XC6`, `git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`, graph output in [`evidence/entire/`](evidence/entire). cfo.ai: https://cfo.ai/s/VyrSUZBAxHyXEJfC | One Entire checkpoint, covering the start of the build |
+| Sponsor tools (25%) | neatlogs: 3 incidents raised on our traces, all resolved, 2 code changes ([section 1](#1-neatlogs-incidents-identified-and-resolved)). Entire: public page https://entire.io/et/hackathone/hackathon , checkpoint `01M4KEGN3Q174N063453HK5XC6`, `git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`, graph output in [`evidence/entire/`](evidence/entire). cfo.ai: https://cfo.ai/s/VyrSUZBAxHyXEJfC | One Entire checkpoint, covering the start of the build |
 | Video (20%) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 (2:39) | Synthetic voice; the run shown is a recording of a real run |
 | Building in public (15%) | [`hackathon.md`](hackathon.md), dated, including what failed; commits from Oct 10, 15:38 IST: `git log --reverse --format='%ci %h %s'` | |
 | Usefulness (10%) | The verdict comes from a checker that shares no code with the agent | No real billing system migrated |
@@ -142,6 +142,7 @@ so it is not the agent's failure rate.
 
 | Item | Evidence |
 |---|---|
+| Entire page | https://entire.io/et/hackathone/hackathon : public, no sign-in. Commits, and under Sessions the coding session with its checkpoint. Checked public on Oct 12, 19:36 IST |
 | Checkpoint | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, pushed with the repo. There is one checkpoint; it covers the first part of the build session. Commits made after it carry an `Entire-Checkpoint` trailer that points to it |
 | Redaction | Secret and personal-data redaction configured in `.entire/settings.json` |
 | entire-graph installed | Plugin v0.4.0; index of the repo; agent guide in `.entire/graph-agent.md`, loaded by `CLAUDE.md` and `AGENTS.md` |

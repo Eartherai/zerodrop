@@ -12,7 +12,8 @@ report from an independent verifier that the agent cannot influence.
 **Try it:** https://eartherai.github.io/zerodrop/ (the dashboard replaying real recorded runs; press Start migration) ·
 **Evidence page:** https://eartherai.github.io/zerodrop/evidence/ ·
 **Video:** https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 ·
-**cfo.ai plan:** https://cfo.ai/s/VyrSUZBAxHyXEJfC
+**cfo.ai plan:** https://cfo.ai/s/VyrSUZBAxHyXEJfC ·
+**Entire:** https://entire.io/et/hackathone/hackathon
 
 Built during neatHack 2026 by team Tokenmaxing. The dated build log, including what failed, is
 in [`hackathon.md`](hackathon.md). **Judging? Start with [`EVIDENCE.md`](EVIDENCE.md):** one
@@ -22,7 +23,7 @@ page that maps each thing the rules ask for to a file, a run id or a trace.
 |---|---|
 | Agent works, recovers, improves | 20 of 20 failure scenarios on a real model in each of three full passes; 7 false successes, all caught: [EVIDENCE.md 7](EVIDENCE.md#7-does-the-agent-work-every-evaluation-including-the-bad-ones) |
 | neatlogs Incidents | 3 incidents raised on our traces, all resolved, two code changes: [EVIDENCE.md 1](EVIDENCE.md#1-neatlogs-incidents-identified-and-resolved) |
-| Entire | Checkpoint `01M4KEGN3Q174N063453HK5XC6` (`git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`); entire-graph output: [`evidence/entire/`](evidence/entire) |
+| Entire | Public page: https://entire.io/et/hackathone/hackathon (commits, and the session with its checkpoint). Checkpoint `01M4KEGN3Q174N063453HK5XC6`; entire-graph output: [`evidence/entire/`](evidence/entire) |
 | cfo.ai | $499 per verified migration, $36.77 to deliver, break-even March 2027: https://cfo.ai/s/VyrSUZBAxHyXEJfC |
 | Video (2:39) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
 | Built in public | [`hackathon.md`](hackathon.md): dated log, including what failed; drafts and posts in [`posts/`](posts) |
@@ -141,7 +142,9 @@ of traces with compared numbers is in [`EVIDENCE.md`](EVIDENCE.md). Code:
 **Entire: the build record.** Coding sessions are captured as checkpoints stored in git
 (`refs/entire/checkpoints/*`) with secret and personal-data redaction configured in
 `.entire/settings.json`. There is one checkpoint, covering the first part of the build;
-later commits point to it. The **entire-graph**
+later commits point to it. Public page, no sign-in: https://entire.io/et/hackathone/hackathon
+(the checkpoint is under Sessions; check the ref with
+`git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`). The **entire-graph**
 code graph is installed for coding agents (`.entire/graph-agent.md`) and was used to locate
 code and check the blast radius of a change before making it; saved output is in
 `evidence/entire/`.

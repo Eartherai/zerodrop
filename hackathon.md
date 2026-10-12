@@ -136,6 +136,7 @@
 - 16:14 IST: Last review of the video, frame by frame: nothing to change in the picture. The narration was quiet (mean -24 dB), so both cuts were raised to -16 LUFS; the picture stream was copied, not re-encoded. `SUBMISSION.md` now gives both ways to get the Entire page (GitHub App, or a push to the Entire-hosted repo through a second remote; `origin` stays GitHub).
 - 18:56 IST: A last audit by 17 agents (8 competitors, the rules, video, live site, repo read cold, every number checked, a clean clone, three judges). No headline number was wrong. Fixed what it found: the reply said one code change from the incidents where the evidence says two; "three passes in a row" now says three full passes and names the quota-cut one; the video scene that said "Root cause" beside a Neatlogs panel saying the cause was not established is retitled, the Entire caption says the checkpoint covers the start of the session, and the closing card stays two seconds longer (seventh cut, 2:39; the X cut is 2:19). Dashboard: links to the video, evidence, repo and plan; replay at 2x by default; no error on refresh. README: a one-click proof table and two keyless commands that show the checker overruling the agent. Form answers rewritten to the form's prompts. The judges' honest estimate was mid-field, weakest on Entire (one checkpoint) and on posts not yet public.
 - 19:25 IST: Evidence page now opens with a table per judging criterion, each with what it does not show. Stale counts in the checklist and video lengths corrected.
+- 19:37 IST: **Entire page is live.** The owner pushed `main` and the checkpoint ref to the Entire-hosted repository (a second remote; GitHub stays `origin`). https://entire.io/et/hackathone/hackathon opens without signing in and shows the commits and, under Sessions, the coding session with its one checkpoint. The checkpoint was scanned again for key-shaped strings before linking it: none. The link is now in the README, the evidence page, the dashboard header and the form answers.
 
 #### Self-assessment at submission (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | What would raise it |
@@ -164,7 +165,7 @@
 - The smallest model made three different mapping mistakes that the engine did not catch before fixes 3, 4 and 5. There is no reason to think there is no fourth. The independent verifier is what makes them visible, and it caught all seven runs.
 - Fix 6 (refused values) is tested with a scripted planner and shown harmless with a real model, but has not yet been seen rescuing a real run.
 - LegacyBill and NovaBill are sandboxes written for this project. No real billing system has been migrated.
-- The Entire checkpoint covers the setup part of the Mac coding session, not the whole build (see the Oct 11 audit entry), and its web page needs the owner's push to the Entire-hosted remote.
+- The Entire checkpoint covers the setup part of the Mac coding session, not the whole build (see the Oct 11 audit entry). Its public page is https://entire.io/et/hackathone/hackathon .
 - Next: a third system pair with a public sandbox API; repeated passes on one billed model to get a real failure rate; a dry run that checks references against the target where the target offers a validate-only call.
 
 ## Submission

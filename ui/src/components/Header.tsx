@@ -56,6 +56,9 @@ export function Header(props: HeaderProps) {
               <a className="text-accent underline underline-offset-2" href="https://cfo.ai/s/VyrSUZBAxHyXEJfC">
                 cfo.ai plan
               </a>
+              <a className="text-accent underline underline-offset-2" href="https://entire.io/et/hackathone/hackathon">
+                Entire
+              </a>
             </nav>
           ) : null}
         </div>

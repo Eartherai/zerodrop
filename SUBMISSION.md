@@ -45,6 +45,7 @@ Short fields:
 | Demo (live) | https://eartherai.github.io/zerodrop/ |
 | Demo video | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
 | Entire checkpoint ID | `01M4KEGN3Q174N063453HK5XC6` |
+| Entire link | https://entire.io/et/hackathone/hackathon (public, no sign-in: commits, and the session with its checkpoint under Sessions) |
 | cfo.ai plan | https://cfo.ai/s/VyrSUZBAxHyXEJfC |
 | Where you live, founder or not, open to a call | yours to fill |
 
@@ -60,9 +61,8 @@ Traced: every migration run is one neatlogs trace: model calls with tokens and c
 
 **Entire: how did you use it? Evidence links**
 ```
-Checkpoints: checkpoint 01M4KEGN3Q174N063453HK5XC6 holds the start of the build session in git, secrets redacted; 41 later commits carry its Entire-Checkpoint trailer. Check: git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'. entire-graph, to assess risky changes before making them: entire graph impact on MigrationEngine._set_status showed 17 callers and 6 co-change files; we also ran it on the incident fix 286c728. Output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire . Limit: one checkpoint, covering the first part of the build.
+Checkpoints: checkpoint 01M4KEGN3Q174N063453HK5XC6 holds the start of the build session in git, secrets redacted; 41 later commits carry its Entire-Checkpoint trailer. Check: git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'. entire-graph, to assess risky changes before making them: entire graph impact on MigrationEngine._set_status showed 17 callers and 6 co-change files; we also ran it on the incident fix 286c728. Output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire . Public Entire page (commits, and the session with its checkpoint): https://entire.io/et/hackathone/hackathon . Limit: one checkpoint, covering the first part of the build.
 ```
-Add the entire.io page link at the end only if it opens in a private window (section 4).
 
 **cfo.ai: how did it shape the business plan?**
 ```
@@ -123,17 +123,13 @@ Links
 - Sponsor evidence: https://eartherai.github.io/zerodrop/evidence/
 - Neatlogs incidents, identified to resolved: https://github.com/Eartherai/zerodrop/blob/main/EVIDENCE.md#1-neatlogs-incidents-identified-and-resolved
 - cfo.ai model: https://cfo.ai/s/VyrSUZBAxHyXEJfC
+- Entire page (public): https://entire.io/et/hackathone/hackathon
 - Entire: checkpoint `01M4KEGN3Q174N063453HK5XC6` (git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`); entire-graph output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire
 - Every evaluation, including the bad passes: https://github.com/Eartherai/zerodrop/blob/main/EVALUATION.md
 - Build log: https://github.com/Eartherai/zerodrop/blob/main/hackathon.md
 
 ## 4. Before you post
 - Open the Demo link once and press Start migration.
-- Entire page, either way works. (a) On entire.io go to Repositories, Add repository, and
-  install the Entire GitHub App for `Eartherai/zerodrop`; then
-  `https://entire.io/gh/Eartherai/zerodrop` works. (b) Push to the Entire-hosted repo (the
-  remote `entire` is already set up locally, GitHub stays `origin`):
-  `git push entire main 'refs/entire/*:refs/entire/*'`; then
-  `https://entire.io/et/hackathone/hackathon` shows the commits and the checkpoint. Check the
-  page in a private window before pasting it into the form.
+- Entire page: done. https://entire.io/et/hackathone/hackathon opens without signing in (checked Oct 12, 19:36 IST). After any
+  later commit, run `git push entire main` so the page stays current.
 - Post at least one build-in-public post from `posts/` first (09, 07 or 08), tagged #neatHack.

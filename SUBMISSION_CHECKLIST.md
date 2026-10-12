@@ -13,7 +13,7 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 |---|---|---|---|
 | 1 | One demo video, 3 minutes or less: the problem, how Entire and cfo.ai were part of it, how Neatlogs identified and resolved the incidents (organisers' instruction of Oct 12) | DONE | `evidence/video/zerodrop-demo.mp4`, 2:39, sixth cut, linkable at https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4. `zerodrop-demo-x.mp4` (2:20) is the cut to attach on X. Ten scenes, four on the Neatlogs incidents. Synthetic voice. Owner: watch it once |
 | 2 | Public repository with commits dated during the hackathon | DONE | https://github.com/Eartherai/zerodrop, public since Oct 12, 14:04 IST with the owner's approval. First commit Oct 10, 15:38 IST; history never rewritten; full-history secret scan clean |
-| 3 | Accessible Entire checkpoint link plus its ID | OWNER | ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, in the public repo (`git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`). entire.io only shows repositories that have the Entire GitHub App installed: on entire.io open Repositories, Add repository, and install it for `Eartherai/zerodrop`; then `https://entire.io/gh/Eartherai/zerodrop` works |
+| 3 | Accessible Entire checkpoint link plus its ID | DONE | https://entire.io/et/hackathone/hackathon (public, no sign-in; the session and its checkpoint are under Sessions). ID `01M4KEGN3Q174N063453HK5XC6`, git ref `refs/entire/checkpoints/C6/01M4KEGN3Q174N063453HK5XC6`, also in the GitHub repo (`git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`) |
 | 4 | cfo.ai business plan (pricing, costs, revenue, runway) | DONE | Public view-only link: https://cfo.ai/s/VyrSUZBAxHyXEJfC (monthly forecast, assumptions, six scenarios, written plan). Summary and cfo.ai's criticism in `BUSINESS.md`; capture `evidence/screenshots/08` |
 | 5 | X quote post with team, name, project, repo, demo link | OWNER | Text ready in `SUBMISSION.md` (275 characters, tags @neatlogs, @EntireHQ and @arithecfo as the organisers require), with a reply, form answers, a Discord post and a long form. The quote post and the form are both mandatory. Posting is the owner's action, 19:00 IST |
 
@@ -21,7 +21,7 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 | Weight | Criterion | Status | Evidence or what is missing |
 |---|---|---|---|
 | 30% | Agent that works | DONE | Real model, all 20 scenarios: 20 of 20 with 0 false successes, three passes in a row, the last on the final code `d92588d` (`evidence/eval/*final-code-early-check.md`); and 18 of 18 on the final code with `gemini-3.1-flash-lite`, the model that produced the false successes. Seven real false successes in total, all caught by the verifier; three causes fixed test first; since Oct 12 the verifier also re-reads the first batch so a wrong mapping stops early (`286c728`). Bad passes are published (`EVIDENCE.md` section 7). Not done: repeated passes for a failure rate, any Claude run |
-| 25% | Sponsor tools | DONE except the Entire page | Neatlogs: every run traced; three incidents raised on our traces, investigated and resolved, two code changes came from them; suggested detections switched on (`EVIDENCE.md` section 1, screenshots 18 to 29). Entire: one checkpoint in git, entire-graph installed and used (`evidence/entire/`); entire.io page needs the GitHub App (row 3). cfo.ai: plan with a public link |
+| 25% | Sponsor tools | DONE | Neatlogs: every run traced; three incidents raised on our traces, investigated and resolved, two code changes came from them; suggested detections switched on (`EVIDENCE.md` section 1, screenshots 18 to 29). Entire: one checkpoint in git, entire-graph installed and used (`evidence/entire/`); entire.io page needs the GitHub App (row 3). cfo.ai: plan with a public link |
 | 20% | Video | DONE | Sixth cut, built around the organisers' three asks; every claim mapped to a file in `DEMO.md` |
 | 15% | Building in public | OWNER | Repo, site and evidence are public. Nine drafts in `posts/`, none posted yet |
 | 10% | Usefulness and originality | DONE | `README.md`, `BUSINESS.md`; the verifier catching a real model's false success is the thesis shown on real data |
@@ -38,7 +38,7 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 
 ## What only the owner can do, in order
 1. Watch the video once: https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
-2. Entire page: on entire.io open Repositories, Add repository, install the Entire GitHub App for `Eartherai/zerodrop`.
+2. Entire page: done, https://entire.io/et/hackathone/hackathon . After a later commit run `git push entire main`.
 3. Post at least one #neatHack post from `posts/` before submitting (07 or 08).
 4. At 19:00 IST sharp, quote the official neatlogs post with the text in `SUBMISSION.md` and attach `evidence/video/zerodrop-demo-x.mp4`. The sponsors engage with the first 50 quote posts.
 5. Optional: choose a licence for the repository (none is set).
@@ -49,6 +49,6 @@ Judges: [`EVIDENCE.md`](EVIDENCE.md) maps every item below to a file, run id or 
 - Live demo (dashboard replaying real runs): https://eartherai.github.io/zerodrop/
 - Evidence page: https://eartherai.github.io/zerodrop/evidence/
 - Demo video: https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
-- Entire checkpoint: `01M4KEGN3Q174N063453HK5XC6` (page pending the GitHub App, row 3)
+- Entire checkpoint: `01M4KEGN3Q174N063453HK5XC6` (page: https://entire.io/et/hackathone/hackathon)
 - Neatlogs trace of the demo run: `https://app.neatlogs.com/traces/0652c95c208d53311eecccf73fe1cae0` (project members only; screenshot `10`)
 - cfo.ai plan: https://cfo.ai/s/VyrSUZBAxHyXEJfC
