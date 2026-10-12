@@ -1,7 +1,7 @@
 # Demo video (hard limit 3:00)
 
-**Current cut:** `evidence/video/zerodrop-demo.mp4`, 2:37, 1920x1080, sixth cut, rendered Oct 12.
-`evidence/video/zerodrop-demo-x.mp4` is the same video played 13% faster (2:19) so it can be
+**Current cut:** `evidence/video/zerodrop-demo.mp4`, 2:39, 1920x1080, sixth cut, rendered Oct 12.
+`evidence/video/zerodrop-demo-x.mp4` is the same video played 13% faster (2:20) so it can be
 attached to a post on X, where the limit for standard accounts is 2:20.
 
 It answers the organisers' three asks in one video: the problem the agent solves, how Entire
@@ -41,6 +41,6 @@ What it is and is not:
 | The recommended step we implemented | `evidence/neatlogs/incident-false-success-fix-prompt.md`, commit `286c728` |
 | 182 records and a false success before; stopped at 28 after | `evidence/experiments/early-check-off-naive-S01.json`, `early-check-on-naive-S01.json` |
 | Detector suggested by Neatlogs AI; it flagged the real-model runs; three incidents resolved | screenshots `22` to `25` |
-| Checkpoint id; 17 callers, 6 co-change files | `git for-each-ref refs/entire`, `evidence/entire/impact-set-status.txt` |
+| Checkpoint id; 17 callers, 6 co-change files | `git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`, `evidence/entire/impact-set-status.txt` |
 | $499, about $37 to deliver, break-even March 2027 also with growth halved, cash never below $35K | `BUSINESS.md` (cfo.ai scenario table) |
 | 7 false successes caught; 20 of 20 on a real model | `EVIDENCE.md` section 7 |

@@ -209,6 +209,6 @@ JSON per single run), `evidence/experiments/`. Reproduce the scripted ones with 
 |---|---|
 | Commit dates | First commit `104ff06` on Oct 10, 15:38 IST, after the window opened at 12:30 IST. More than 60 commits since (`git log`), one per task. History never rewritten or force-pushed |
 | Build log | [`hackathon.md`](hackathon.md): dated entries, including what failed |
-| Posts | Drafts in `posts/`; links to the posted versions are in `SUBMISSION_CHECKLIST.md` once posted |
-| Tests | 780 Python tests and 61 UI tests; `uv run pytest -q` |
+| Posts | Texts in [`posts/`](posts); the submission post links the public thread |
+| Tests | 780 Python tests and 81 UI tests; `uv run pytest -q` |
 | Run it yourself | `docker compose up --build`, then http://127.0.0.1:8700 and start "Demo - everything goes wrong". No keys needed |

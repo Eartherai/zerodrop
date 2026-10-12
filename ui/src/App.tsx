@@ -20,7 +20,7 @@ function runFromUrl(): string | null {
 
 function syncUrl(runId: string | null): void {
   const url = new URL(window.location.href);
-  if (runId) url.searchParams.set("run", runId);
+  if (runId && !runId.startsWith("run_mock")) url.searchParams.set("run", runId);
   else url.searchParams.delete("run");
   window.history.replaceState(null, "", url);
 }

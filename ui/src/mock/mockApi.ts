@@ -36,7 +36,7 @@ export interface MockOptions {
 
 function urlSpeed(): number {
   if (typeof location === "undefined") return 1;
-  return parseSpeed(new URLSearchParams(location.search).get("speed"));
+  return parseSpeed(new URLSearchParams(location.search).get("speed"), 2);
 }
 
 function historyRun(recording: Recording): MockRun {

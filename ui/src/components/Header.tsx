@@ -42,6 +42,22 @@ export function Header(props: HeaderProps) {
               Recorded runs
             </span>
           ) : null}
+          {mock ? (
+            <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium" aria-label="Project links">
+              <a className="text-accent underline underline-offset-2" href={`${import.meta.env.BASE_URL}video/zerodrop-demo.mp4`}>
+                Demo video
+              </a>
+              <a className="text-accent underline underline-offset-2" href={`${import.meta.env.BASE_URL}evidence/`}>
+                Evidence
+              </a>
+              <a className="text-accent underline underline-offset-2" href="https://github.com/Eartherai/zerodrop">
+                GitHub
+              </a>
+              <a className="text-accent underline underline-offset-2" href="https://cfo.ai/s/VyrSUZBAxHyXEJfC">
+                cfo.ai plan
+              </a>
+            </nav>
+          ) : null}
         </div>
 
         <div className="ml-auto flex flex-wrap items-center gap-2">

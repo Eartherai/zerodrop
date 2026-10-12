@@ -3,29 +3,29 @@
 Submit between **Mon Oct 12, 19:00 and 23:55 IST** by quoting the official neatlogs post. The
 sponsors engage with the first 50 quote posts, so 19:00 sharp is worth it.
 
-## 1. The quote post (275 of 280 characters)
+## 1. The quote post (278 of 280 characters)
 
 Both steps are mandatory: this quote post **and** the submission form (links arrive at 19:00).
 The post must tag **@neatlogs, @EntireHQ and @arithecfo**; all three are in the text below.
-Attach `evidence/video/zerodrop-demo-x.mp4` (2:19; the full 2:37 cut is at the Demo link).
+Attach `evidence/video/zerodrop-demo-x.mp4` (2:20; the full 2:39 cut is at the Demo link).
 If you change the name, keep the total at 280 or less.
 
 ```
+Our migration agent said SUCCESS on wrong data 7 times. A separate checker caught all 7. Now 20 of 20 on a real model.
+
 ZeroDrop · Team Tokenmaxing · Khamir Desai
 
-Our migration agent said SUCCESS. The data was wrong. An independent checker caught it, 7 times.
+@neatlogs 3 incidents resolved · @EntireHQ · @arithecfo
 
-@neatlogs incidents · @EntireHQ build record · @arithecfo plan
-
-Demo: https://eartherai.github.io/zerodrop/
-Repo: https://github.com/Eartherai/zerodrop
+https://eartherai.github.io/zerodrop/
+https://github.com/Eartherai/zerodrop
 #neatHack
 ```
 
-## 2. Reply underneath (271 characters)
+## 2. Reply underneath (276 characters)
 
 ```
-@neatlogs: every run is a trace. Its Incidents board raised 3 incidents on our runs; all resolved, 1 with a code change.
+@neatlogs: every run is a trace. Its investigation agent raised 3 incidents on our traces; all resolved, 2 with code changes.
 @EntireHQ: build checkpoint in git, entire-graph before changes.
 @arithecfo: $499 per verified migration, break-even Mar 2027.
 https://eartherai.github.io/zerodrop/evidence/
@@ -33,22 +33,41 @@ https://eartherai.github.io/zerodrop/evidence/
 
 ## 2a. Submission form: answers ready to paste
 
-| Field (whatever they call it) | Answer |
+Short fields:
+
+| Field | Answer |
 |---|---|
-| Team | Tokenmaxing (solo) |
-| Name | Khamir Desai |
-| Project | ZeroDrop |
+| Project name | ZeroDrop |
+| Team / name | Tokenmaxing (solo) / Khamir Desai |
 | One line | The migration agent that proves nothing was lost: the model decides, code executes, an independent checker judges |
-| Problem | Data migrations lose records quietly, and the tool doing the work is the one that reports success |
-| How it works | An LLM writes the field mapping in a restricted language; a deterministic engine moves the records and recovers from rate limits, timeouts, crashes and a mid-run API change; an independent verifier re-reads both systems (first batch, then everything) and gives the final status |
+| Quote post link | the link to your quote post |
 | Public repo | https://github.com/Eartherai/zerodrop |
 | Demo (live) | https://eartherai.github.io/zerodrop/ |
 | Demo video | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
-| neatlogs | Every run is one trace. Three incidents raised on our traces, investigated and resolved; two code changes came from them. Evidence: https://eartherai.github.io/zerodrop/evidence/ |
 | Entire checkpoint ID | `01M4KEGN3Q174N063453HK5XC6` |
-| Entire link | `https://entire.io/gh/Eartherai/zerodrop` once the Entire GitHub App is installed (section 4); until then the ref is in the repo: `git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`. entire-graph output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire |
 | cfo.ai plan | https://cfo.ai/s/VyrSUZBAxHyXEJfC |
-| X post | the link to your quote post |
+| Where you live, founder or not, open to a call | yours to fill |
+
+**Problem / how it works**
+```
+Data migrations lose records quietly, and the tool doing the work is the one that reports success. In ZeroDrop an LLM writes the field mapping in a restricted language; deterministic code moves the records and recovers from rate limits, timeouts, crashes and a mid-run API change; an independent verifier re-reads both systems (first batch, then everything) and gives the final status. Real models claimed SUCCESS on wrong data 7 times during the build; the verifier caught all 7.
+```
+
+**neatlogs: what did you trace, debug or improve?**
+```
+Traced: every migration run is one neatlogs trace: model calls with tokens and cost, each batch write, each retry, each state change, and the independent checker's verdict. Debugged: neatlogs' Investigate agent read our traces and raised 3 incidents; the Critical one was "agent SUCCESS, evaluator FAILED". Improved: its recommended step 4 became commit 286c728 (the checker re-reads the first batch). The same wrong plan now stops after 28 records and reports FAILED itself, instead of writing all 182 and claiming SUCCESS. A second incident led to commit d92588d. All 3 are Resolved. Timeline, before/after traces and what neatlogs got wrong: https://eartherai.github.io/zerodrop/evidence/
+```
+
+**Entire: how did you use it? Evidence links**
+```
+Checkpoints: checkpoint 01M4KEGN3Q174N063453HK5XC6 holds the start of the build session in git, secrets redacted; 41 later commits carry its Entire-Checkpoint trailer. Check: git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'. entire-graph, to assess risky changes before making them: entire graph impact on MigrationEngine._set_status showed 17 callers and 6 co-change files; we also ran it on the incident fix 286c728. Output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire . Limit: one checkpoint, covering the first part of the build.
+```
+Add the entire.io page link at the end only if it opens in a private window (section 4).
+
+**cfo.ai: how did it shape the business plan?**
+```
+cfo.ai holds the model: $499 per verified migration (failed runs are not billed), $36.77 to deliver, break-even March 2027. What it changed: 20% monthly growth for 21 months is a 46x increase, so we plan on the 10% case, which still breaks even in March 2027 and never drops below $35,213 from a $60,000 start. Public model: https://cfo.ai/s/VyrSUZBAxHyXEJfC
+```
 
 ## 2b. Discord post (showcase channel)
 
@@ -57,7 +76,7 @@ https://eartherai.github.io/zerodrop/evidence/
 
 How it works: the model writes the field mapping in a restricted language, deterministic code moves the records (rate limits, timeouts after a write landed, crashes, an API that changes version mid-run), and the checker re-reads both systems and gives the verdict. Since this morning it also re-reads the first batch, so a wrong mapping stops after 28 records instead of 182. That change came from an incident @neatlogs raised on our traces.
 
-Numbers, all in the repo with the bad passes included: 20 of 20 failure scenarios on a real model, three passes in a row; 18 of 18 on the model that made the mistakes; 3 neatlogs incidents raised, investigated, resolved.
+Numbers, all in the repo with the bad passes included: 20 of 20 scenarios on a real model in each of three full passes (a fourth was cut short by the free-tier quota after 8 of 8); 18 of 18 on the model that made the mistakes; 3 neatlogs incidents raised, investigated, resolved.
 
 🔗 Try the replay of real runs: https://eartherai.github.io/zerodrop/
 📋 Evidence, one page: https://eartherai.github.io/zerodrop/evidence/
@@ -75,7 +94,7 @@ and gives the verdict the agent cannot give itself.
 
 Try it: https://eartherai.github.io/zerodrop/
 Repo: https://github.com/Eartherai/zerodrop
-Demo video (2:37): https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
+Demo video (2:39): https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
 
 Press **Start migration** on "Everything goes wrong": the page replays a real run planned by
 Gemini (`gemini-3.5-flash-lite`, final code). The target answers 429 four times and the agent
@@ -88,16 +107,16 @@ record per entity had arrived, and the checker said FAILED.
 
 I built ZeroDrop solo for neatHack 2026. Each tool has one job. **neatlogs** traces every run
 (model calls with tokens and cost, tool calls, guardrails, recoveries, state changes, the
-verdict); its investigation agent raised three incidents on our traces, the critical one led
-to a code change the same morning, and all three are resolved. **Entire** keeps a checkpoint
-of the build session in git, and its code graph showed what a change would touch before it was
+verdict); its investigation agent raised three incidents on our traces, two of them led
+to code changes the same morning, and all three are resolved. **Entire** keeps one checkpoint
+from the start of the build session in git (later commits carry its id), and its code graph showed what a change would touch before it was
 made. **cfo.ai** turned the measured cost per migration into the plan: $499 per verified
 migration, about $37 to deliver, break-even March 2027 even with growth halved.
 
 What the numbers are: seven real false successes from real models, all caught by the checker;
-three causes fixed test first; then all 20 failure scenarios passing on a real model three
-times in a row, the last on the final code, where the model that made the mistakes also passes
-18 of 18. One pass per commit, sandbox systems, Gemini
+three causes fixed test first; then all 20 failure scenarios passing on a real model in three
+full passes, the last on the final code (one more pass was cut short by the free-tier quota
+after 8 of 8), where the model that made the mistakes also passes 18 of 18. One pass per commit, sandbox systems, Gemini
 models on the free tier ($4.06 at list price in total). No Claude run exists.
 
 Links

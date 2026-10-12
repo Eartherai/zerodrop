@@ -18,11 +18,20 @@ Built during neatHack 2026 by team Tokenmaxing. The dated build log, including w
 in [`hackathon.md`](hackathon.md). **Judging? Start with [`EVIDENCE.md`](EVIDENCE.md):** one
 page that maps each thing the rules ask for to a file, a run id or a trace.
 
+| Judging | Proof in one click |
+|---|---|
+| Agent works, recovers, improves | 20 of 20 failure scenarios on a real model in each of three full passes; 7 false successes, all caught: [EVIDENCE.md 7](EVIDENCE.md#7-does-the-agent-work-every-evaluation-including-the-bad-ones) |
+| neatlogs Incidents | 3 incidents raised on our traces, all resolved, two code changes: [EVIDENCE.md 1](EVIDENCE.md#1-neatlogs-incidents-identified-and-resolved) |
+| Entire | Checkpoint `01M4KEGN3Q174N063453HK5XC6` (`git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`); entire-graph output: [`evidence/entire/`](evidence/entire) |
+| cfo.ai | $499 per verified migration, $36.77 to deliver, break-even March 2027: https://cfo.ai/s/VyrSUZBAxHyXEJfC |
+| Video (2:39) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
+| Built in public | [`hackathon.md`](hackathon.md): dated log, including what failed; drafts and posts in [`posts/`](posts) |
+
 ![Replay of a real run: records move from LegacyBill to NovaBill through rate limits, a timeout and an API change, then the checker's verdict](evidence/video/dashboard-replay.gif)
 
 ![ZeroDrop dashboard during the chaos demo: rate-limit failures and recovery steps streaming](evidence/screenshots/01-s16-running.png)
 
-**Demo video (2:37):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)
+**Demo video (2:39):** [`evidence/video/zerodrop-demo.mp4`](evidence/video/zerodrop-demo.mp4)
 
 ## Why
 Every SaaS switch is a data migration, and migrations fail quietly: a batch dropped by a rate
@@ -67,6 +76,7 @@ prompt injection in the data.
 | `gemini-3.1-flash-lite`, pass 4 | `7b34f8c` | 10 of the 10 that ran before the daily quota ended | 0 |
 | **`gemini-3.5-flash-lite`, all 20 scenarios** | `1838455` | **20 of 20** | **0** |
 | **`gemini-3.5-flash-lite`, all 20 scenarios** | `6c07c9f` | **20 of 20** | **0** |
+| `gemini-3.5-flash-lite`, after fix 7 | `286c728` | 8 of the 8 that finished before the daily quota ended | 0 |
 | **`gemini-3.5-flash-lite`, all 20 scenarios, final code** | `d92588d` | **20 of 20** | **0** |
 | **`gemini-3.1-flash-lite`, final code** (the model that made the mistakes) | `d92588d` | **18 of 18** | **0** |
 
@@ -91,8 +101,9 @@ Docker:
 docker compose up --build
 # dashboard: http://127.0.0.1:8700   start "Demo - everything goes wrong"
 ```
-Local:
+Local (needs `uv` and Node):
 ```sh
+git clone https://github.com/Eartherai/zerodrop && cd zerodrop
 uv sync
 (cd ui && npm ci && npm run build)
 uv run zerodrop serve                              # dashboard on http://127.0.0.1:8700
@@ -100,7 +111,13 @@ uv run zerodrop run S16-demo-chaos --planner oracle   # one run in the terminal
 uv run zerodrop eval --planner oracle --label my-run  # all scenarios, results in evidence/eval/
 uv run pytest -q
 ```
-The oracle and naive planners need no keys and cost nothing. For a real model, copy
+See the checker overrule the agent (a deliberately wrong mapping, no keys, about 1 s each):
+```sh
+EARLY_CHECK=false uv run zerodrop run S01-clean --planner naive   # 182 records written, the agent claims SUCCESS, the verifier says FAILED
+uv run zerodrop run S01-clean --planner naive                     # first-batch check on: stops after 28 records and reports FAILED itself
+```
+The oracle planner (always the correct mapping) and the naive planner (a deliberately wrong one)
+need no keys and cost nothing. For a real model, copy
 `.env.example` to `.env`, set `ZERODROP_GEMINI_KEY` (and `NEATLOGS_API_KEY` for traces) and
 use `--planner gemini`: that is what every recorded run used. `--planner claude` with
 `ZERODROP_ANTHROPIC_KEY` goes through the same interface but was never run (no credit).
@@ -109,7 +126,7 @@ Each run is capped in code: 30 model calls, $1.50, 15 minutes.
 ## Sponsor tools
 **Neatlogs: the runtime record, and where incidents were raised and resolved.** Neatlogs'
 own investigation agent went through our traces and raised three incidents; the critical one
-("agent SUCCESS, evaluator FAILED") led to a code change and all three are resolved. Its AI
+("agent SUCCESS, evaluator FAILED") and one other led to code changes (`286c728`, `d92588d`) and all three are resolved. Its AI
 also suggested a false-success detector from our traces, which is now on. The whole story with
 what it got right and wrong: [`EVIDENCE.md`](EVIDENCE.md), section 1. Each run is one trace. The root WORKFLOW span carries the
 verdict (verifier status, the agent's own claim, false-success flag, checks, report hash).
