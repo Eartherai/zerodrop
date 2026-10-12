@@ -41,7 +41,7 @@ With @neatlogs: every run is one trace. Its Investigate agent raised 3 incidents
 https://eartherai.github.io/zerodrop/evidence/
 ```
 
-Reply 3 (266 characters; Entire; attach a screenshot of `entire verdict --models-only` in a terminal if you can):
+Reply 3 (266 characters; Entire; attach `evidence/screenshots/30-entire-verdict-plugin.png`):
 ```
 With @EntireHQ: entire graph impact listed the 17 callers of _set_status before we changed it. We also built an Entire CLI plugin, entire verdict: each commit's checkpoint next to what the checker measured there.
 https://github.com/Eartherai/zerodrop/tree/main/tools/entire-verdict
@@ -127,7 +127,7 @@ A real model had mapped every id to the same constant. An independent checker ca
 Replay of that run: https://eartherai.github.io/zerodrop/ #neatHack
 ```
 
-Post D, Entire (222 characters; no image needed):
+Post D, Entire (222 characters; attach `evidence/screenshots/30-entire-verdict-plugin.png`):
 ```
 How we used @EntireHQ: before changing how runs change state, entire graph impact listed 17 callers. The session and its checkpoint are public, and so is the incident fix as a commit page:
 https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7 #neatHack

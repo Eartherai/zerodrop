@@ -27,3 +27,4 @@
 | `26-neatlogs-incident-fix-in-coding-agent.png` | The incident's "Fix in" menu (Claude Code among the targets) | Oct 12 |
 | `27-neatlogs-investigation-report-issue-1.png` | Neatlogs' investigation report: issue 1, ten traces, five evidence traces | Oct 12 |
 | `28-neatlogs-incident-contract-loop-resolved.png`, `29-neatlogs-incident-halted-runs-resolved.png` | The two High incidents, resolved | Oct 12 |
+| `30-entire-verdict-plugin.png` | The Entire CLI plugin built here, `entire verdict`: each commit, its Entire checkpoint and what the checker measured there (rendered from the command output) | Oct 13 |
