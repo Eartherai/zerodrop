@@ -138,6 +138,11 @@
 - 19:25 IST: Evidence page now opens with a table per judging criterion, each with what it does not show. Stale counts in the checklist and video lengths corrected.
 - 19:37 IST: **Entire page is live.** The owner pushed `main` and the checkpoint ref to the Entire-hosted repository (a second remote; GitHub stays `origin`). https://entire.io/et/hackathone/hackathon opens without signing in and shows the commits and, under Sessions, the coding session with its one checkpoint. The checkpoint was scanned again for key-shaped strings before linking it: none. The link is now in the README, the evidence page, the dashboard header and the form answers.
 - 23:36 IST: Evidence page: the video now shows its title frame before it is played, not a black box. Nothing else changed before the form closed.
+- 23:35 IST (organisers, on Discord): the submission window is extended by seven hours, to about 06:55 IST on Oct 13.
+
+### 2026-10-13 (the extra hours)
+- 00:00 IST: Eighth cut of the video (2:41; the X cut is 2:20). A second research pass opened the leading entries' repositories and public pages; the changes are answers to what that and the audit found. In the run scene the replay is retimed and two narration sentences swapped, so that the rate limit, the API change and the timeout are each on screen while they are described. The fix scene has a three-step explanation where the frame was empty. The resolved-incidents board is larger and each incident carries how it was closed (two by a commit, one because the caps it asked for were already in code). The Entire scene adds the saved entire-graph output for the incident fix and the public page; the cfo.ai scene shows the public link. `SUBMISSION.md` has the new deadline, four replies (one per tool, one on what broke), four short posts ready to paste, and Entire links to the session and to the incident-fix commit page.
+- Entire, plainly: every commit so far was made from a session started one folder above the repository, so Entire's hooks did not record it; that is why there is one checkpoint. The remaining changes are being made in separate sessions started inside the repository, so each is recorded as its own checkpoint.
 
 #### Self-assessment at submission (my own judgment, 1 to 10; not a measurement)
 | Criterion | Weight | Score | Why | What would raise it |

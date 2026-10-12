@@ -1,35 +1,97 @@
 # Submission
 
-Submit between **Mon Oct 12, 19:00 and 23:55 IST** by quoting the official neatlogs post. The
-sponsors engage with the first 50 quote posts, so 19:00 sharp is worth it.
+The window was extended by seven hours (organisers' Discord notice, Oct 12, 23:35 IST): it now
+closes about **06:55 IST on Tue Oct 13**. Discord has the final say on the deadline. Both steps
+are mandatory: the quote post **and** the form at https://neatlogs.com/submission .
 
-## 1. The quote post (278 of 280 characters)
+## 1. The quote post (279 of 280 characters)
 
-Both steps are mandatory: this quote post **and** the submission form (links arrive at 19:00).
-The post must tag **@neatlogs, @EntireHQ and @arithecfo**; all three are in the text below.
-Attach `evidence/video/zerodrop-demo-x.mp4` (2:20; the full 2:39 cut is at the Demo link).
-If you change the name, keep the total at 280 or less.
+Use the form's **Quote on X** button so the right post is quoted (other teams quoted
+https://x.com/bettersayAJ/status/2109639214723932495 ; check it against the form's "View launch
+post" link). The text follows the form's template and tags **@neatlogs, @EntireHQ and
+@arithecfo**. Attach `evidence/video/zerodrop-demo-x.mp4` natively (2:20, the limit for standard
+accounts; the full 2:41 cut is on the site).
 
 ```
+Our #neatHack submission: ZeroDrop (Team Tokenmaxing, Khamir Desai)
+
 Our migration agent said SUCCESS on wrong data 7 times. A separate checker caught all 7. Now 20 of 20 on a real model.
 
-ZeroDrop · Team Tokenmaxing · Khamir Desai
-
-@neatlogs 3 incidents resolved · @EntireHQ · @arithecfo
+Built with @arithecfo @EntireHQ @neatlogs
 
 https://eartherai.github.io/zerodrop/
 https://github.com/Eartherai/zerodrop
-#neatHack
 ```
 
-## 2. Reply underneath (276 characters)
+## 2. Replies underneath, one per tool, then what broke
 
+Reply 1 (272 characters; attach `evidence/screenshots/22-neatlogs-incidents-board-three-resolved.png` and `19-neatlogs-after-early-check-stops-the-run.png`):
 ```
-@neatlogs: every run is a trace. Its investigation agent raised 3 incidents on our traces; all resolved, 2 with code changes.
-@EntireHQ: build checkpoint in git, entire-graph before changes.
-@arithecfo: $499 per verified migration, break-even Mar 2027.
+@neatlogs: every run is one trace. Its Investigate agent raised 3 incidents. The Critical one: agent SUCCESS, evaluator FAILED. Fix 286c728: the checker re-reads the first batch. Same wrong plan: 182 records and a false success, then stopped at 28.
 https://eartherai.github.io/zerodrop/evidence/
 ```
+
+Reply 2 (201 characters; no image needed; the link shows the commit page):
+```
+@EntireHQ: the build record. The incident fix as Entire shows it:
+https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7
+entire-graph before a risky change: 17 callers and 6 co-change files for _set_status. Output saved in the repo.
+```
+
+Reply 3 (203 characters; attach `evidence/screenshots/08-cfo-ai-monthly-forecast.png`):
+```
+@arithecfo: $499 per verified migration, $36.77 to deliver, failed runs not billed. Its hard verdict: halve growth to 10% a month and break-even is still March 2027, by only $215.
+https://cfo.ai/s/VyrSUZBAxHyXEJfC
+```
+
+Reply 4 (225 characters; attach `evidence/screenshots/12-real-model-false-success-caught.png`):
+```
+What broke: real models claimed SUCCESS on wrong data 7 times (one id for every record; yen written 100 times too large). The checker caught all 7. Every bad pass is in the repo, next to the good ones:
+https://github.com/Eartherai/zerodrop/blob/main/EVALUATION.md
+```
+
+## 2c. Build-in-public posts (15% of the score), ready to paste
+
+Post these as separate posts, spaced out, before or after the quote post. Longer threads with the
+same facts are in `posts/07`, `08` and `09`.
+
+Post A, cfo.ai (277 characters; attach `evidence/screenshots/08-cfo-ai-monthly-forecast.png`):
+```
+What does it cost to prove a migration lost nothing? We asked @arithecfo.
+
+$499 per verified migration, $36.77 to deliver. Failed runs are not billed.
+
+Its verdict: halve growth to 10% a month and break-even is still March 2027, by only $215.
+
+https://cfo.ai/s/VyrSUZBAxHyXEJfC #neatHack
+```
+
+Post B, the neatlogs incident (275 characters; attach `evidence/screenshots/18-neatlogs-before-false-success-flagged.png` and `19-neatlogs-after-early-check-stops-the-run.png`):
+```
+@neatlogs' Investigate agent raised 3 incidents on our traces. The Critical one: agent SUCCESS, evaluator FAILED.
+
+Fix 286c728: the checker re-reads the first batch.
+Same wrong plan, before: 182 records, false success. After: stopped at 28.
+
+https://eartherai.github.io/zerodrop/evidence/ #neatHack
+```
+
+Post C, the real false success (275 characters; attach `evidence/screenshots/12-real-model-false-success-caught.png`):
+```
+Our migration agent finished and said SUCCESS. The target had one record per entity instead of hundreds.
+
+A real model had mapped every id to the same constant. An independent checker caught it; the agent could not have.
+
+Replay of that run: https://eartherai.github.io/zerodrop/ #neatHack
+```
+
+Post D, Entire (232 characters; no image needed):
+```
+How we used @EntireHQ: before changing how runs change state, entire-graph showed 17 callers and 6 co-change files. The session and its checkpoint are public, with the incident fix as a commit page:
+https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7 #neatHack
+```
+
+After posting, send the links: they go into the README, the evidence page and the checklist.
 
 ## 2a. Submission form: answers ready to paste
 
@@ -45,7 +107,7 @@ Short fields:
 | Demo (live) | https://eartherai.github.io/zerodrop/ |
 | Demo video | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 |
 | Entire checkpoint ID | `01M4KEGN3Q174N063453HK5XC6` |
-| Entire link | https://entire.io/et/hackathone/hackathon (public, no sign-in: commits, and the session with its checkpoint under Sessions) |
+| Entire link | https://entire.io/et/hackathone/hackathon (public, no sign-in). Session: https://entire.io/et/hackathone/hackathon/session/3ca2e4c1-0518-40bc-86bb-a3d3f8786516 . The incident fix as a commit page: https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7 |
 | cfo.ai plan | https://cfo.ai/s/VyrSUZBAxHyXEJfC |
 | Where you live, founder or not, open to a call | yours to fill |
 
@@ -61,7 +123,7 @@ Traced: every migration run is one neatlogs trace: model calls with tokens and c
 
 **Entire: how did you use it? Evidence links**
 ```
-Checkpoints: checkpoint 01M4KEGN3Q174N063453HK5XC6 holds the start of the build session in git, secrets redacted; 41 later commits carry its Entire-Checkpoint trailer. Check: git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'. entire-graph, to assess risky changes before making them: entire graph impact on MigrationEngine._set_status showed 17 callers and 6 co-change files; we also ran it on the incident fix 286c728. Output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire . Public Entire page (commits, and the session with its checkpoint): https://entire.io/et/hackathone/hackathon . Limit: one checkpoint, covering the first part of the build.
+Checkpoints: checkpoint 01M4KEGN3Q174N063453HK5XC6 holds the start of the build session in git, secrets redacted; 41 later commits carry its Entire-Checkpoint trailer. Check: git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'. entire-graph, to assess risky changes before making them: entire graph impact on MigrationEngine._set_status showed 17 callers and 6 co-change files; we also ran it on the incident fix 286c728. Output: https://github.com/Eartherai/zerodrop/tree/main/evidence/entire . Public, no sign-in: the session https://entire.io/et/hackathone/hackathon/session/3ca2e4c1-0518-40bc-86bb-a3d3f8786516 and the incident fix as a commit page https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7 . Limit: one checkpoint, covering the first part of the build.
 ```
 
 **cfo.ai: how did it shape the business plan?**
@@ -94,7 +156,7 @@ and gives the verdict the agent cannot give itself.
 
 Try it: https://eartherai.github.io/zerodrop/
 Repo: https://github.com/Eartherai/zerodrop
-Demo video (2:39): https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
+Demo video (2:41): https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4
 
 Press **Start migration** on "Everything goes wrong": the page replays a real run planned by
 Gemini (`gemini-3.5-flash-lite`, final code). The target answers 429 four times and the agent
@@ -130,6 +192,5 @@ Links
 
 ## 4. Before you post
 - Open the Demo link once and press Start migration.
-- Entire page: done. https://entire.io/et/hackathone/hackathon opens without signing in (checked Oct 12, 19:36 IST). After any
-  later commit, run `git push entire main` so the page stays current.
-- Post at least one build-in-public post from `posts/` first (09, 07 or 08), tagged #neatHack.
+- After any later commit, run `git push entire main` so the Entire page stays current.
+- Post at least two of the build-in-public posts in section 2c.
