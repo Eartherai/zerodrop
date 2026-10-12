@@ -22,10 +22,9 @@ Repo: https://github.com/Eartherai/zerodrop
 #neatHack
 ```
 
-## 2. Reply underneath (290 characters)
+## 2. Reply underneath (271 characters)
 
 ```
-How each was used:
 @neatlogs: every run is a trace. Its Incidents board raised 3 incidents on our runs; all resolved, 1 with a code change.
 @EntireHQ: build checkpoint in git, entire-graph before changes.
 @arithecfo: $499 per verified migration, break-even Mar 2027.
