@@ -142,7 +142,9 @@ of traces with compared numbers is in [`EVIDENCE.md`](EVIDENCE.md). Code:
 **Entire: the build record.** Coding sessions are captured as checkpoints stored in git
 (`refs/entire/checkpoints/*`) with secret and personal-data redaction configured in
 `.entire/settings.json`. There is one checkpoint, covering the first part of the build;
-later commits point to it. Public page, no sign-in: https://entire.io/et/hackathone/hackathon
+later commits point to it. We also built a small Entire CLI plugin,
+[`entire verdict`](tools/entire-verdict), which joins each commit's checkpoint to what the checker
+measured at that commit. Public page, no sign-in: https://entire.io/et/hackathone/hackathon
 (the checkpoint is under Sessions; check the ref with
 `git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`). The **entire-graph**
 code graph is installed for coding agents (`.entire/graph-agent.md`) and was used to locate

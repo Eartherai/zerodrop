@@ -1,0 +1,265 @@
+#!/usr/bin/env python3
+"""entire-verdict: an Entire CLI plugin (run it as `entire verdict`).
+
+It joins two records a repository already keeps:
+
+- Entire's build record: the checkpoint (agent session) each commit came from, read from the
+  commit's `Entire-Checkpoint` trailer and from `refs/entire/checkpoints/*`;
+- saved evaluation results: JSON files in which every run records the commit it ran on.
+
+For the code at each commit it answers: which session produced it, and what did an independent
+check measure there?
+
+    entire verdict                      one row per commit that has results
+    entire verdict 286c728              every run recorded at that commit
+    entire verdict --models-only        only runs that used a model (skip scripted planners)
+    entire verdict --format md          a Markdown table, for a README or an evidence page
+    entire verdict --format json        machine-readable
+
+The defaults fit ZeroDrop's result files (`evidence/**/*.json`; keys `git_commit`,
+`matched_expectation`, `false_success_claim`); every path and key is an option, so it works on
+any repository whose result files record a commit. Python 3.10+, standard library only, no network.
+
+Install:  entire plugin install ./tools/entire-verdict/entire-verdict
+"""
+
+from __future__ import annotations
+
+import argparse
+import glob
+import json
+import re
+import subprocess
+import sys
+from collections import OrderedDict
+from pathlib import Path
+
+VERSION = "0.1.0"
+DEFAULT_RESULTS = ["evidence/**/*.json"]
+ENTIRE_REMOTE = re.compile(r"^entire://[^/]+/(?P<path>.+?)/?$")
+GITHUB_REMOTE = re.compile(r"github\.com[:/](?P<owner>[^/]+)/(?P<repo>[^/]+?)(?:\.git)?/?$")
+
+
+def git(repo: Path, *args: str) -> str:
+    """Run git and return stdout, or "" when the command fails (unknown commit, no remote)."""
+    done = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, check=False)
+    return done.stdout.strip() if done.returncode == 0 else ""
+
+
+def load_runs(repo: Path, patterns: list[str], commit_key: str) -> list[dict]:
+    """Every run record found in the result files, one per run id.
+
+    A file is either one run (an object that has the commit key) or a batch (an object with an
+    `outcomes` list of runs). Anything else is skipped.
+    """
+    seen: OrderedDict[str, dict] = OrderedDict()
+    for pattern in patterns:
+        for name in sorted(glob.glob(str(repo / pattern), recursive=True)):
+            try:
+                data = json.loads(Path(name).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if not isinstance(data, dict):
+                continue
+            records = data.get("outcomes") if isinstance(data.get("outcomes"), list) else [data]
+            for index, record in enumerate(records):
+                if not isinstance(record, dict) or not record.get(commit_key):
+                    continue
+                key = str(record.get("run_id") or f"{name}#{index}")
+                seen.setdefault(key, {**record, "_file": str(Path(name).relative_to(repo))})
+    return list(seen.values())
+
+
+def entire_base_url(repo: Path) -> str:
+    """The public Entire page for this repository, worked out from its git remotes."""
+    remotes = [line.split() for line in git(repo, "remote", "-v").splitlines()]
+    urls = [parts[1] for parts in remotes if len(parts) >= 2]
+    for url in urls:
+        match = ENTIRE_REMOTE.match(url)
+        if match:
+            return f"https://entire.io/{match['path']}"
+    for url in urls:
+        match = GITHUB_REMOTE.search(url)
+        if match:
+            return f"https://entire.io/gh/{match['owner']}/{match['repo']}"
+    return ""
+
+
+def recorded_checkpoints(repo: Path) -> set[str]:
+    refs = git(repo, "for-each-ref", "--format=%(refname)", "refs/entire/checkpoints")
+    return {ref.rsplit("/", 1)[-1] for ref in refs.splitlines() if ref}
+
+
+def commit_info(repo: Path, short: str) -> dict:
+    full = git(repo, "rev-parse", "--verify", "--quiet", f"{short}^{{commit}}")
+    if not full:
+        return {
+            "commit": short,
+            "sha": "",
+            "date": "",
+            "subject": "(commit not in this clone)",
+            "checkpoints": [],
+        }
+    line = git(repo, "log", "-1", "--format=%cI%x09%s", full)
+    date, _, subject = line.partition("\t")
+    trailers = git(repo, "log", "-1", "--format=%(trailers:key=Entire-Checkpoint,valueonly)", full)
+    return {
+        "commit": full[:7],
+        "sha": full,
+        "date": date,
+        "subject": subject,
+        "checkpoints": [value.strip() for value in trailers.splitlines() if value.strip()],
+    }
+
+
+def summarise(repo: Path, runs: list[dict], args: argparse.Namespace) -> list[dict]:
+    base = entire_base_url(repo)
+    recorded = recorded_checkpoints(repo)
+    groups: OrderedDict[str, list[dict]] = OrderedDict()
+    for run in runs:
+        if args.models_only and not run.get(args.model_key):
+            continue
+        groups.setdefault(str(run[args.commit_key]), []).append(run)
+    rows = []
+    for short, group in groups.items():
+        info = commit_info(repo, short)
+        models = sorted({str(run.get(args.model_key) or "scripted") for run in group})
+        rows.append(
+            {
+                **info,
+                "checkpoint_state": [
+                    "recorded" if checkpoint in recorded else "trailer only"
+                    for checkpoint in info["checkpoints"]
+                ],
+                "runs": len(group),
+                "passed": sum(1 for run in group if run.get(args.pass_key) is True),
+                "flagged": sum(1 for run in group if run.get(args.flag_key) is True),
+                "models": models,
+                "url": f"{base}/commit/{info['sha']}" if base and info["sha"] else "",
+                "details": [
+                    {
+                        "run": run.get("run_id", ""),
+                        "scenario": run.get("scenario_id", ""),
+                        "model": run.get(args.model_key) or "scripted",
+                        "status": run.get("status", ""),
+                        "claimed": run.get("agent_claimed_status", ""),
+                        "passed": run.get(args.pass_key),
+                        "flagged": run.get(args.flag_key),
+                        "file": run["_file"],
+                    }
+                    for run in group
+                ],
+            }
+        )
+    rows.sort(key=lambda row: row["date"] or "")
+    return rows
+
+
+def checkpoint_cell(row: dict) -> str:
+    if not row["checkpoints"]:
+        return "none"
+    return ", ".join(
+        f"{cp} ({state})" for cp, state in zip(row["checkpoints"], row["checkpoint_state"], strict=True)
+    )
+
+
+def render_table(rows: list[dict], flag_label: str, markdown: bool) -> str:
+    header = ["date", "commit", "Entire checkpoint", "runs", "passed", flag_label, "models", "Entire page"]
+    body = [
+        [
+            row["date"][:16].replace("T", " "),
+            row["commit"],
+            checkpoint_cell(row),
+            str(row["runs"]),
+            str(row["passed"]),
+            str(row["flagged"]),
+            ", ".join(row["models"]),
+            row["url"] or "-",
+        ]
+        for row in rows
+    ]
+    if markdown:
+        lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
+        lines += ["| " + " | ".join(cells) + " |" for cells in body]
+        return "\n".join(lines)
+    widths = [
+        max(len(header[i]), *(len(cells[i]) for cells in body)) if body else len(header[i])
+        for i in range(len(header))
+    ]
+    lines = ["  ".join(header[i].ljust(widths[i]) for i in range(len(header)))]
+    lines += ["  ".join(cells[i].ljust(widths[i]) for i in range(len(header))) for cells in body]
+    return "\n".join(line.rstrip() for line in lines)
+
+
+def render_commit(row: dict, flag_label: str) -> str:
+    lines = [
+        f"commit      {row['sha'] or row['commit']}  {row['date']}",
+        f"subject     {row['subject']}",
+        f"checkpoint  {checkpoint_cell(row)}",
+        f"Entire page {row['url'] or '-'}",
+        f"runs        {row['runs']}   passed {row['passed']}   {flag_label} {row['flagged']}",
+        "",
+    ]
+    for run in row["details"]:
+        mark = "FLAGGED" if run["flagged"] else ("ok" if run["passed"] else "not passed")
+        lines.append(
+            f"  {run['scenario']:<24} {run['model']:<24} agent {run['claimed'] or '-':<8} "
+            f"checker {run['status'] or '-':<16} {mark:<10} {run['file']}"
+        )
+    return "\n".join(lines)
+
+
+def parse(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="entire verdict",
+        description="For each commit: the Entire checkpoint it came from, and what the saved evaluation results say.",
+    )
+    parser.add_argument("commit", nargs="?", help="show every run recorded at this commit")
+    parser.add_argument("--repo", default=".", help="repository to read (default: current directory)")
+    parser.add_argument(
+        "--results", action="append", metavar="GLOB", help="result files, relative to the repo (repeatable)"
+    )
+    parser.add_argument("--commit-key", default="git_commit", help="field holding the commit a run ran on")
+    parser.add_argument(
+        "--pass-key", default="matched_expectation", help="boolean field: the run ended as expected"
+    )
+    parser.add_argument("--flag-key", default="false_success_claim", help="boolean field counted on its own")
+    parser.add_argument("--flag-label", default="false success", help="column title for the flag count")
+    parser.add_argument(
+        "--model-key", default="model", help="field naming the model; empty means a scripted run"
+    )
+    parser.add_argument("--models-only", action="store_true", help="only runs that used a model")
+    parser.add_argument("--format", choices=["table", "md", "json"], default="table")
+    parser.add_argument("--version", action="version", version=f"entire-verdict {VERSION}")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse(sys.argv[1:] if argv is None else argv)
+    top = git(Path(args.repo), "rev-parse", "--show-toplevel")
+    if not top:
+        print("entire verdict: not inside a git repository", file=sys.stderr)
+        return 2
+    repo = Path(top)
+    runs = load_runs(repo, args.results or DEFAULT_RESULTS, args.commit_key)
+    if not runs:
+        print(f"entire verdict: no result files with a '{args.commit_key}' field were found", file=sys.stderr)
+        return 1
+    rows = summarise(repo, runs, args)
+    if args.commit:
+        wanted = git(repo, "rev-parse", "--verify", "--quiet", f"{args.commit}^{{commit}}")
+        rows = [row for row in rows if wanted and row["sha"] == wanted]
+        if not rows:
+            print(f"entire verdict: no runs are recorded at {args.commit}", file=sys.stderr)
+            return 1
+    if args.format == "json":
+        print(json.dumps(rows, indent=1))
+    elif args.commit:
+        print(render_commit(rows[0], args.flag_label))
+    else:
+        print(render_table(rows, args.flag_label, markdown=args.format == "md"))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

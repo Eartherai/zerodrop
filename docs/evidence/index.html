@@ -400,6 +400,14 @@ so it is not the agent&#39;s failure rate.</p>
 <td>Secret and personal-data redaction configured in <code>.entire/settings.json</code></td>
 </tr>
 <tr>
+<td>Deep links, public</td>
+<td>The session: <a href="https://entire.io/et/hackathone/hackathon/session/3ca2e4c1-0518-40bc-86bb-a3d3f8786516">https://entire.io/et/hackathone/hackathon/session/3ca2e4c1-0518-40bc-86bb-a3d3f8786516</a> . The incident fix as a commit page: <a href="https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7">https://entire.io/et/hackathone/hackathon/commit/286c7286038c6558f82f89853b120a573ffd87e7</a></td>
+</tr>
+<tr>
+<td>An Entire CLI plugin, built here</td>
+<td><a href="https://github.com/Eartherai/zerodrop/blob/main/tools/entire-verdict"><code>tools/entire-verdict</code></a>: <code>entire verdict</code> joins each commit&#39;s Entire checkpoint to what the independent checker measured at that commit. Installed with <code>entire plugin install ./tools/entire-verdict/entire-verdict</code>; tested in <code>tests/test_entire_verdict_plugin.py</code>. Its output for this repository, <a href="https://github.com/Eartherai/zerodrop/blob/main/evidence/entire/verdict-by-commit.md"><code>evidence/entire/verdict-by-commit.md</code></a>, recomputes the seven false successes from the result files: five at <code>78d92da</code>, one at <code>e65cc45</code>, one at <code>933a7a9</code></td>
+</tr>
+<tr>
 <td>entire-graph installed</td>
 <td>Plugin v0.4.0; index of the repo; agent guide in <code>.entire/graph-agent.md</code>, loaded by <code>CLAUDE.md</code> and <code>AGENTS.md</code></td>
 </tr>
