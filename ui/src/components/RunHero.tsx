@@ -80,6 +80,14 @@ export function verdictOf(
         tone: "danger",
       };
     }
+    // The first-batch check stopped the run: the agent reported the failure itself.
+    if (model.events.some((e) => e.kind === "failure" && e.message.startsWith("early check"))) {
+      return {
+        headline: "Caught after the first batch. The agent stopped itself.",
+        detail: `${plural(moved, "record")} had been written when the checker re-read them and found they did not match the source. The agent halted and reported the failure itself; nothing else was written. ${checks}.`,
+        tone: "danger",
+      };
+    }
     return {
       headline: "The migration did not verify.",
       detail: `${checks}. The failed checks below say exactly what is missing or different.`,

@@ -19,7 +19,7 @@ planners (no model, no keys).
 | Sponsor tools (25%) | neatlogs: 3 incidents raised on our traces, all resolved, 2 code changes ([section 1](#1-neatlogs-incidents-identified-and-resolved)). Entire: public page https://entire.io/et/hackathone/hackathon , checkpoint `01M4KEGN3Q174N063453HK5XC6`, `git ls-remote https://github.com/Eartherai/zerodrop 'refs/entire/*'`, graph output in [`evidence/entire/`](evidence/entire). cfo.ai: https://cfo.ai/s/VyrSUZBAxHyXEJfC | One Entire checkpoint, covering the start of the build |
 | Video (20%) | https://eartherai.github.io/zerodrop/video/zerodrop-demo.mp4 (2:41) | Synthetic voice; the run shown is a recording of a real run |
 | Building in public (15%) | [`hackathon.md`](hackathon.md), dated, including what failed; commits from Oct 10, 15:38 IST: `git log --reverse --format='%ci %h %s'` | |
-| Usefulness (10%) | The verdict comes from a checker that shares no code with the agent | No real billing system migrated |
+| Usefulness (10%) | The verdict comes from a checker that imports nothing from the engine, the planner or the mapping language, only the shared data models and the tracing helper (enforced by `tests/test_verifier_independence.py`) | No real billing system migrated |
 
 Trace links have the form `https://app.neatlogs.com/traces/<trace id>`. They open for members
 of the Neatlogs project, so each one also has a screenshot in `evidence/screenshots/`
